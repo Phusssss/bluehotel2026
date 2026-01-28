@@ -1,0 +1,38 @@
+{
+  "title": "Rooms",
+  "viewMode": {
+    "table": "Table View",
+    "floor": "Floor Map View"
+  },
+  "filters": {
+    "status": "Status",
+    "statusAll": "All Statuses",
+    "roomType": "Room Type",
+    "roomTypeAll": "All Types",
+    "floor": "Floor",
+    "floorAll": "All Floors",
+    "search": "Search by room number",
+    "reset": "Reset Filters"
+  },
+  "status": {
+    "vacant": "Vacant",
+    "occupied": "Occupied",
+    "dirty": "Dirty",
+    "maintenance": "Maintenance",
+    "reserved": "Reserved"
+  },
+  "table": {
+    "roomNumber": "Room Number",
+    "roomType": "Room Type",
+    "floor": "Floor",
+    "status": "Status",
+    "notes": "Notes",
+    "actions": "Actions"
+  },
+  "floorMap": {
+    "floor": "Floor",
+    "roomCount": "rooms"
+  },
+  "noData": "No rooms found",
+  "loading": "Loading rooms..."
+}

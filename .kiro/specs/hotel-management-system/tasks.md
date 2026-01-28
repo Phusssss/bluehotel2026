@@ -240,18 +240,18 @@ This implementation plan breaks down the hotel management system into incrementa
     - Display today's departures sorted by checkout time
     - _Requirements: 7.1, 7.2, 7.3_
   
-  - [ ] 14.2 Implement guest/folio search
+  - [x] 14.2 Implement guest/folio search
     - Create search by name, room number, confirmation number
     - Display search results with reservation details
     - _Requirements: 7.4_
   
-  - [ ] 14.3 Implement check-in functionality
+  - [x] 14.3 Implement check-in functionality
     - Update reservation status to checked-in
     - Set checkedInAt timestamp
     - Update room status to occupied
     - _Requirements: 7.5_
   
-  - [ ] 14.4 Implement check-out functionality
+  - [x] 14.4 Implement check-out functionality
     - Display folio with all charges
     - Process payment and update folio balance
     - Update reservation status to checked-out
@@ -264,12 +264,12 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 7.5, 7.6, 7.7, 7.8**
 
 - [ ] 15. Rooms and Housekeeping Feature
-  - [ ] 15.1 Implement rooms list page
+  - [x] 15.1 Implement rooms list page
     - Display all rooms with status, type, floor
     - Implement filtering by status, type, floor
     - _Requirements: 8.1, 8.2_
   
-  - [ ] 15.2 Implement housekeeping board
+  - [x] 15.2 Implement housekeeping board
     - Display rooms requiring cleaning
     - Allow assigning tasks to staff
     - Update room status when task completed
@@ -396,7 +396,14 @@ This implementation plan breaks down the hotel management system into incrementa
     - Display uploaded logo in header
     - _Requirements: 14.7_
   
-  - [ ] 19.5 Write property tests for permissions and configuration
+  - [x] 19.5 Implement theme switcher
+    - Create ThemeContext and useTheme hook
+    - Implement light/dark theme toggle in header
+    - Persist theme preference to localStorage
+    - Apply Ant Design theme configuration
+    - _Requirements: 14.9, 14.10, 14.11_
+  
+  - [ ] 19.6 Write property tests for permissions and configuration
     - **Property 30: Permission-Based Feature Access**
     - **Property 31: Hotel Configuration Application**
     - **Validates: Requirements 13.3, 14.8**

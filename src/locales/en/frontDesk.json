@@ -3,7 +3,15 @@
   "tabs": {
     "arrivals": "Arrivals",
     "inHouse": "In-House",
-    "departures": "Departures"
+    "departures": "Departures",
+    "search": "Search"
+  },
+  "search": {
+    "placeholder": "Search by name, room number, or confirmation number",
+    "button": "Search",
+    "clear": "Clear",
+    "noResults": "No reservations found",
+    "resultsCount": "{{count}} result(s) found"
   },
   "arrivals": {
     "title": "Today's Arrivals",
@@ -41,6 +49,7 @@
     "checkInSuccess": "Guest checked in successfully",
     "checkInError": "Failed to check in guest",
     "checkOutSuccess": "Guest checked out successfully",
-    "checkOutError": "Failed to check out guest"
+    "checkOutError": "Failed to check out guest",
+    "searchError": "Failed to search reservations"
   }
 }

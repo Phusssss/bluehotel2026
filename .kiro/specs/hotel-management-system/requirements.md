@@ -229,6 +229,9 @@ This document specifies the requirements for a comprehensive hotel management sy
 6. THE System SHALL allow configuring invoice numbering format
 7. THE System SHALL allow uploading hotel logo and images
 8. WHEN hotel settings are updated, THE System SHALL apply them to all future transactions
+9. THE System SHALL allow users to select from multiple theme colors (blue, green, purple, red, orange, cyan)
+10. WHEN a user changes theme color, THE System SHALL persist the preference to localStorage and apply it immediately
+11. THE System SHALL load the user's saved theme color preference on application startup
 
 ### Requirement 15: Internationalization (i18n)
 

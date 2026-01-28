@@ -26,11 +26,15 @@ export interface UseFrontDeskResult {
   arrivals: ReservationWithDetails[];
   inHouse: ReservationWithDetails[];
   departures: ReservationWithDetails[];
+  searchResults: ReservationWithDetails[];
   loading: boolean;
+  searching: boolean;
   error: Error | null;
   refresh: () => Promise<void>;
   checkIn: (id: string) => Promise<void>;
   checkOut: (id: string) => Promise<void>;
+  search: (query: string) => Promise<void>;
+  clearSearch: () => void;
 }
 
 /**
@@ -43,7 +47,9 @@ export function useFrontDesk(): UseFrontDeskResult {
   const [arrivals, setArrivals] = useState<ReservationWithDetails[]>([]);
   const [inHouse, setInHouse] = useState<ReservationWithDetails[]>([]);
   const [departures, setDepartures] = useState<ReservationWithDetails[]>([]);
+  const [searchResults, setSearchResults] = useState<ReservationWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const { currentHotel } = useHotel();
   const { t } = useTranslation('frontDesk');
@@ -218,14 +224,104 @@ export function useFrontDesk(): UseFrontDeskResult {
     [refresh, t]
   );
 
+  /**
+   * Search for reservations by name, room number, or confirmation number
+   * Searches across all reservations and enriches results with details
+   * 
+   * @param query - Search query string
+   */
+  const search = useCallback(
+    async (query: string) => {
+      if (!currentHotel || !query.trim()) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        setSearching(true);
+        setError(null);
+
+        const searchQuery = query.trim().toLowerCase();
+
+        // Fetch all reservations for the hotel
+        const allReservations = await reservationService.getReservations(currentHotel.id);
+
+        // Fetch customers and rooms for matching
+        const [customers, rooms] = await Promise.all([
+          customerService.getCustomers(currentHotel.id),
+          roomService.getRooms(currentHotel.id),
+        ]);
+
+        // Create lookup maps
+        const customerMap = new Map<string, Customer>();
+        customers.forEach((c) => customerMap.set(c.id, c));
+
+        const roomMap = new Map<string, Room>();
+        rooms.forEach((r) => roomMap.set(r.id, r));
+
+        // Filter reservations based on search criteria
+        const matchedReservations = allReservations.filter((reservation) => {
+          // Search by confirmation number (case-insensitive)
+          if (reservation.confirmationNumber.toLowerCase().includes(searchQuery)) {
+            return true;
+          }
+
+          // Search by customer name
+          const customer = customerMap.get(reservation.customerId);
+          if (customer && customer.name.toLowerCase().includes(searchQuery)) {
+            return true;
+          }
+
+          // Search by room number
+          const room = roomMap.get(reservation.roomId);
+          if (room && room.roomNumber.toLowerCase().includes(searchQuery)) {
+            return true;
+          }
+
+          return false;
+        });
+
+        // Enrich matched reservations with details
+        const enrichedResults = await enrichReservations(matchedReservations);
+
+        // Sort by most recent first
+        enrichedResults.sort((a, b) => {
+          const timeA = a.createdAt?.toMillis() || 0;
+          const timeB = b.createdAt?.toMillis() || 0;
+          return timeB - timeA;
+        });
+
+        setSearchResults(enrichedResults);
+      } catch (err) {
+        const error = err as Error;
+        setError(error);
+        message.error(t('messages.searchError'));
+      } finally {
+        setSearching(false);
+      }
+    },
+    [currentHotel, t, enrichReservations]
+  );
+
+  /**
+   * Clear search results
+   */
+  const clearSearch = useCallback(() => {
+    setSearchResults([]);
+  }, []);
+
   return {
     arrivals,
     inHouse,
     departures,
+    searchResults,
     loading,
+    searching,
     error,
     refresh,
     checkIn,
     checkOut,
+    search,
+    clearSearch,
   };
 }

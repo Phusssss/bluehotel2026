@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { AuthProvider } from './contexts/AuthContext';
 import { HotelProvider } from './contexts/HotelContext';
+import { ThemeProvider, useTheme, themeColors } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HotelProtectedRoute } from './components/HotelProtectedRoute';
 import { MainLayout } from './components/MainLayout';
@@ -14,11 +15,25 @@ import { AddHotelPage } from './pages/AddHotelPage';
 import { SeedDataPage } from './pages/SeedDataPage';
 import { ReservationsPage } from './features/reservations/pages/ReservationsPage';
 import { FrontDeskPage } from './features/frontDesk/pages/FrontDeskPage';
+import { RoomsPage } from './features/rooms/pages/RoomsPage';
+import { HousekeepingBoard } from './features/rooms/components/HousekeepingBoard';
 import './locales';
 
-function App() {
+/**
+ * AppContent component with theme configuration
+ * Separated to access useTheme hook inside ThemeProvider
+ */
+function AppContent() {
+  const { color } = useTheme();
+
   return (
-    <ConfigProvider>
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: themeColors[color],
+        },
+      }}
+    >
       <BrowserRouter>
         <AuthProvider>
           <HotelProvider>
@@ -40,7 +55,8 @@ function App() {
                     <Route path="/dashboard" element={<DashboardPage />} />
                     <Route path="/reservations" element={<ReservationsPage />} />
                     <Route path="/front-desk" element={<FrontDeskPage />} />
-                    <Route path="/rooms" element={<div>Rooms (Coming Soon)</div>} />
+                    <Route path="/rooms" element={<RoomsPage />} />
+                    <Route path="/housekeeping" element={<HousekeepingBoard />} />
                     <Route path="/pricing" element={<div>Pricing (Coming Soon)</div>} />
                     <Route path="/customers" element={<div>Customers (Coming Soon)</div>} />
                     <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
@@ -62,6 +78,14 @@ function App() {
         </AuthProvider>
       </BrowserRouter>
     </ConfigProvider>
+  );
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 

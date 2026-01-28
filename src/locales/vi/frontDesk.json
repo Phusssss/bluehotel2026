@@ -3,7 +3,15 @@
   "tabs": {
     "arrivals": "Khách đến",
     "inHouse": "Đang lưu trú",
-    "departures": "Khách đi"
+    "departures": "Khách đi",
+    "search": "Tìm kiếm"
+  },
+  "search": {
+    "placeholder": "Tìm theo tên, số phòng hoặc mã xác nhận",
+    "button": "Tìm kiếm",
+    "clear": "Xóa",
+    "noResults": "Không tìm thấy đặt phòng",
+    "resultsCount": "Tìm thấy {{count}} kết quả"
   },
   "arrivals": {
     "title": "Khách đến hôm nay",
@@ -41,6 +49,7 @@
     "checkInSuccess": "Nhận phòng thành công",
     "checkInError": "Không thể nhận phòng",
     "checkOutSuccess": "Trả phòng thành công",
-    "checkOutError": "Không thể trả phòng"
+    "checkOutError": "Không thể trả phòng",
+    "searchError": "Không thể tìm kiếm đặt phòng"
   }
 }

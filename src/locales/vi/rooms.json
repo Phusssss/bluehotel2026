@@ -1,0 +1,38 @@
+{
+  "title": "Phòng",
+  "viewMode": {
+    "table": "Xem dạng bảng",
+    "floor": "Xem sơ đồ tầng"
+  },
+  "filters": {
+    "status": "Trạng thái",
+    "statusAll": "Tất cả trạng thái",
+    "roomType": "Loại phòng",
+    "roomTypeAll": "Tất cả loại",
+    "floor": "Tầng",
+    "floorAll": "Tất cả tầng",
+    "search": "Tìm theo số phòng",
+    "reset": "Đặt lại bộ lọc"
+  },
+  "status": {
+    "vacant": "Trống",
+    "occupied": "Đang ở",
+    "dirty": "Cần dọn",
+    "maintenance": "Bảo trì",
+    "reserved": "Đã đặt"
+  },
+  "table": {
+    "roomNumber": "Số phòng",
+    "roomType": "Loại phòng",
+    "floor": "Tầng",
+    "status": "Trạng thái",
+    "notes": "Ghi chú",
+    "actions": "Thao tác"
+  },
+  "floorMap": {
+    "floor": "Tầng",
+    "roomCount": "phòng"
+  },
+  "noData": "Không tìm thấy phòng",
+  "loading": "Đang tải danh sách phòng..."
+}

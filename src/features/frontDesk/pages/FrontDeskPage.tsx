@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Card, Tabs, Table, Button, Space, Tag, Empty } from 'antd';
-import { ReloadOutlined, LoginOutlined, LogoutOutlined, EyeOutlined } from '@ant-design/icons';
+import { Card, Tabs, Table, Button, Space, Tag, Empty, Input } from 'antd';
+import { ReloadOutlined, LoginOutlined, LogoutOutlined, EyeOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -33,10 +33,12 @@ const getStatusColor = (status: Reservation['status']) => {
 export function FrontDeskPage() {
   const { t } = useTranslation('frontDesk');
   const { t: tReservations } = useTranslation('reservations');
-  const { arrivals, inHouse, departures, loading, refresh, checkIn, checkOut } = useFrontDesk();
+  const { arrivals, inHouse, departures, searchResults, loading, searching, refresh, checkIn, checkOut, search, clearSearch } = useFrontDesk();
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('arrivals');
 
   // Detect mobile screen size
   useEffect(() => {
@@ -70,6 +72,34 @@ export function FrontDeskPage() {
    */
   const handleCheckOut = async (id: string) => {
     await checkOut(id);
+  };
+
+  /**
+   * Handle search submission
+   */
+  const handleSearch = async () => {
+    if (searchQuery.trim()) {
+      await search(searchQuery);
+      setActiveTab('search');
+    }
+  };
+
+  /**
+   * Handle search clear
+   */
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    clearSearch();
+    setActiveTab('arrivals');
+  };
+
+  /**
+   * Handle search input key press
+   */
+  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
   };
 
   /**
@@ -295,6 +325,83 @@ export function FrontDeskPage() {
     [t, isMobile, handleCheckOut]
   );
 
+  /**
+   * Table columns for Search Results tab
+   * Shows all matching reservations with full details
+   */
+  const searchColumns: ColumnsType<ReservationWithDetails> = useMemo(
+    () => [
+      {
+        title: t('table.confirmationNumber'),
+        dataIndex: 'confirmationNumber',
+        key: 'confirmationNumber',
+        width: 150,
+        render: (text: string) => <strong>{text}</strong>,
+      },
+      {
+        title: t('table.guestName'),
+        dataIndex: 'customerName',
+        key: 'customerName',
+        width: 200,
+      },
+      {
+        title: t('table.roomNumber'),
+        dataIndex: 'roomNumber',
+        key: 'roomNumber',
+        width: 100,
+        render: (text: string) => <Tag color="blue">{text}</Tag>,
+      },
+      {
+        title: t('table.roomType'),
+        dataIndex: 'roomTypeName',
+        key: 'roomTypeName',
+        width: 150,
+      },
+      {
+        title: t('table.checkInDate'),
+        dataIndex: 'checkInDate',
+        key: 'checkInDate',
+        width: 120,
+        render: (date: string) => dayjs(date).format('YYYY-MM-DD'),
+      },
+      {
+        title: t('table.checkOutDate'),
+        dataIndex: 'checkOutDate',
+        key: 'checkOutDate',
+        width: 120,
+        render: (date: string) => dayjs(date).format('YYYY-MM-DD'),
+      },
+      {
+        title: t('table.status'),
+        dataIndex: 'status',
+        key: 'status',
+        width: 120,
+        render: (status: Reservation['status']) => (
+          <Tag color={getStatusColor(status)}>{tReservations(`status.${status}`)}</Tag>
+        ),
+      },
+      {
+        title: t('table.actions'),
+        key: 'actions',
+        width: isMobile ? 100 : 150,
+        fixed: 'right',
+        render: (_, record) => (
+          <Space size="small">
+            <Button
+              type="link"
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={() => handleViewDetails(record)}
+            >
+              {!isMobile && t('actions.viewDetails')}
+            </Button>
+          </Space>
+        ),
+      },
+    ],
+    [t, tReservations, isMobile]
+  );
+
   return (
     <div style={{ padding: isMobile ? '0' : '24px' }}>
       <Card
@@ -305,8 +412,39 @@ export function FrontDeskPage() {
           </Button>
         }
       >
+        {/* Search Bar */}
+        <div style={{ marginBottom: 16 }}>
+          <Space.Compact style={{ width: '100%', maxWidth: 600 }}>
+            <Input
+              placeholder={t('search.placeholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
+              prefix={<SearchOutlined />}
+              allowClear
+            />
+            <Button
+              type="primary"
+              icon={<SearchOutlined />}
+              onClick={handleSearch}
+              loading={searching}
+            >
+              {!isMobile && t('search.button')}
+            </Button>
+            {searchResults.length > 0 && (
+              <Button
+                icon={<CloseOutlined />}
+                onClick={handleClearSearch}
+              >
+                {!isMobile && t('search.clear')}
+              </Button>
+            )}
+          </Space.Compact>
+        </div>
+
         <Tabs
-          defaultActiveKey="arrivals"
+          activeKey={activeTab}
+          onChange={setActiveTab}
           items={[
             {
               key: 'arrivals',
@@ -395,6 +533,38 @@ export function FrontDeskPage() {
                 </div>
               ),
             },
+            ...(searchResults.length > 0 ? [{
+              key: 'search',
+              label: `${t('tabs.search')} (${searchResults.length})`,
+              children: (
+                <div>
+                  <div style={{ marginBottom: 16 }}>
+                    <Tag color="blue">{t('search.resultsCount', { count: searchResults.length })}</Tag>
+                  </div>
+                  <Table
+                    columns={searchColumns}
+                    dataSource={searchResults}
+                    rowKey="id"
+                    loading={searching}
+                    scroll={{ x: isMobile ? 900 : 1200 }}
+                    pagination={{
+                      pageSize: isMobile ? 10 : 20,
+                      showSizeChanger: !isMobile,
+                      showTotal: (total) => !isMobile ? `Total ${total} results` : `${total}`,
+                      simple: isMobile,
+                    }}
+                    locale={{
+                      emptyText: (
+                        <Empty
+                          description={t('search.noResults')}
+                          image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        />
+                      ),
+                    }}
+                  />
+                </div>
+              ),
+            }] : []),
           ]}
         />
       </Card>

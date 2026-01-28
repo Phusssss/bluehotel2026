@@ -13,6 +13,8 @@ import enReservations from './en/reservations.json';
 import viReservations from './vi/reservations.json';
 import enFrontDesk from './en/frontDesk.json';
 import viFrontDesk from './vi/frontDesk.json';
+import enRooms from './en/rooms.json';
+import viRooms from './vi/rooms.json';
 
 const resources = {
   en: {
@@ -21,6 +23,7 @@ const resources = {
     dashboard: enDashboard,
     reservations: enReservations,
     frontDesk: enFrontDesk,
+    rooms: enRooms,
   },
   vi: {
     common: viCommon,
@@ -28,6 +31,7 @@ const resources = {
     dashboard: viDashboard,
     reservations: viReservations,
     frontDesk: viFrontDesk,
+    rooms: viRooms,
   },
 };
 
@@ -38,7 +42,7 @@ i18n
     resources,
     fallbackLng: 'en',
     defaultNS: 'common',
-    ns: ['common', 'sidebar', 'dashboard', 'reservations', 'frontDesk'],
+    ns: ['common', 'sidebar', 'dashboard', 'reservations', 'frontDesk', 'rooms'],
     interpolation: {
       escapeValue: false, // React already escapes
     },

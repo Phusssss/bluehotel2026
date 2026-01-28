@@ -16,10 +16,12 @@ import {
   LogoutOutlined,
   SwapOutlined,
   MenuOutlined,
+  ToolOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useHotel } from '../contexts/HotelContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { ThemeSwitcher } from './ThemeSwitcher';
 
 const { Header, Sider, Content } = Layout;
 
@@ -65,6 +67,11 @@ export function MainLayout() {
       key: '/rooms',
       icon: <HomeOutlined />,
       label: t('rooms'),
+    },
+    {
+      key: '/housekeeping',
+      icon: <ToolOutlined />,
+      label: t('housekeeping'),
     },
     {
       key: '/pricing',
@@ -214,6 +221,7 @@ export function MainLayout() {
             </div>
           </Space>
           <Space size={isMobile ? 'small' : 'middle'}>
+            <ThemeSwitcher />
             <LanguageSwitcher />
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <Space style={{ cursor: 'pointer' }}>

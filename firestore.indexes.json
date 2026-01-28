@@ -183,6 +183,20 @@
       ]
     },
     {
+      "collectionGroup": "housekeepingTasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "customers",
       "queryScope": "COLLECTION",
       "fields": [
@@ -238,6 +252,152 @@
         },
         {
           "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomTypeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "floor",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomTypeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "floor",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomTypeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "floor",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "rooms",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hotelId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomTypeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "floor",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "roomNumber",
           "order": "ASCENDING"
         }
       ]

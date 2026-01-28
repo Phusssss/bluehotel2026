@@ -415,6 +415,31 @@ export class ReservationService {
       throw new Error('Failed to fetch available rooms');
     }
   }
+
+  /**
+   * Search reservations by confirmation number
+   */
+  async searchByConfirmationNumber(
+    hotelId: string,
+    confirmationNumber: string
+  ): Promise<Reservation[]> {
+    try {
+      const q = query(
+        collection(db, this.collectionName),
+        where('hotelId', '==', hotelId),
+        where('confirmationNumber', '==', confirmationNumber.toUpperCase())
+      );
+
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Reservation[];
+    } catch (error) {
+      console.error('Error searching by confirmation number:', error);
+      throw new Error('Failed to search reservations');
+    }
+  }
 }
 
 // Export singleton instance
