@@ -1,0 +1,46 @@
+{
+  "title": "Front Desk",
+  "tabs": {
+    "arrivals": "Arrivals",
+    "inHouse": "In-House",
+    "departures": "Departures"
+  },
+  "arrivals": {
+    "title": "Today's Arrivals",
+    "noArrivals": "No arrivals for today",
+    "expectedTime": "Expected Check-in"
+  },
+  "inHouse": {
+    "title": "In-House Guests",
+    "noGuests": "No guests currently in-house",
+    "checkoutDate": "Checkout Date"
+  },
+  "departures": {
+    "title": "Today's Departures",
+    "noDepartures": "No departures for today",
+    "expectedTime": "Expected Checkout"
+  },
+  "table": {
+    "confirmationNumber": "Confirmation #",
+    "guestName": "Guest Name",
+    "roomNumber": "Room",
+    "roomType": "Room Type",
+    "checkInDate": "Check-in",
+    "checkOutDate": "Checkout",
+    "numberOfGuests": "Guests",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "actions": {
+    "checkIn": "Check In",
+    "checkOut": "Check Out",
+    "viewDetails": "View Details"
+  },
+  "messages": {
+    "loadError": "Failed to load data",
+    "checkInSuccess": "Guest checked in successfully",
+    "checkInError": "Failed to check in guest",
+    "checkOutSuccess": "Guest checked out successfully",
+    "checkOutError": "Failed to check out guest"
+  }
+}

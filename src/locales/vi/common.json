@@ -1,0 +1,64 @@
+{
+  "app": {
+    "title": "Hệ Thống Quản Lý Khách Sạn",
+    "loading": "Đang tải...",
+    "error": "Đã xảy ra lỗi",
+    "success": "Thành công"
+  },
+  "buttons": {
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "delete": "Xóa",
+    "edit": "Sửa",
+    "create": "Tạo mới",
+    "submit": "Gửi",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "continue": "Tiếp tục"
+  },
+  "validation": {
+    "required": "Trường này là bắt buộc",
+    "email": "Vui lòng nhập email hợp lệ",
+    "phone": "Vui lòng nhập số điện thoại hợp lệ"
+  },
+  "userInfo": {
+    "title": "Hoàn Thiện Hồ Sơ",
+    "welcome": "Chào mừng! Vui lòng cung cấp thông tin của bạn để bắt đầu.",
+    "fullName": "Họ và Tên",
+    "fullNamePlaceholder": "Nhập họ và tên của bạn",
+    "phone": "Số Điện Thoại",
+    "phonePlaceholder": "+84 123 456 789",
+    "address": "Địa Chỉ",
+    "addressPlaceholder": "Nhập địa chỉ của bạn",
+    "language": "Ngôn Ngữ Ưa Thích",
+    "timezone": "Múi Giờ",
+    "success": "Cập nhật hồ sơ thành công",
+    "error": "Cập nhật hồ sơ thất bại"
+  },
+  "addHotel": {
+    "title": "Thêm Khách Sạn",
+    "description": "Thêm thông tin khách sạn của bạn để bắt đầu quản lý.",
+    "hotelName": "Tên Khách Sạn",
+    "hotelNamePlaceholder": "Nhập tên khách sạn",
+    "address": "Địa Chỉ",
+    "addressPlaceholder": "Nhập địa chỉ khách sạn",
+    "phone": "Số Điện Thoại",
+    "email": "Email",
+    "emailPlaceholder": "hotel@example.com",
+    "checkInTime": "Giờ Nhận Phòng",
+    "checkOutTime": "Giờ Trả Phòng",
+    "taxRate": "Thuế (%)",
+    "currency": "Đơn Vị Tiền Tệ",
+    "currencyPlaceholder": "VND",
+    "addButton": "Thêm Khách Sạn",
+    "success": "Thêm khách sạn thành công",
+    "error": "Thêm khách sạn thất bại"
+  },
+  "selectHotel": {
+    "title": "Chọn Khách Sạn",
+    "noHotels": "Không tìm thấy khách sạn. Hãy thêm khách sạn đầu tiên của bạn!",
+    "addFirstHotel": "Thêm Khách Sạn Đầu Tiên",
+    "addAnother": "Thêm Khách Sạn Khác",
+    "select": "Chọn"
+  }
+}

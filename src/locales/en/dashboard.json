@@ -1,0 +1,19 @@
+{
+  "title": "Dashboard",
+  "occupancyToday": "Occupancy Today",
+  "occupancyThisWeek": "Occupancy This Week",
+  "revenueToday": "Revenue Today",
+  "revenueThisMonth": "Revenue This Month",
+  "checkInsToday": "Check-ins Today",
+  "checkOutsToday": "Check-outs Today",
+  "dirtyRooms": "Dirty Rooms",
+  "maintenanceRooms": "Rooms Under Maintenance",
+  "totalRooms": "Total Rooms",
+  "occupiedRooms": "Occupied Rooms",
+  "availableRooms": "Available Rooms",
+  "roomStatus": "Room Status",
+  "todayActivity": "Today's Activity",
+  "loading": "Loading dashboard metrics...",
+  "error": "Failed to load dashboard metrics",
+  "noData": "No data available"
+}

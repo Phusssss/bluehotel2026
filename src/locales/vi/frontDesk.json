@@ -1,0 +1,46 @@
+{
+  "title": "Lễ tân",
+  "tabs": {
+    "arrivals": "Khách đến",
+    "inHouse": "Đang lưu trú",
+    "departures": "Khách đi"
+  },
+  "arrivals": {
+    "title": "Khách đến hôm nay",
+    "noArrivals": "Không có khách đến hôm nay",
+    "expectedTime": "Giờ nhận phòng dự kiến"
+  },
+  "inHouse": {
+    "title": "Khách đang lưu trú",
+    "noGuests": "Không có khách đang lưu trú",
+    "checkoutDate": "Ngày trả phòng"
+  },
+  "departures": {
+    "title": "Khách đi hôm nay",
+    "noDepartures": "Không có khách đi hôm nay",
+    "expectedTime": "Giờ trả phòng dự kiến"
+  },
+  "table": {
+    "confirmationNumber": "Mã xác nhận",
+    "guestName": "Tên khách",
+    "roomNumber": "Phòng",
+    "roomType": "Loại phòng",
+    "checkInDate": "Nhận phòng",
+    "checkOutDate": "Trả phòng",
+    "numberOfGuests": "Số khách",
+    "status": "Trạng thái",
+    "actions": "Thao tác"
+  },
+  "actions": {
+    "checkIn": "Nhận phòng",
+    "checkOut": "Trả phòng",
+    "viewDetails": "Xem chi tiết"
+  },
+  "messages": {
+    "loadError": "Không thể tải dữ liệu",
+    "checkInSuccess": "Nhận phòng thành công",
+    "checkInError": "Không thể nhận phòng",
+    "checkOutSuccess": "Trả phòng thành công",
+    "checkOutError": "Không thể trả phòng"
+  }
+}

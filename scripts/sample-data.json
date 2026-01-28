@@ -1,0 +1,138 @@
+{
+  "roomTypes": [
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Standard Room",
+      "description": {
+        "en": "Comfortable standard room with basic amenities",
+        "vi": "Phòng tiêu chuẩn thoải mái với tiện nghi cơ bản"
+      },
+      "basePrice": 500000,
+      "capacity": 2,
+      "amenities": ["WiFi", "TV", "Air Conditioning", "Mini Bar"]
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Deluxe Room",
+      "description": {
+        "en": "Spacious deluxe room with premium amenities",
+        "vi": "Phòng deluxe rộng rãi với tiện nghi cao cấp"
+      },
+      "basePrice": 800000,
+      "capacity": 3,
+      "amenities": ["WiFi", "Smart TV", "Air Conditioning", "Mini Bar", "Bathtub", "City View"],
+      "weekdayPricing": {
+        "friday": 900000,
+        "saturday": 950000,
+        "sunday": 850000
+      }
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Suite Room",
+      "description": {
+        "en": "Luxurious suite with separate living area",
+        "vi": "Suite sang trọng với khu vực sinh hoạt riêng"
+      },
+      "basePrice": 1500000,
+      "capacity": 4,
+      "amenities": ["WiFi", "Smart TV", "Air Conditioning", "Mini Bar", "Jacuzzi", "Ocean View", "Living Room"],
+      "weekdayPricing": {
+        "friday": 1800000,
+        "saturday": 2000000,
+        "sunday": 1600000
+      },
+      "seasonalPricing": [
+        {
+          "startDate": "2026-06-01",
+          "endDate": "2026-08-31",
+          "price": 2200000
+        },
+        {
+          "startDate": "2026-12-20",
+          "endDate": "2027-01-05",
+          "price": 2500000
+        }
+      ]
+    }
+  ],
+  "customers": [
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Nguyễn Văn An",
+      "email": "nguyenvanan@example.com",
+      "phone": "0901234567",
+      "address": "123 Đường Lê Lợi, Quận 1, TP.HCM",
+      "nationality": "Vietnam",
+      "idNumber": "001234567890",
+      "preferences": "Phòng tầng cao, view đẹp"
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Trần Thị Bình",
+      "email": "tranthibinh@example.com",
+      "phone": "0912345678",
+      "address": "456 Đường Nguyễn Huệ, Quận 1, TP.HCM",
+      "nationality": "Vietnam",
+      "idNumber": "001234567891",
+      "preferences": "Không hút thuốc"
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Lê Minh Cường",
+      "email": "leminhcuong@example.com",
+      "phone": "0923456789",
+      "address": "789 Đường Trần Hưng Đạo, Quận 5, TP.HCM",
+      "nationality": "Vietnam",
+      "idNumber": "001234567892"
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Phạm Thu Dung",
+      "email": "phamthudung@example.com",
+      "phone": "0934567890",
+      "address": "321 Đường Võ Văn Tần, Quận 3, TP.HCM",
+      "nationality": "Vietnam",
+      "idNumber": "001234567893",
+      "preferences": "Giường đôi"
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "John Smith",
+      "email": "johnsmith@example.com",
+      "phone": "+1234567890",
+      "address": "123 Main Street, New York, USA",
+      "nationality": "USA",
+      "idNumber": "P123456789",
+      "preferences": "English speaking staff"
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Maria Garcia",
+      "email": "mariagarcia@example.com",
+      "phone": "+34123456789",
+      "address": "456 Calle Mayor, Madrid, Spain",
+      "nationality": "Spain",
+      "idNumber": "P987654321"
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Hoàng Văn Em",
+      "email": "hoangvanem@example.com",
+      "phone": "0945678901",
+      "address": "654 Đường Cách Mạng Tháng 8, Quận 10, TP.HCM",
+      "nationality": "Vietnam",
+      "idNumber": "001234567894"
+    },
+    {
+      "hotelId": "hqjikjkTipom9MMBFlxB",
+      "name": "Đỗ Thị Phương",
+      "email": "dothiphuong@example.com",
+      "phone": "0956789012",
+      "address": "987 Đường Hai Bà Trưng, Quận 3, TP.HCM",
+      "nationality": "Vietnam",
+      "idNumber": "001234567895",
+      "preferences": "Phòng yên tĩnh"
+    }
+  ]
+}

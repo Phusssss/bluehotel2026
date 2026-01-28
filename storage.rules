@@ -1,0 +1,28 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user has access to a hotel
+    function hasHotelAccess(hotelId) {
+      return isAuthenticated() && 
+             firestore.exists(/databases/(default)/documents/hotelUsers/$(request.auth.uid + '_' + hotelId));
+    }
+    
+    // Hotel logos and images - scoped by hotelId
+    match /hotels/{hotelId}/{allPaths=**} {
+      allow read: if isAuthenticated() && hasHotelAccess(hotelId);
+      allow write: if isAuthenticated() && hasHotelAccess(hotelId);
+    }
+    
+    // User profile images
+    match /users/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+  }
+}

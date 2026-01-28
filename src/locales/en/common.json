@@ -1,0 +1,65 @@
+{
+  "app": {
+    "title": "Hotel Management System",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "continue": "Continue"
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email",
+    "phone": "Please enter a valid phone number"
+  },
+  "userInfo": {
+    "title": "Complete Your Profile",
+    "welcome": "Welcome! Please provide your information to get started.",
+    "fullName": "Full Name",
+    "fullNamePlaceholder": "Enter your full name",
+    "phone": "Phone Number",
+    "phonePlaceholder": "+84 123 456 789",
+    "address": "Address",
+    "addressPlaceholder": "Enter your address",
+    "language": "Preferred Language",
+    "timezone": "Timezone",
+    "success": "Profile updated successfully",
+    "error": "Failed to update profile"
+  },
+  "addHotel": {
+    "title": "Add Your Hotel",
+    "description": "Add your hotel information to start managing your property.",
+    "hotelName": "Hotel Name",
+    "hotelNamePlaceholder": "Enter hotel name",
+    "address": "Address",
+    "addressPlaceholder": "Enter hotel address",
+    "phone": "Phone Number",
+    "email": "Email",
+    "emailPlaceholder": "hotel@example.com",
+    "checkInTime": "Check-in Time",
+    "checkOutTime": "Check-out Time",
+    "taxRate": "Tax Rate (%)",
+    "currency": "Currency",
+    "currencyPlaceholder": "VND",
+    "addButton": "Add Hotel",
+    "success": "Hotel added successfully",
+    "error": "Failed to add hotel"
+  },
+  "selectHotel": {
+    "title": "Select Hotel",
+    "noHotels": "No hotels found. Let's add your first hotel!",
+    "addFirstHotel": "Add Your First Hotel",
+    "addAnother": "Add Another Hotel",
+    "select": "Select"
+  }
+}
+

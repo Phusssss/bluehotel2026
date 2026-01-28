@@ -1,0 +1,19 @@
+{
+  "title": "Tổng quan",
+  "occupancyToday": "Công suất hôm nay",
+  "occupancyThisWeek": "Công suất tuần này",
+  "revenueToday": "Doanh thu hôm nay",
+  "revenueThisMonth": "Doanh thu tháng này",
+  "checkInsToday": "Nhận phòng hôm nay",
+  "checkOutsToday": "Trả phòng hôm nay",
+  "dirtyRooms": "Phòng cần dọn",
+  "maintenanceRooms": "Phòng bảo trì",
+  "totalRooms": "Tổng số phòng",
+  "occupiedRooms": "Phòng đang sử dụng",
+  "availableRooms": "Phòng trống",
+  "roomStatus": "Tình trạng phòng",
+  "todayActivity": "Hoạt động hôm nay",
+  "loading": "Đang tải dữ liệu...",
+  "error": "Không thể tải dữ liệu tổng quan",
+  "noData": "Không có dữ liệu"
+}

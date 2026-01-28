@@ -1,0 +1,11 @@
+{
+  "dashboard": "Dashboard",
+  "reservations": "Reservations",
+  "frontDesk": "Front Desk",
+  "rooms": "Rooms",
+  "pricing": "Pricing",
+  "customers": "Customers",
+  "reports": "Reports",
+  "settings": "Settings",
+  "admin": "Admin"
+}
