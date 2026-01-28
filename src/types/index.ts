@@ -272,3 +272,8 @@ export type CreateCustomerInput = Omit<Customer, 'id' | 'createdAt' | 'updatedAt
  * Input data for creating a room type
  */
 export type CreateRoomTypeInput = Omit<RoomType, 'id' | 'createdAt' | 'updatedAt'>;
+
+/**
+ * Input data for creating a maintenance ticket
+ */
+export type CreateMaintenanceTicketInput = Omit<MaintenanceTicket, 'id' | 'createdAt' | 'resolvedAt'>;

@@ -1,0 +1,67 @@
+{
+  "title": "Pricing & Room Types",
+  "roomTypes": {
+    "title": "Room Types",
+    "create": "Create Room Type",
+    "edit": "Edit Room Type",
+    "delete": "Delete Room Type",
+    "deleteConfirm": "Are you sure you want to delete this room type?",
+    "deleteError": "Cannot delete room type that is assigned to rooms",
+    "name": "Room Type Name",
+    "namePlaceholder": "Enter room type name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter room type description",
+    "basePrice": "Base Price",
+    "basePricePlaceholder": "Enter base price",
+    "capacity": "Capacity",
+    "capacityPlaceholder": "Maximum guests",
+    "amenities": "Amenities",
+    "amenitiesPlaceholder": "Enter amenities (comma separated)",
+    "weekdayPricing": "Weekday Pricing",
+    "seasonalPricing": "Seasonal Pricing",
+    "addSeasonalPricing": "Add Seasonal Pricing",
+    "removeSeasonalPricing": "Remove",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "price": "Price",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "success": {
+      "created": "Room type created successfully",
+      "updated": "Room type updated successfully",
+      "deleted": "Room type deleted successfully"
+    },
+    "errors": {
+      "createFailed": "Failed to create room type",
+      "updateFailed": "Failed to update room type",
+      "deleteFailed": "Failed to delete room type",
+      "loadFailed": "Failed to load room types",
+      "seasonalOverlap": "Seasonal pricing periods cannot overlap",
+      "invalidDateRange": "End date must be after start date"
+    },
+    "validation": {
+      "nameRequired": "Room type name is required",
+      "basePriceRequired": "Base price is required",
+      "basePriceMin": "Base price must be greater than 0",
+      "capacityRequired": "Capacity is required",
+      "capacityMin": "Capacity must be at least 1",
+      "startDateRequired": "Start date is required",
+      "endDateRequired": "End date is required",
+      "priceRequired": "Price is required",
+      "priceMin": "Price must be greater than 0"
+    }
+  },
+  "columns": {
+    "name": "Name",
+    "description": "Description",
+    "basePrice": "Base Price",
+    "capacity": "Capacity",
+    "amenities": "Amenities",
+    "actions": "Actions"
+  }
+}

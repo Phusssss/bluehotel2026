@@ -81,8 +81,11 @@ export class RoomTypeService {
 
       const now = Timestamp.now();
 
+      // Clean the data to remove undefined values
+      const cleanData = this.cleanRoomTypeData(data);
+
       const roomTypeData = {
-        ...data,
+        ...cleanData,
         createdAt: now,
         updatedAt: now,
       };

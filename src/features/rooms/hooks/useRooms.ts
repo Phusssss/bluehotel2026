@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { roomService, RoomFilters } from '../../../services/roomService';
 import { roomTypeService } from '../../../services/roomTypeService';
-import type { Room, RoomType } from '../../../types';
+import type { Room, RoomType, CreateRoomInput } from '../../../types';
 import { useHotel } from '../../../contexts/HotelContext';
 
 /**
@@ -101,6 +101,66 @@ export function useRooms(initialFilters?: RoomFilters) {
     return Array.from(floors).sort((a, b) => a - b);
   }, [rooms]);
 
+  /**
+   * Create a new room
+   */
+  const createRoom = useCallback(
+    async (data: CreateRoomInput) => {
+      if (!currentHotel) {
+        throw new Error('No hotel selected');
+      }
+
+      try {
+        await roomService.createRoom(data);
+        await fetchRooms();
+      } catch (err) {
+        console.error('Error creating room:', err);
+        throw err;
+      }
+    },
+    [currentHotel, fetchRooms]
+  );
+
+  /**
+   * Update an existing room
+   */
+  const updateRoom = useCallback(
+    async (roomId: string, data: Partial<Room>) => {
+      if (!currentHotel) {
+        throw new Error('No hotel selected');
+      }
+
+      try {
+        await roomService.updateRoom(roomId, data);
+        await fetchRooms();
+      } catch (err) {
+        console.error('Error updating room:', err);
+        throw err;
+      }
+    },
+    [currentHotel, fetchRooms]
+  );
+
+  /**
+   * Delete a room
+   */
+  const deleteRoom = useCallback(
+    async (roomId: string) => {
+      if (!currentHotel) {
+        throw new Error('No hotel selected');
+      }
+
+      try {
+        await roomService.deleteRoom(roomId);
+        await fetchRooms();
+      } catch (err) {
+        console.error('Error deleting room:', err);
+        throw err;
+      }
+    },
+    [currentHotel, fetchRooms]
+  );
+
   // Fetch rooms when filters or hotel changes
   useEffect(() => {
     fetchRooms();
@@ -122,6 +182,9 @@ export function useRooms(initialFilters?: RoomFilters) {
     getRoomTypeName,
     updateRoomStatus,
     getUniqueFloors,
+    createRoom,
+    updateRoom,
+    deleteRoom,
     refresh: fetchRooms,
   };
 }

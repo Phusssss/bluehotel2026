@@ -34,5 +34,189 @@
     "roomCount": "phòng"
   },
   "noData": "Không tìm thấy phòng",
-  "loading": "Đang tải danh sách phòng..."
+  "loading": "Đang tải danh sách phòng...",
+  "crud": {
+    "actions": {
+      "create": "Thêm Phòng",
+      "edit": "Sửa",
+      "delete": "Xóa"
+    },
+    "modal": {
+      "createTitle": "Thêm Phòng Mới",
+      "editTitle": "Sửa Thông Tin Phòng",
+      "deleteTitle": "Xóa Phòng",
+      "deleteMessage": "Bạn có chắc chắn muốn xóa phòng {{roomNumber}}?",
+      "deleteWarning": "Hành động này không thể hoàn tác. Phòng sẽ bị xóa vĩnh viễn khỏi hệ thống.",
+      "deleteConfirm": "Xóa Phòng"
+    },
+    "form": {
+      "roomNumber": "Số Phòng",
+      "roomNumberPlaceholder": "Nhập số phòng (ví dụ: 101, A-201)",
+      "roomNumberRequired": "Vui lòng nhập số phòng",
+      "roomNumberMaxLength": "Số phòng không được vượt quá 20 ký tự",
+      "roomNumberPattern": "Số phòng chỉ được chứa chữ cái, số và dấu gạch ngang",
+      "roomType": "Loại Phòng",
+      "roomTypePlaceholder": "Chọn loại phòng",
+      "roomTypeRequired": "Vui lòng chọn loại phòng",
+      "floor": "Tầng",
+      "floorPlaceholder": "Nhập số tầng",
+      "floorRequired": "Vui lòng nhập số tầng",
+      "floorRange": "Tầng phải từ -5 đến 100",
+      "notes": "Ghi Chú",
+      "notesPlaceholder": "Ghi chú tùy chọn về phòng",
+      "notesMaxLength": "Ghi chú không được vượt quá 500 ký tự",
+      "cancel": "Hủy",
+      "create": "Thêm Phòng",
+      "update": "Cập Nhật Phòng"
+    },
+    "messages": {
+      "createSuccess": "Tạo phòng thành công",
+      "createError": "Không thể tạo phòng",
+      "updateSuccess": "Cập nhật phòng thành công",
+      "updateError": "Không thể cập nhật phòng",
+      "deleteSuccess": "Xóa phòng thành công",
+      "deleteError": "Không thể xóa phòng"
+    },
+    "errors": {
+      "noHotel": "Chưa chọn khách sạn",
+      "noRoom": "Chưa chọn phòng",
+      "roomNotFound": "Không tìm thấy phòng",
+      "roomNumberExists": "Đã tồn tại phòng với số này",
+      "hasActiveReservations": "Không thể xóa phòng có đặt phòng đang hoạt động"
+    }
+  },
+  "housekeeping": {
+    "title": "Bảng Dọn Phòng",
+    "filters": {
+      "taskStatus": "Trạng thái công việc",
+      "taskStatusAll": "Tất cả trạng thái",
+      "taskType": "Loại công việc",
+      "taskTypeAll": "Tất cả loại",
+      "priority": "Độ ưu tiên",
+      "priorityAll": "Tất cả mức độ",
+      "assignedTo": "Phân công cho",
+      "assignedToAll": "Tất cả nhân viên"
+    },
+    "taskStatus": {
+      "pending": "Chờ xử lý",
+      "in-progress": "Đang thực hiện",
+      "completed": "Hoàn thành"
+    },
+    "taskType": {
+      "clean": "Dọn phòng",
+      "deep-clean": "Dọn sâu",
+      "turndown": "Chuẩn bị buổi tối",
+      "inspection": "Kiểm tra"
+    },
+    "priority": {
+      "low": "Thấp",
+      "normal": "Bình thường",
+      "high": "Cao",
+      "urgent": "Khẩn cấp"
+    },
+    "table": {
+      "room": "Phòng",
+      "taskType": "Loại công việc",
+      "priority": "Độ ưu tiên",
+      "status": "Trạng thái",
+      "assignedTo": "Phân công cho",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác"
+    },
+    "actions": {
+      "assign": "Phân công",
+      "complete": "Hoàn thành",
+      "unassigned": "Chưa phân công"
+    },
+    "modal": {
+      "assignTitle": "Phân công công việc",
+      "selectStaff": "Chọn nhân viên",
+      "confirm": "Phân công",
+      "cancel": "Hủy"
+    },
+    "messages": {
+      "assignSuccess": "Phân công công việc thành công",
+      "assignError": "Không thể phân công công việc",
+      "completeSuccess": "Hoàn thành công việc thành công",
+      "completeError": "Không thể hoàn thành công việc",
+      "loadError": "Không thể tải danh sách công việc dọn phòng"
+    },
+    "noTasks": "Không có công việc dọn phòng nào",
+    "loadingTasks": "Đang tải danh sách công việc..."
+  },
+  "maintenance": {
+    "title": "Bảng Bảo Trì",
+    "filters": {
+      "status": "Trạng thái",
+      "statusAll": "Tất cả trạng thái",
+      "priority": "Độ ưu tiên",
+      "priorityAll": "Tất cả mức độ",
+      "room": "Phòng",
+      "roomAll": "Tất cả phòng",
+      "assignedTo": "Phân công cho"
+    },
+    "ticketStatus": {
+      "open": "Mở",
+      "in-progress": "Đang thực hiện",
+      "resolved": "Đã giải quyết",
+      "closed": "Đã đóng"
+    },
+    "priority": {
+      "low": "Thấp",
+      "normal": "Bình thường",
+      "high": "Cao",
+      "urgent": "Khẩn cấp"
+    },
+    "table": {
+      "room": "Phòng",
+      "issue": "Vấn đề",
+      "priority": "Độ ưu tiên",
+      "status": "Trạng thái",
+      "assignedTo": "Phân công cho",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác"
+    },
+    "actions": {
+      "create": "Tạo phiếu",
+      "assign": "Phân công",
+      "resolve": "Giải quyết",
+      "close": "Đóng",
+      "unassigned": "Chưa phân công"
+    },
+    "modal": {
+      "createTitle": "Tạo phiếu bảo trì",
+      "assignTitle": "Phân công phiếu",
+      "create": "Tạo",
+      "assign": "Phân công",
+      "cancel": "Hủy",
+      "assigneePlaceholder": "Nhập tên hoặc ID người được phân công"
+    },
+    "form": {
+      "room": "Phòng",
+      "roomPlaceholder": "Chọn phòng",
+      "roomRequired": "Vui lòng chọn phòng",
+      "issue": "Vấn đề",
+      "issuePlaceholder": "Mô tả ngắn gọn về vấn đề",
+      "issueRequired": "Vui lòng nhập vấn đề",
+      "description": "Mô tả",
+      "descriptionPlaceholder": "Mô tả chi tiết về vấn đề bảo trì",
+      "descriptionRequired": "Vui lòng nhập mô tả",
+      "priority": "Độ ưu tiên",
+      "assignedTo": "Phân công cho",
+      "assignedToPlaceholder": "Nhân viên hoặc nhà thầu"
+    },
+    "messages": {
+      "createSuccess": "Tạo phiếu bảo trì thành công",
+      "createError": "Không thể tạo phiếu bảo trì",
+      "assignSuccess": "Phân công phiếu thành công",
+      "assignError": "Không thể phân công phiếu",
+      "resolveSuccess": "Giải quyết phiếu thành công",
+      "resolveError": "Không thể giải quyết phiếu",
+      "closeSuccess": "Đóng phiếu thành công",
+      "closeError": "Không thể đóng phiếu",
+      "loadError": "Không thể tải danh sách phiếu bảo trì"
+    },
+    "noTickets": "Không có phiếu bảo trì nào",
+    "loadingTickets": "Đang tải danh sách phiếu..."
+  }
 }

@@ -21,6 +21,14 @@
     "email": "Please enter a valid email",
     "phone": "Please enter a valid phone number"
   },
+  "common": {
+    "refresh": "Refresh",
+    "of": "of",
+    "items": "items"
+  },
+  "filters": {
+    "reset": "Reset Filters"
+  },
   "userInfo": {
     "title": "Complete Your Profile",
     "welcome": "Welcome! Please provide your information to get started.",

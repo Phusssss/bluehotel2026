@@ -1,0 +1,67 @@
+{
+  "title": "Giá & Loại Phòng",
+  "roomTypes": {
+    "title": "Loại Phòng",
+    "create": "Tạo Loại Phòng",
+    "edit": "Sửa Loại Phòng",
+    "delete": "Xóa Loại Phòng",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa loại phòng này?",
+    "deleteError": "Không thể xóa loại phòng đang được gán cho phòng",
+    "name": "Tên Loại Phòng",
+    "namePlaceholder": "Nhập tên loại phòng",
+    "description": "Mô Tả",
+    "descriptionPlaceholder": "Nhập mô tả loại phòng",
+    "basePrice": "Giá Cơ Bản",
+    "basePricePlaceholder": "Nhập giá cơ bản",
+    "capacity": "Sức Chứa",
+    "capacityPlaceholder": "Số khách tối đa",
+    "amenities": "Tiện Nghi",
+    "amenitiesPlaceholder": "Nhập tiện nghi (cách nhau bằng dấu phẩy)",
+    "weekdayPricing": "Giá Theo Ngày",
+    "seasonalPricing": "Giá Theo Mùa",
+    "addSeasonalPricing": "Thêm Giá Theo Mùa",
+    "removeSeasonalPricing": "Xóa",
+    "startDate": "Ngày Bắt Đầu",
+    "endDate": "Ngày Kết Thúc",
+    "price": "Giá",
+    "monday": "Thứ Hai",
+    "tuesday": "Thứ Ba",
+    "wednesday": "Thứ Tư",
+    "thursday": "Thứ Năm",
+    "friday": "Thứ Sáu",
+    "saturday": "Thứ Bảy",
+    "sunday": "Chủ Nhật",
+    "success": {
+      "created": "Tạo loại phòng thành công",
+      "updated": "Cập nhật loại phòng thành công",
+      "deleted": "Xóa loại phòng thành công"
+    },
+    "errors": {
+      "createFailed": "Tạo loại phòng thất bại",
+      "updateFailed": "Cập nhật loại phòng thất bại",
+      "deleteFailed": "Xóa loại phòng thất bại",
+      "loadFailed": "Tải danh sách loại phòng thất bại",
+      "seasonalOverlap": "Các khoảng thời gian giá theo mùa không được trùng lặp",
+      "invalidDateRange": "Ngày kết thúc phải sau ngày bắt đầu"
+    },
+    "validation": {
+      "nameRequired": "Tên loại phòng là bắt buộc",
+      "basePriceRequired": "Giá cơ bản là bắt buộc",
+      "basePriceMin": "Giá cơ bản phải lớn hơn 0",
+      "capacityRequired": "Sức chứa là bắt buộc",
+      "capacityMin": "Sức chứa phải ít nhất là 1",
+      "startDateRequired": "Ngày bắt đầu là bắt buộc",
+      "endDateRequired": "Ngày kết thúc là bắt buộc",
+      "priceRequired": "Giá là bắt buộc",
+      "priceMin": "Giá phải lớn hơn 0"
+    }
+  },
+  "columns": {
+    "name": "Tên",
+    "description": "Mô Tả",
+    "basePrice": "Giá Cơ Bản",
+    "capacity": "Sức Chứa",
+    "amenities": "Tiện Nghi",
+    "actions": "Thao Tác"
+  }
+}

@@ -17,6 +17,7 @@ import { ReservationsPage } from './features/reservations/pages/ReservationsPage
 import { FrontDeskPage } from './features/frontDesk/pages/FrontDeskPage';
 import { RoomsPage } from './features/rooms/pages/RoomsPage';
 import { HousekeepingBoard } from './features/rooms/components/HousekeepingBoard';
+import { PricingPage } from './features/pricing/pages/PricingPage';
 import './locales';
 
 /**
@@ -57,7 +58,7 @@ function AppContent() {
                     <Route path="/front-desk" element={<FrontDeskPage />} />
                     <Route path="/rooms" element={<RoomsPage />} />
                     <Route path="/housekeeping" element={<HousekeepingBoard />} />
-                    <Route path="/pricing" element={<div>Pricing (Coming Soon)</div>} />
+                    <Route path="/pricing" element={<PricingPage />} />
                     <Route path="/customers" element={<div>Customers (Coming Soon)</div>} />
                     <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
                     <Route path="/settings" element={<div>Settings (Coming Soon)</div>} />

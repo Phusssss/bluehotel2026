@@ -34,5 +34,189 @@
     "roomCount": "rooms"
   },
   "noData": "No rooms found",
-  "loading": "Loading rooms..."
+  "loading": "Loading rooms...",
+  "crud": {
+    "actions": {
+      "create": "Add Room",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "modal": {
+      "createTitle": "Add New Room",
+      "editTitle": "Edit Room",
+      "deleteTitle": "Delete Room",
+      "deleteMessage": "Are you sure you want to delete room {{roomNumber}}?",
+      "deleteWarning": "This action cannot be undone. The room will be permanently removed from the system.",
+      "deleteConfirm": "Delete Room"
+    },
+    "form": {
+      "roomNumber": "Room Number",
+      "roomNumberPlaceholder": "Enter room number (e.g., 101, A-201)",
+      "roomNumberRequired": "Please enter the room number",
+      "roomNumberMaxLength": "Room number cannot exceed 20 characters",
+      "roomNumberPattern": "Room number can only contain letters, numbers, and hyphens",
+      "roomType": "Room Type",
+      "roomTypePlaceholder": "Select room type",
+      "roomTypeRequired": "Please select a room type",
+      "floor": "Floor",
+      "floorPlaceholder": "Enter floor number",
+      "floorRequired": "Please enter the floor number",
+      "floorRange": "Floor must be between -5 and 100",
+      "notes": "Notes",
+      "notesPlaceholder": "Optional notes about the room",
+      "notesMaxLength": "Notes cannot exceed 500 characters",
+      "cancel": "Cancel",
+      "create": "Add Room",
+      "update": "Update Room"
+    },
+    "messages": {
+      "createSuccess": "Room created successfully",
+      "createError": "Failed to create room",
+      "updateSuccess": "Room updated successfully",
+      "updateError": "Failed to update room",
+      "deleteSuccess": "Room deleted successfully",
+      "deleteError": "Failed to delete room"
+    },
+    "errors": {
+      "noHotel": "No hotel selected",
+      "noRoom": "No room selected",
+      "roomNotFound": "Room not found",
+      "roomNumberExists": "A room with this number already exists",
+      "hasActiveReservations": "Cannot delete room with active reservations"
+    }
+  },
+  "housekeeping": {
+    "title": "Housekeeping Board",
+    "filters": {
+      "taskStatus": "Task Status",
+      "taskStatusAll": "All Statuses",
+      "taskType": "Task Type",
+      "taskTypeAll": "All Types",
+      "priority": "Priority",
+      "priorityAll": "All Priorities",
+      "assignedTo": "Assigned To",
+      "assignedToAll": "All Staff"
+    },
+    "taskStatus": {
+      "pending": "Pending",
+      "in-progress": "In Progress",
+      "completed": "Completed"
+    },
+    "taskType": {
+      "clean": "Clean",
+      "deep-clean": "Deep Clean",
+      "turndown": "Turndown",
+      "inspection": "Inspection"
+    },
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "table": {
+      "room": "Room",
+      "taskType": "Task Type",
+      "priority": "Priority",
+      "status": "Status",
+      "assignedTo": "Assigned To",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "actions": {
+      "assign": "Assign",
+      "complete": "Complete",
+      "unassigned": "Unassigned"
+    },
+    "modal": {
+      "assignTitle": "Assign Task",
+      "selectStaff": "Select Staff Member",
+      "confirm": "Assign",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "assignSuccess": "Task assigned successfully",
+      "assignError": "Failed to assign task",
+      "completeSuccess": "Task completed successfully",
+      "completeError": "Failed to complete task",
+      "loadError": "Failed to load housekeeping tasks"
+    },
+    "noTasks": "No housekeeping tasks found",
+    "loadingTasks": "Loading tasks..."
+  },
+  "maintenance": {
+    "title": "Maintenance Board",
+    "filters": {
+      "status": "Status",
+      "statusAll": "All Statuses",
+      "priority": "Priority",
+      "priorityAll": "All Priorities",
+      "room": "Room",
+      "roomAll": "All Rooms",
+      "assignedTo": "Assigned To"
+    },
+    "ticketStatus": {
+      "open": "Open",
+      "in-progress": "In Progress",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priority": {
+      "low": "Low",
+      "normal": "Normal",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "table": {
+      "room": "Room",
+      "issue": "Issue",
+      "priority": "Priority",
+      "status": "Status",
+      "assignedTo": "Assigned To",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "Create Ticket",
+      "assign": "Assign",
+      "resolve": "Resolve",
+      "close": "Close",
+      "unassigned": "Unassigned"
+    },
+    "modal": {
+      "createTitle": "Create Maintenance Ticket",
+      "assignTitle": "Assign Ticket",
+      "create": "Create",
+      "assign": "Assign",
+      "cancel": "Cancel",
+      "assigneePlaceholder": "Enter assignee name or ID"
+    },
+    "form": {
+      "room": "Room",
+      "roomPlaceholder": "Select room",
+      "roomRequired": "Please select a room",
+      "issue": "Issue",
+      "issuePlaceholder": "Brief description of the issue",
+      "issueRequired": "Please enter the issue",
+      "description": "Description",
+      "descriptionPlaceholder": "Detailed description of the maintenance issue",
+      "descriptionRequired": "Please enter a description",
+      "priority": "Priority",
+      "assignedTo": "Assigned To",
+      "assignedToPlaceholder": "Staff member or contractor"
+    },
+    "messages": {
+      "createSuccess": "Maintenance ticket created successfully",
+      "createError": "Failed to create maintenance ticket",
+      "assignSuccess": "Ticket assigned successfully",
+      "assignError": "Failed to assign ticket",
+      "resolveSuccess": "Ticket resolved successfully",
+      "resolveError": "Failed to resolve ticket",
+      "closeSuccess": "Ticket closed successfully",
+      "closeError": "Failed to close ticket",
+      "loadError": "Failed to load maintenance tickets"
+    },
+    "noTickets": "No maintenance tickets found",
+    "loadingTickets": "Loading tickets..."
+  }
 }

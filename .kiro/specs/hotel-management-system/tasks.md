@@ -269,19 +269,32 @@ This implementation plan breaks down the hotel management system into incrementa
     - Implement filtering by status, type, floor
     - _Requirements: 8.1, 8.2_
   
-  - [x] 15.2 Implement housekeeping board
+  - [x] 15.2 Implement room CRUD operations
+    - Create form to add new rooms with room number, room type, floor
+    - Implement edit room functionality (room number, type, floor, notes)
+    - Implement delete room functionality with validation (cannot delete if has active reservations)
+    - Validate room number uniqueness within hotel
+    - _Requirements: 8.1, 8.2_
+  
+  - [x] 15.3 Implement housekeeping board
     - Display rooms requiring cleaning
     - Allow assigning tasks to staff
     - Update room status when task completed
     - _Requirements: 8.3, 8.4, 8.5_
   
-  - [ ] 15.3 Implement maintenance ticket system
+  - [x] 15.4 Implement maintenance ticket system
     - Create maintenance tickets for rooms
     - Mark room as under maintenance
     - Update room status when ticket resolved
     - _Requirements: 8.6, 8.7, 8.8_
   
-  - [ ] 15.4 Write property tests for room status transitions
+  - [ ] 15.5 Write property tests for room CRUD operations
+    - **Property 38: Room Creation with Unique Number**
+    - **Property 39: Room Update Preservation**
+    - **Property 40: Room Deletion Validation**
+    - **Validates: Requirements 8.1, 8.2**
+  
+  - [ ] 15.6 Write property tests for room status transitions
     - **Property 22: Housekeeping Task Completion**
     - **Property 23: Maintenance Ticket Room Status**
     - **Validates: Requirements 8.5, 8.6, 8.7, 8.8**
@@ -511,3 +524,4 @@ This implementation plan breaks down the hotel management system into incrementa
 - Checkpoints ensure incremental validation throughout development
 - All code should follow TypeScript best practices and feature-based architecture
 - All user-facing text must use i18n translations (no hardcoded strings)
+- Total of 40 correctness properties (Properties 1-37 from original design + Properties 38-40 for room CRUD)

@@ -21,6 +21,14 @@
     "email": "Vui lòng nhập email hợp lệ",
     "phone": "Vui lòng nhập số điện thoại hợp lệ"
   },
+  "common": {
+    "refresh": "Làm mới",
+    "of": "của",
+    "items": "mục"
+  },
+  "filters": {
+    "reset": "Đặt lại bộ lọc"
+  },
   "userInfo": {
     "title": "Hoàn Thiện Hồ Sơ",
     "welcome": "Chào mừng! Vui lòng cung cấp thông tin của bạn để bắt đầu.",
