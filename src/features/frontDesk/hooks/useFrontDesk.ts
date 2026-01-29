@@ -33,6 +33,8 @@ export interface UseFrontDeskResult {
   refresh: () => Promise<void>;
   checkIn: (id: string) => Promise<void>;
   checkOut: (id: string) => Promise<void>;
+  checkInGroup: (groupId: string) => Promise<void>;
+  checkOutGroup: (groupId: string) => Promise<void>;
   search: (query: string) => Promise<void>;
   clearSearch: () => void;
 }
@@ -310,6 +312,50 @@ export function useFrontDesk(): UseFrontDeskResult {
     setSearchResults([]);
   }, []);
 
+  /**
+   * Check in all guests in a group booking
+   * Updates all reservations in the group to checked-in status and marks rooms as occupied
+   * 
+   * @param groupId - Group ID
+   */
+  const checkInGroup = useCallback(
+    async (groupId: string) => {
+      if (!currentHotel) return;
+
+      try {
+        await reservationService.checkInGroup(currentHotel.id, groupId);
+        message.success(t('messages.groupCheckInSuccess'));
+        await refresh();
+      } catch (err) {
+        message.error(t('messages.groupCheckInError'));
+        throw err;
+      }
+    },
+    [currentHotel, refresh, t]
+  );
+
+  /**
+   * Check out all guests in a group booking
+   * Updates all reservations in the group to checked-out status, marks rooms as dirty, and creates housekeeping tasks
+   * 
+   * @param groupId - Group ID
+   */
+  const checkOutGroup = useCallback(
+    async (groupId: string) => {
+      if (!currentHotel) return;
+
+      try {
+        await reservationService.checkOutGroup(currentHotel.id, groupId);
+        message.success(t('messages.groupCheckOutSuccess'));
+        await refresh();
+      } catch (err) {
+        message.error(t('messages.groupCheckOutError'));
+        throw err;
+      }
+    },
+    [currentHotel, refresh, t]
+  );
+
   return {
     arrivals,
     inHouse,
@@ -321,6 +367,8 @@ export function useFrontDesk(): UseFrontDeskResult {
     refresh,
     checkIn,
     checkOut,
+    checkInGroup,
+    checkOutGroup,
     search,
     clearSearch,
   };

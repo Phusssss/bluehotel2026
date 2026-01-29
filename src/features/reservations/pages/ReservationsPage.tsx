@@ -1,6 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
-  Card,
   Table,
   Button,
   Space,
@@ -12,6 +11,8 @@ import {
   Popconfirm,
   Tabs,
   Modal,
+  Typography,
+  Divider,
 } from 'antd';
 import {
   PlusOutlined,
@@ -31,11 +32,19 @@ import { useReservations } from '../hooks/useReservations';
 import { ReservationDetailsModal } from '../components/ReservationDetailsModal';
 import { TapeChart } from '../components/TapeChart';
 import { CreateReservationForm } from '../components/CreateReservationForm';
+import { CreateGroupBookingForm } from '../components/CreateGroupBookingForm';
+import { GroupReservationCard } from '../components/GroupReservationCard';
 import { EditReservationForm } from '../components/EditReservationForm';
 import type { Reservation, ReservationFilters } from '../../../types';
 
 const { RangePicker } = DatePicker;
+const { Title } = Typography;
 
+/**
+ * Get color for reservation status tag
+ * @param status - Reservation status
+ * @returns Color string for Ant Design Tag
+ */
 const getStatusColor = (status: Reservation['status']) => {
   const colors: Record<Reservation['status'], string> = {
     pending: 'orange',
@@ -48,6 +57,11 @@ const getStatusColor = (status: Reservation['status']) => {
   return colors[status];
 };
 
+/**
+ * ReservationsPage component - manages hotel reservations
+ * Displays reservations in table or calendar view with filtering and management
+ * Supports responsive design for mobile, tablet, and desktop
+ */
 export function ReservationsPage() {
   const { t } = useTranslation('reservations');
   const [filters, setFilters] = useState<ReservationFilters>({});
@@ -57,23 +71,44 @@ export function ReservationsPage() {
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [activeView, setActiveView] = useState<'table' | 'calendar'>('table');
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   const { reservations, loading, refresh, cancelReservation, checkIn, checkOut } = useReservations(filters);
+
+  /**
+   * Group reservations by groupId
+   * Returns an object with grouped and single reservations
+   */
+  const { groupedReservations, singleReservations } = useMemo(() => {
+    const groups = new Map<string, Reservation[]>();
+    const singles: Reservation[] = [];
+
+    reservations.forEach((reservation) => {
+      if (reservation.isGroupBooking && reservation.groupId) {
+        const existing = groups.get(reservation.groupId) || [];
+        existing.push(reservation);
+        groups.set(reservation.groupId, existing);
+      } else {
+        singles.push(reservation);
+      }
+    });
+
+    // Sort reservations within each group by groupIndex
+    groups.forEach((group) => {
+      group.sort((a, b) => (a.groupIndex || 0) - (b.groupIndex || 0));
+    });
+
+    return {
+      groupedReservations: Array.from(groups.values()),
+      singleReservations: singles,
+    };
+  }, [reservations]);
+
+  /**
+   * Apply filters to reservation list
+   */
 
   const handleApplyFilters = () => {
     const newFilters: ReservationFilters = {};
@@ -94,6 +129,9 @@ export function ReservationsPage() {
     setFilters(newFilters);
   };
 
+  /**
+   * Clear all filters
+   */
   const handleClearFilters = () => {
     setDateRange(null);
     setStatusFilter('all');
@@ -101,110 +139,144 @@ export function ReservationsPage() {
     setFilters({});
   };
 
+  /**
+   * Open reservation details modal
+   */
   const handleViewDetails = (reservation: Reservation) => {
     setSelectedReservation(reservation);
     setDetailsModalOpen(true);
   };
 
+  /**
+   * Open edit reservation modal
+   */
   const handleEditReservation = (reservation: Reservation) => {
     setSelectedReservation(reservation);
     setEditModalOpen(true);
   };
 
+  /**
+   * Cancel a reservation
+   */
   const handleCancelReservation = async (id: string) => {
     await cancelReservation(id);
   };
 
+  /**
+   * Check in a guest
+   */
   const handleCheckIn = async (id: string) => {
     await checkIn(id);
   };
 
+  /**
+   * Check out a guest
+   */
   const handleCheckOut = async (id: string) => {
     await checkOut(id);
   };
 
+  /**
+   * Handle successful reservation creation
+   */
   const handleCreateSuccess = () => {
     setCreateModalOpen(false);
     refresh();
   };
 
+  /**
+   * Handle successful group booking creation
+   */
+  const handleCreateGroupSuccess = () => {
+    setCreateGroupModalOpen(false);
+    refresh();
+  };
+
+  /**
+   * Handle successful reservation edit
+   */
   const handleEditSuccess = () => {
     setEditModalOpen(false);
     setSelectedReservation(null);
     refresh();
   };
 
+  /**
+   * Table columns configuration with responsive breakpoints
+   */
   const columns: ColumnsType<Reservation> = useMemo(() => [
     {
       title: t('table.confirmationNumber'),
       dataIndex: 'confirmationNumber',
       key: 'confirmationNumber',
-      width: isMobile ? 120 : 150,
-      fixed: isMobile ? undefined : 'left',
+      width: 150,
       render: (text: string) => <strong>{text}</strong>,
     },
     {
       title: t('table.checkIn'),
       dataIndex: 'checkInDate',
       key: 'checkInDate',
-      width: 100,
-      render: (date: string) => dayjs(date).format(isMobile ? 'MM/DD' : 'YYYY-MM-DD'),
+      width: 120,
+      render: (date: string) => dayjs(date).format('YYYY-MM-DD'),
       sorter: (a, b) => a.checkInDate.localeCompare(b.checkInDate),
     },
     {
       title: t('table.checkOut'),
       dataIndex: 'checkOutDate',
       key: 'checkOutDate',
-      width: 100,
-      render: (date: string) => dayjs(date).format(isMobile ? 'MM/DD' : 'YYYY-MM-DD'),
+      width: 120,
+      render: (date: string) => dayjs(date).format('YYYY-MM-DD'),
     },
-    ...(!isMobile ? [{
+    {
       title: t('table.guests'),
       dataIndex: 'numberOfGuests',
       key: 'numberOfGuests',
       width: 80,
       align: 'center' as const,
-    }] : []),
+      responsive: ['sm'],
+    },
     {
       title: t('table.status'),
       dataIndex: 'status',
       key: 'status',
-      width: isMobile ? 100 : 130,
+      width: 130,
       render: (status: Reservation['status']) => (
         <Tag color={getStatusColor(status)}>
-          {isMobile ? status.substring(0, 4) : t(`status.${status}`)}
+          {t(`status.${status}`)}
         </Tag>
       ),
     },
-    ...(!isMobile ? [{
+    {
       title: t('table.source'),
       dataIndex: 'source',
       key: 'source',
       width: 120,
       render: (source: Reservation['source']) => t(`source.${source}`),
-    }] : []),
-    ...(!isMobile ? [{
+      responsive: ['md'],
+    },
+    {
       title: t('table.totalPrice'),
       dataIndex: 'totalPrice',
       key: 'totalPrice',
       width: 120,
       align: 'right' as const,
       render: (price: number) => price.toLocaleString(),
-    }] : []),
+      responsive: ['lg'],
+    },
     {
       title: t('table.actions'),
       key: 'actions',
-      width: isMobile ? 80 : 200,
-      fixed: isMobile ? undefined : 'right',
+      width: 200,
       render: (_, record) => (
-        <Space size="small" direction={isMobile ? 'vertical' : 'horizontal'}>
+        <Space size="small">
           <Button
             type="link"
             size="small"
             icon={<EyeOutlined />}
             onClick={() => handleViewDetails(record)}
+            style={{ padding: 0 }}
           >
-            {!isMobile && t('actions.view')}
+            {t('actions.view')}
           </Button>
 
           {(record.status === 'pending' || record.status === 'confirmed') && (
@@ -213,8 +285,9 @@ export function ReservationsPage() {
               size="small"
               icon={<EditOutlined />}
               onClick={() => handleEditReservation(record)}
+              style={{ padding: 0 }}
             >
-              {!isMobile && t('actions.edit')}
+              {t('actions.edit')}
             </Button>
           )}
 
@@ -224,8 +297,9 @@ export function ReservationsPage() {
               size="small"
               icon={<LoginOutlined />}
               onClick={() => handleCheckIn(record.id)}
+              style={{ padding: 0 }}
             >
-              {!isMobile && t('actions.checkIn')}
+              {t('actions.checkIn')}
             </Button>
           )}
 
@@ -235,15 +309,16 @@ export function ReservationsPage() {
               size="small"
               icon={<LogoutOutlined />}
               onClick={() => handleCheckOut(record.id)}
+              style={{ padding: 0 }}
             >
-              {!isMobile && t('actions.checkOut')}
+              {t('actions.checkOut')}
             </Button>
           )}
 
           {(record.status === 'pending' || record.status === 'confirmed') && (
             <Popconfirm
               title={t('actions.cancel')}
-              description={!isMobile ? "Are you sure you want to cancel this reservation?" : "Cancel?"}
+              description="Are you sure you want to cancel this reservation?"
               onConfirm={() => handleCancelReservation(record.id)}
               okText="Yes"
               cancelText="No"
@@ -253,53 +328,67 @@ export function ReservationsPage() {
                 size="small"
                 danger
                 icon={<CloseOutlined />}
+                style={{ padding: 0 }}
               >
-                {!isMobile && t('actions.cancel')}
+                {t('actions.cancel')}
               </Button>
             </Popconfirm>
           )}
         </Space>
       ),
     },
-  ], [t, isMobile, handleCheckIn, handleCheckOut, handleCancelReservation]);
+  ], [t, handleCheckIn, handleCheckOut, handleCancelReservation]);
 
   return (
-    <div style={{ padding: isMobile ? '0' : '24px' }}>
-      <Card
-        title={t('title')}
-        extra={
-          <Space size={isMobile ? 'small' : 'middle'}>
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={refresh}
-              loading={loading}
-              size={isMobile ? 'small' : 'middle'}
-            >
-              {!isMobile && 'Refresh'}
-            </Button>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => setCreateModalOpen(true)}
-              size={isMobile ? 'small' : 'middle'}
-            >
-              {isMobile ? t('create') : t('createButton')}
-            </Button>
-          </Space>
-        }
-      >
-        {/* View Tabs */}
+    <div style={{ padding: '1px' }}>
+      {/* Page Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <Title level={2} style={{ margin: 0, fontSize: '24px' }}>{t('title')}</Title>
+        <Space wrap size="small">
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={refresh}
+            loading={loading}
+            size="middle"
+          />
+          <Button
+            type="default"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateGroupModalOpen(true)}
+            size="middle"
+          >
+            {t('groupBooking.createButton')}
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateModalOpen(true)}
+            size="middle"
+          >
+            {t('createButton')}
+          </Button>
+        </Space>
+      </div>
+
+      {/* View Tabs and Content */}
+      <div>
         <Tabs
           activeKey={activeView}
           onChange={(key) => setActiveView(key as 'table' | 'calendar')}
-          size={isMobile ? 'small' : 'middle'}
+          size="middle"
           items={[
             {
               key: 'table',
               label: (
                 <span>
-                  <TableOutlined />
-                  {!isMobile && t('views.table')}
+                  <TableOutlined /> {t('views.table')}
                 </span>
               ),
             },
@@ -307,8 +396,7 @@ export function ReservationsPage() {
               key: 'calendar',
               label: (
                 <span>
-                  <CalendarOutlined />
-                  {!isMobile && t('views.calendar')}
+                  <CalendarOutlined /> {t('views.calendar')}
                 </span>
               ),
             },
@@ -317,18 +405,21 @@ export function ReservationsPage() {
 
         {/* Filters - Only show for table view */}
         {activeView === 'table' && (
-          <Card
-            size="small"
-            style={{ marginBottom: 16, backgroundColor: '#fafafa' }}
-          >
-            <Row gutter={[8, 8]}>
+          <div style={{ 
+            background: '#fff', 
+            borderRadius: '8px',
+            padding: '16px',
+            marginBottom: '16px',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+          }}>
+            <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} md={8}>
-                <div style={{ marginBottom: 8, fontSize: isMobile ? 12 : 14 }}>
+                <div style={{ marginBottom: 8 }}>
                   <strong>{t('filters.dateRange')}</strong>
                 </div>
                 <RangePicker
                   style={{ width: '100%' }}
-                  size={isMobile ? 'small' : 'middle'}
+                  size="middle"
                   value={dateRange}
                   onChange={(dates) => setDateRange(dates as [Dayjs | null, Dayjs | null] | null)}
                   format="YYYY-MM-DD"
@@ -336,12 +427,12 @@ export function ReservationsPage() {
               </Col>
 
               <Col xs={24} sm={12} md={8}>
-                <div style={{ marginBottom: 8, fontSize: isMobile ? 12 : 14 }}>
+                <div style={{ marginBottom: 8 }}>
                   <strong>{t('filters.status')}</strong>
                 </div>
                 <Select
                   style={{ width: '100%' }}
-                  size={isMobile ? 'small' : 'middle'}
+                  size="middle"
                   value={statusFilter}
                   onChange={setStatusFilter}
                   options={[
@@ -357,12 +448,12 @@ export function ReservationsPage() {
               </Col>
 
               <Col xs={24} sm={12} md={8}>
-                <div style={{ marginBottom: 8, fontSize: isMobile ? 12 : 14 }}>
+                <div style={{ marginBottom: 8 }}>
                   <strong>{t('filters.source')}</strong>
                 </div>
                 <Select
                   style={{ width: '100%' }}
-                  size={isMobile ? 'small' : 'middle'}
+                  size="middle"
                   value={sourceFilter}
                   onChange={setSourceFilter}
                   options={[
@@ -378,52 +469,105 @@ export function ReservationsPage() {
               </Col>
             </Row>
 
-            <Row style={{ marginTop: isMobile ? 8 : 16 }}>
+            <Row style={{ marginTop: 16 }}>
               <Col span={24}>
-                <Space size={isMobile ? 'small' : 'middle'}>
+                <Space>
                   <Button 
                     type="primary" 
                     onClick={handleApplyFilters}
-                    size={isMobile ? 'small' : 'middle'}
+                    size="middle"
                   >
                     {t('filters.apply')}
                   </Button>
                   <Button 
                     onClick={handleClearFilters}
-                    size={isMobile ? 'small' : 'middle'}
+                    size="middle"
                   >
                     {t('filters.clearFilters')}
                   </Button>
                 </Space>
               </Col>
             </Row>
-          </Card>
+          </div>
         )}
 
         {/* Table View */}
         {activeView === 'table' && (
-          <Table
-            columns={columns}
-            dataSource={reservations}
-            rowKey="id"
-            loading={loading}
-            scroll={{ x: isMobile ? 600 : 1200 }}
-            pagination={{
-              pageSize: isMobile ? 10 : 20,
-              showSizeChanger: !isMobile,
-              showTotal: (total) => isMobile ? `${total}` : `Total ${total} reservations`,
-              simple: isMobile,
-            }}
-            size={isMobile ? 'small' : 'middle'}
-            locale={{
-              emptyText: t('messages.noData'),
-            }}
-          />
+          <div style={{ 
+            background: '#fff', 
+            borderRadius: '8px',
+            padding: '16px',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+          }}>
+            {/* Group Bookings Section */}
+            {groupedReservations.length > 0 && (
+              <>
+                <Typography.Title level={4} style={{ marginBottom: 16 }}>
+                  {t('groupBooking.title')}
+                </Typography.Title>
+                {groupedReservations.map((group) => (
+                  <GroupReservationCard
+                    key={group[0].groupId}
+                    reservations={group}
+                    onUpdate={refresh}
+                    onViewDetails={handleViewDetails}
+                  />
+                ))}
+                {singleReservations.length > 0 && (
+                  <Divider style={{ margin: '24px 0' }} />
+                )}
+              </>
+            )}
+
+            {/* Single Reservations Section */}
+            {singleReservations.length > 0 && (
+              <>
+                {groupedReservations.length > 0 && (
+                  <Typography.Title level={4} style={{ marginBottom: 16 }}>
+                    {t('singleReservations')}
+                  </Typography.Title>
+                )}
+                <Table
+                  columns={columns}
+                  dataSource={singleReservations}
+                  rowKey="id"
+                  loading={loading}
+                  scroll={{ x: 1200 }}
+                  pagination={{
+                    pageSize: 10,
+                    showSizeChanger: true,
+                    showQuickJumper: false,
+                    showTotal: (total, range) =>
+                      `${range[0]}-${range[1]} / ${total}`,
+                    responsive: true,
+                    size: 'default',
+                  }}
+                  size="middle"
+                  locale={{
+                    emptyText: t('messages.noData'),
+                  }}
+                />
+              </>
+            )}
+
+            {/* No data message */}
+            {groupedReservations.length === 0 && singleReservations.length === 0 && !loading && (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                {t('messages.noData')}
+              </div>
+            )}
+          </div>
         )}
 
         {/* Calendar View */}
         {activeView === 'calendar' && (
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ 
+            background: '#fff', 
+            borderRadius: '8px',
+            padding: '16px',
+            overflow: 'auto',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+          }}>
             <TapeChart
               reservations={reservations}
               loading={loading}
@@ -431,7 +575,7 @@ export function ReservationsPage() {
             />
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Details Modal */}
       <ReservationDetailsModal
@@ -449,12 +593,27 @@ export function ReservationsPage() {
         open={createModalOpen}
         onCancel={() => setCreateModalOpen(false)}
         footer={null}
-        width={isMobile ? '100%' : 800}
-        style={isMobile ? { top: 0, maxWidth: '100vw', margin: 0, padding: 0 } : undefined}
+        width="95%"
+        style={{ maxWidth: 800, top: 20 }}
       >
         <CreateReservationForm
           onSuccess={handleCreateSuccess}
           onCancel={() => setCreateModalOpen(false)}
+        />
+      </Modal>
+
+      {/* Create Group Booking Modal */}
+      <Modal
+        title={t('groupBooking.createButton')}
+        open={createGroupModalOpen}
+        onCancel={() => setCreateGroupModalOpen(false)}
+        footer={null}
+        width="95%"
+        style={{ maxWidth: 1000, top: 20 }}
+      >
+        <CreateGroupBookingForm
+          onSuccess={handleCreateGroupSuccess}
+          onCancel={() => setCreateGroupModalOpen(false)}
         />
       </Modal>
 
@@ -467,8 +626,8 @@ export function ReservationsPage() {
           setSelectedReservation(null);
         }}
         footer={null}
-        width={isMobile ? '100%' : 800}
-        style={isMobile ? { top: 0, maxWidth: '100vw', margin: 0, padding: 0 } : undefined}
+        width="95%"
+        style={{ maxWidth: 800, top: 20 }}
       >
         {selectedReservation && (
           <EditReservationForm

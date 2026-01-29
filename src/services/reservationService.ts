@@ -11,6 +11,7 @@ import {
   orderBy,
   Query,
   DocumentData,
+  writeBatch,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type {
@@ -18,8 +19,13 @@ import type {
   CreateReservationInput,
   ReservationFilters,
   Room,
+  RoomType,
+  RoomTypeAvailabilityRequest,
+  RoomTypeAvailabilityResult,
+  AlternativeRoomType,
+  CreateGroupBookingInput,
 } from '../types';
-import { removeUndefinedFields } from '../utils/firestore';
+import { deepRemoveUndefinedFields } from '../utils/firestore';
 
 /**
  * Service class for managing reservations in Firestore
@@ -127,7 +133,7 @@ export class ReservationService {
       const now = Timestamp.now();
       const confirmationNumber = this.generateConfirmationNumber();
 
-      const reservationData = removeUndefinedFields({
+      const reservationData = deepRemoveUndefinedFields({
         ...data,
         confirmationNumber,
         status: 'pending' as const,
@@ -197,7 +203,7 @@ export class ReservationService {
         }
       }
 
-      await updateDoc(docRef, removeUndefinedFields({
+      await updateDoc(docRef, deepRemoveUndefinedFields({
         ...data,
         updatedAt: Timestamp.now(),
       }));
@@ -438,6 +444,390 @@ export class ReservationService {
     } catch (error) {
       console.error('Error searching by confirmation number:', error);
       throw new Error('Failed to search reservations');
+    }
+  }
+
+  /**
+   * Check availability for multiple room types simultaneously (for group bookings)
+   * Returns availability status for each requested room type
+   */
+  async checkGroupAvailability(
+    hotelId: string,
+    checkInDate: string,
+    checkOutDate: string,
+    roomTypeRequests: RoomTypeAvailabilityRequest[]
+  ): Promise<RoomTypeAvailabilityResult[]> {
+    try {
+      const results: RoomTypeAvailabilityResult[] = [];
+
+      for (const request of roomTypeRequests) {
+        // Get available rooms for this room type
+        const availableRooms = await this.getAvailableRooms(
+          hotelId,
+          checkInDate,
+          checkOutDate,
+          request.roomTypeId
+        );
+
+        results.push({
+          roomTypeId: request.roomTypeId,
+          requested: request.quantity,
+          available: availableRooms.length,
+          isAvailable: availableRooms.length >= request.quantity,
+        });
+      }
+
+      return results;
+    } catch (error) {
+      console.error('Error checking group availability:', error);
+      throw new Error('Failed to check group availability');
+    }
+  }
+
+  /**
+   * Find alternative room types when requested room type is not available
+   * Returns room types with capacity >= requested capacity, sorted by price
+   */
+  async findAlternativeRoomTypes(
+    hotelId: string,
+    checkInDate: string,
+    checkOutDate: string,
+    originalRoomTypeId: string,
+    requestedQuantity: number
+  ): Promise<AlternativeRoomType[]> {
+    try {
+      // Get the original room type to compare capacity and price
+      const originalRoomTypeDoc = await getDoc(doc(db, 'roomTypes', originalRoomTypeId));
+      if (!originalRoomTypeDoc.exists()) {
+        throw new Error('Original room type not found');
+      }
+      const originalRoomType = {
+        id: originalRoomTypeDoc.id,
+        ...originalRoomTypeDoc.data(),
+      } as RoomType;
+
+      // Get all room types for the hotel
+      const roomTypesQuery = query(
+        collection(db, 'roomTypes'),
+        where('hotelId', '==', hotelId)
+      );
+      const roomTypesSnapshot = await getDocs(roomTypesQuery);
+      const allRoomTypes = roomTypesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as RoomType[];
+
+      // Filter room types by capacity (must be >= original capacity)
+      const eligibleRoomTypes = allRoomTypes.filter(
+        (rt) => rt.id !== originalRoomTypeId && rt.capacity >= originalRoomType.capacity
+      );
+
+      // Check availability for each eligible room type
+      const alternatives: AlternativeRoomType[] = [];
+
+      for (const roomType of eligibleRoomTypes) {
+        const availableRooms = await this.getAvailableRooms(
+          hotelId,
+          checkInDate,
+          checkOutDate,
+          roomType.id
+        );
+
+        // Only include if enough rooms are available
+        if (availableRooms.length >= requestedQuantity) {
+          // Calculate price comparison percentage
+          const priceComparison = originalRoomType.basePrice > 0
+            ? ((roomType.basePrice - originalRoomType.basePrice) / originalRoomType.basePrice) * 100
+            : 0;
+
+          alternatives.push({
+            roomTypeId: roomType.id,
+            roomType,
+            availableCount: availableRooms.length,
+            priceComparison: Math.round(priceComparison * 100) / 100, // Round to 2 decimal places
+          });
+        }
+      }
+
+      // Sort by price (cheapest first)
+      alternatives.sort((a, b) => a.roomType.basePrice - b.roomType.basePrice);
+
+      return alternatives;
+    } catch (error) {
+      console.error('Error finding alternative room types:', error);
+      throw new Error('Failed to find alternative room types');
+    }
+  }
+
+  /**
+   * Create a group booking with multiple reservations atomically
+   * All reservations share the same groupId and are created in a single transaction
+   */
+  async createGroupBooking(data: CreateGroupBookingInput): Promise<string> {
+    try {
+      // Validate dates
+      if (data.checkOutDate <= data.checkInDate) {
+        throw new Error('Check-out date must be after check-in date');
+      }
+
+      // Validate that we have at least one reservation
+      if (!data.reservations || data.reservations.length === 0) {
+        throw new Error('Group booking must have at least one reservation');
+      }
+
+      // Validate all rooms are available
+      for (const reservation of data.reservations) {
+        const isAvailable = await this.checkRoomAvailability(
+          data.hotelId,
+          reservation.roomId,
+          data.checkInDate,
+          data.checkOutDate
+        );
+
+        if (!isAvailable) {
+          throw new Error(`Room ${reservation.roomId} is not available for the selected dates`);
+        }
+      }
+
+      // Generate unique groupId (UUID)
+      const groupId = crypto.randomUUID();
+      const groupSize = data.reservations.length;
+      const now = Timestamp.now();
+
+      // Use batch write for atomicity
+      const batch = writeBatch(db);
+      const reservationIds: string[] = [];
+
+      // Create each reservation in the group
+      data.reservations.forEach((reservation, index) => {
+        const confirmationNumber = this.generateConfirmationNumber();
+        const reservationRef = doc(collection(db, this.collectionName));
+        
+        const reservationData = deepRemoveUndefinedFields({
+          hotelId: data.hotelId,
+          customerId: data.customerId,
+          roomId: reservation.roomId,
+          roomTypeId: reservation.roomTypeId,
+          checkInDate: data.checkInDate,
+          checkOutDate: data.checkOutDate,
+          numberOfGuests: reservation.numberOfGuests,
+          source: data.source,
+          totalPrice: reservation.totalPrice,
+          paidAmount: 0,
+          notes: data.notes,
+          status: 'pending' as const,
+          confirmationNumber,
+          isGroupBooking: true,
+          groupId,
+          groupSize,
+          groupIndex: index + 1, // 1-based index
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        batch.set(reservationRef, reservationData);
+        reservationIds.push(reservationRef.id);
+      });
+
+      // Commit the batch
+      await batch.commit();
+
+      // Return the groupId
+      return groupId;
+    } catch (error) {
+      console.error('Error creating group booking:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all reservations in a group booking
+   * Returns reservations ordered by groupIndex
+   */
+  async getGroupReservations(hotelId: string, groupId: string): Promise<Reservation[]> {
+    try {
+      const q = query(
+        collection(db, this.collectionName),
+        where('hotelId', '==', hotelId),
+        where('groupId', '==', groupId),
+        orderBy('groupIndex', 'asc')
+      );
+
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Reservation[];
+    } catch (error) {
+      console.error('Error getting group reservations:', error);
+      throw new Error('Failed to fetch group reservations');
+    }
+  }
+
+  /**
+   * Check in all reservations in a group booking
+   * Updates all reservations to checked-in status and marks rooms as occupied
+   */
+  async checkInGroup(hotelId: string, groupId: string): Promise<void> {
+    try {
+      // Get all reservations in the group
+      const reservations = await this.getGroupReservations(hotelId, groupId);
+
+      if (reservations.length === 0) {
+        throw new Error('No reservations found for this group');
+      }
+
+      // Validate all reservations can be checked in
+      for (const reservation of reservations) {
+        if (reservation.status !== 'confirmed' && reservation.status !== 'pending') {
+          throw new Error(`Cannot check in reservation ${reservation.id} with status ${reservation.status}`);
+        }
+      }
+
+      const now = Timestamp.now();
+      const batch = writeBatch(db);
+
+      // Update all reservations and rooms
+      for (const reservation of reservations) {
+        // Update reservation status
+        const reservationRef = doc(db, this.collectionName, reservation.id);
+        batch.update(reservationRef, {
+          status: 'checked-in',
+          checkedInAt: now,
+          updatedAt: now,
+        });
+
+        // Update room status to occupied
+        const roomRef = doc(db, 'rooms', reservation.roomId);
+        batch.update(roomRef, {
+          status: 'occupied',
+          updatedAt: now,
+        });
+      }
+
+      // Commit the batch
+      await batch.commit();
+    } catch (error) {
+      console.error('Error checking in group:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Check out all reservations in a group booking
+   * Updates all reservations to checked-out status, marks rooms as dirty, and creates housekeeping tasks
+   */
+  async checkOutGroup(hotelId: string, groupId: string): Promise<void> {
+    try {
+      // Get all reservations in the group
+      const reservations = await this.getGroupReservations(hotelId, groupId);
+
+      if (reservations.length === 0) {
+        throw new Error('No reservations found for this group');
+      }
+
+      // Validate all reservations can be checked out
+      for (const reservation of reservations) {
+        if (reservation.status !== 'checked-in') {
+          throw new Error(`Cannot check out reservation ${reservation.id} with status ${reservation.status}`);
+        }
+      }
+
+      const now = Timestamp.now();
+      const batch = writeBatch(db);
+
+      // Update all reservations, rooms, and create housekeeping tasks
+      for (const reservation of reservations) {
+        // Update reservation status
+        const reservationRef = doc(db, this.collectionName, reservation.id);
+        batch.update(reservationRef, {
+          status: 'checked-out',
+          checkedOutAt: now,
+          updatedAt: now,
+        });
+
+        // Update room status to dirty
+        const roomRef = doc(db, 'rooms', reservation.roomId);
+        batch.update(roomRef, {
+          status: 'dirty',
+          updatedAt: now,
+        });
+
+        // Create housekeeping task
+        const housekeepingRef = doc(collection(db, 'housekeepingTasks'));
+        batch.set(housekeepingRef, {
+          hotelId: reservation.hotelId,
+          roomId: reservation.roomId,
+          taskType: 'clean',
+          priority: 'normal',
+          status: 'pending',
+          createdAt: now,
+        });
+      }
+
+      // Commit the batch
+      await batch.commit();
+    } catch (error) {
+      console.error('Error checking out group:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel all reservations in a group booking
+   * Updates all reservations to cancelled status
+   */
+  async cancelGroupBooking(hotelId: string, groupId: string): Promise<void> {
+    try {
+      // Get all reservations in the group
+      const reservations = await this.getGroupReservations(hotelId, groupId);
+
+      if (reservations.length === 0) {
+        throw new Error('No reservations found for this group');
+      }
+
+      const now = Timestamp.now();
+      const batch = writeBatch(db);
+
+      // Update all reservations to cancelled
+      for (const reservation of reservations) {
+        const reservationRef = doc(db, this.collectionName, reservation.id);
+        batch.update(reservationRef, {
+          status: 'cancelled',
+          updatedAt: now,
+        });
+      }
+
+      // Commit the batch
+      await batch.commit();
+    } catch (error) {
+      console.error('Error cancelling group booking:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Calculate total price for a group booking
+   * Returns the sum of all individual reservation prices
+   */
+  async calculateGroupTotal(hotelId: string, groupId: string): Promise<number> {
+    try {
+      // Get all reservations in the group
+      const reservations = await this.getGroupReservations(hotelId, groupId);
+
+      if (reservations.length === 0) {
+        return 0;
+      }
+
+      // Sum all totalPrice values
+      const total = reservations.reduce((sum, reservation) => {
+        return sum + (reservation.totalPrice || 0);
+      }, 0);
+
+      return total;
+    } catch (error) {
+      console.error('Error calculating group total:', error);
+      throw new Error('Failed to calculate group total');
     }
   }
 }

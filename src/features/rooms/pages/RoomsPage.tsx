@@ -263,12 +263,14 @@ export function RoomsPage() {
   ], [t, isMobile, getRoomTypeName, getActionMenuItems]);
 
   return (
-    <div style={{ padding: isMobile ? '0' : '24px' }}>
+    <div style={{ margin: '-24px' }}>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '24px',
+        padding: '16px 24px',
+        background: '#fff',
+        borderBottom: '1px solid #f0f0f0',
         flexWrap: 'wrap',
         gap: '16px'
       }}>
@@ -283,130 +285,131 @@ export function RoomsPage() {
         </Button>
       </div>
 
-      <Tabs
-        activeKey={activeTab}
-        onChange={(key) => setActiveTab(key as TabKey)}
-        items={[
-          {
-            key: 'rooms',
-            label: (
-              <span>
-                <TableOutlined />
-                {t('title')}
-              </span>
-            ),
-            children: (
-              <>
-                <div style={{ 
-                  display: 'flex', 
-                  justifyContent: 'flex-end', 
-                  marginBottom: '16px'
-                }}>
-                  <Segmented
-                    value={viewMode}
-                    onChange={(value) => setViewMode(value as ViewMode)}
-                    options={[
-                      {
-                        label: (
-                          <span style={{ padding: '0 8px' }}>
-                            <TableOutlined /> {t('viewMode.table')}
-                          </span>
-                        ),
-                        value: 'table',
-                      },
-                      {
-                        label: (
-                          <span style={{ padding: '0 8px' }}>
-                            <AppstoreOutlined /> {t('viewMode.floor')}
-                          </span>
-                        ),
-                        value: 'floor',
-                      },
-                    ]}
-                  />
-                </div>
+      <div style={{ padding: isMobile ? '8px' : '16px', background: '#f5f5f5' }}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key as TabKey)}
+          items={[
+            {
+              key: 'rooms',
+              label: (
+                <span>
+                  <TableOutlined />
+                  {t('title')}
+                </span>
+              ),
+              children: (
+                <>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'flex-end', 
+                    marginBottom: '16px'
+                  }}>
+                    <Segmented
+                      value={viewMode}
+                      onChange={(value) => setViewMode(value as ViewMode)}
+                      options={[
+                        {
+                          label: (
+                            <span style={{ padding: '0 8px' }}>
+                              <TableOutlined /> {!isMobile && t('viewMode.table')}
+                            </span>
+                          ),
+                          value: 'table',
+                        },
+                        {
+                          label: (
+                            <span style={{ padding: '0 8px' }}>
+                              <AppstoreOutlined /> {!isMobile && t('viewMode.floor')}
+                            </span>
+                          ),
+                          value: 'floor',
+                        },
+                      ]}
+                    />
+                  </div>
 
-                <Card style={{ marginBottom: '24px' }}>
-                  <Row gutter={[16, 16]}>
-                    <Col xs={24} sm={12} lg={6}>
-                      <Input
-                        placeholder={t('filters.search')}
-                        prefix={<SearchOutlined />}
-                        value={searchText}
-                        onChange={(e) => setSearchText(e.target.value)}
-                        allowClear
-                      />
-                    </Col>
+                  <Card style={{ marginBottom: '16px' }}>
+                    <Row gutter={[16, 16]}>
+                      <Col xs={24} sm={12} lg={6}>
+                        <Input
+                          placeholder={t('filters.search')}
+                          prefix={<SearchOutlined />}
+                          value={searchText}
+                          onChange={(e) => setSearchText(e.target.value)}
+                          allowClear
+                        />
+                      </Col>
 
-                    <Col xs={24} sm={12} lg={6}>
-                      <Select
-                        placeholder={t('filters.status')}
-                        style={{ width: '100%' }}
-                        value={filters.status}
-                        onChange={handleStatusChange}
-                        allowClear
-                      >
-                        <Option value={undefined}>{t('filters.statusAll')}</Option>
-                        <Option value="vacant">{t('status.vacant')}</Option>
-                        <Option value="occupied">{t('status.occupied')}</Option>
-                        <Option value="dirty">{t('status.dirty')}</Option>
-                        <Option value="maintenance">{t('status.maintenance')}</Option>
-                        <Option value="reserved">{t('status.reserved')}</Option>
-                      </Select>
-                    </Col>
-
-                    <Col xs={24} sm={12} lg={6}>
-                      <Select
-                        placeholder={t('filters.roomType')}
-                        style={{ width: '100%' }}
-                        value={filters.roomTypeId}
-                        onChange={handleRoomTypeChange}
-                        allowClear
-                      >
-                        <Option value={undefined}>{t('filters.roomTypeAll')}</Option>
-                        {roomTypes.map((roomType) => (
-                          <Option key={roomType.id} value={roomType.id}>
-                            {roomType.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Col>
-
-                    <Col xs={24} sm={12} lg={6}>
-                      <Select
-                        placeholder={t('filters.floor')}
-                        style={{ width: '100%' }}
-                        value={filters.floor}
-                        onChange={handleFloorChange}
-                        allowClear
-                      >
-                        <Option value={undefined}>{t('filters.floorAll')}</Option>
-                        {getUniqueFloors().map((floor) => (
-                          <Option key={floor} value={floor}>
-                            {floor}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Col>
-                  </Row>
-
-                  <Row style={{ marginTop: '16px' }}>
-                    <Col>
-                      <Space wrap>
-                        <Button
-                          icon={<ReloadOutlined />}
-                          onClick={handleResetFilters}
+                      <Col xs={24} sm={12} lg={6}>
+                        <Select
+                          placeholder={t('filters.status')}
+                          style={{ width: '100%' }}
+                          value={filters.status}
+                          onChange={handleStatusChange}
+                          allowClear
                         >
-                          {t('filters.reset')}
-                        </Button>
-                      </Space>
-                    </Col>
-                  </Row>
-                </Card>
+                          <Option value={undefined}>{t('filters.statusAll')}</Option>
+                          <Option value="vacant">{t('status.vacant')}</Option>
+                          <Option value="occupied">{t('status.occupied')}</Option>
+                          <Option value="dirty">{t('status.dirty')}</Option>
+                          <Option value="maintenance">{t('status.maintenance')}</Option>
+                          <Option value="reserved">{t('status.reserved')}</Option>
+                        </Select>
+                      </Col>
 
-                <Spin spinning={loading} tip={t('loading')}>
-                  {viewMode === 'table' ? (
-                    <Card>
+                      <Col xs={24} sm={12} lg={6}>
+                        <Select
+                          placeholder={t('filters.roomType')}
+                          style={{ width: '100%' }}
+                          value={filters.roomTypeId}
+                          onChange={handleRoomTypeChange}
+                          allowClear
+                        >
+                          <Option value={undefined}>{t('filters.roomTypeAll')}</Option>
+                          {roomTypes.map((roomType) => (
+                            <Option key={roomType.id} value={roomType.id}>
+                              {roomType.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Col>
+
+                      <Col xs={24} sm={12} lg={6}>
+                        <Select
+                          placeholder={t('filters.floor')}
+                          style={{ width: '100%' }}
+                          value={filters.floor}
+                          onChange={handleFloorChange}
+                          allowClear
+                        >
+                          <Option value={undefined}>{t('filters.floorAll')}</Option>
+                          {getUniqueFloors().map((floor) => (
+                            <Option key={floor} value={floor}>
+                              {floor}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Col>
+                    </Row>
+
+                    <Row style={{ marginTop: '16px' }}>
+                      <Col>
+                        <Space wrap>
+                          <Button
+                            icon={<ReloadOutlined />}
+                            onClick={handleResetFilters}
+                            size={isMobile ? 'small' : 'middle'}
+                          >
+                            {t('filters.reset')}
+                          </Button>
+                        </Space>
+                      </Col>
+                    </Row>
+                  </Card>
+
+                  <Spin spinning={loading} tip={t('loading')}>
+                    {viewMode === 'table' ? (
                       <Table
                         columns={columns}
                         dataSource={filteredRooms}
@@ -424,39 +427,39 @@ export function RoomsPage() {
                           emptyText: t('noData'),
                         }}
                       />
-                    </Card>
-                  ) : (
-                    <FloorMapView
-                      rooms={filteredRooms}
-                      getRoomTypeName={getRoomTypeName}
-                    />
-                  )}
-                </Spin>
-              </>
-            ),
-          },
-          {
-            key: 'housekeeping',
-            label: (
-              <span>
-                <HomeOutlined />
-                {t('housekeeping.title')}
-              </span>
-            ),
-            children: <HousekeepingBoard />,
-          },
-          {
-            key: 'maintenance',
-            label: (
-              <span>
-                <ToolOutlined />
-                {t('maintenance.title')}
-              </span>
-            ),
-            children: <MaintenanceBoard />,
-          },
-        ]}
-      />
+                    ) : (
+                      <FloorMapView
+                        rooms={filteredRooms}
+                        getRoomTypeName={getRoomTypeName}
+                      />
+                    )}
+                  </Spin>
+                </>
+              ),
+            },
+            {
+              key: 'housekeeping',
+              label: (
+                <span>
+                  <HomeOutlined />
+                  {!isMobile && t('housekeeping.title')}
+                </span>
+              ),
+              children: <HousekeepingBoard />,
+            },
+            {
+              key: 'maintenance',
+              label: (
+                <span>
+                  <ToolOutlined />
+                  {!isMobile && t('maintenance.title')}
+                </span>
+              ),
+              children: <MaintenanceBoard />,
+            },
+          ]}
+        />
+      </div>
 
       {/* CRUD Modals */}
       <CreateRoomForm

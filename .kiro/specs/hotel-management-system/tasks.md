@@ -230,6 +230,129 @@ This implementation plan breaks down the hotel management system into incrementa
     - Test group bookings (if enabled)
     - _Requirements: 6.9_
 
+- [ ] 12.7 Group Booking Feature
+  - [x] 12.7.1 Update Reservation data model for group bookings
+    - Add groupId, groupSize, groupIndex, isGroupBooking fields to Reservation interface
+    - Update CreateReservationInput type to support group fields
+    - Add Firestore composite index for (hotelId, groupId, groupIndex)
+    - _Requirements: 6.1.13_
+  
+  - [x] 12.7.2 Implement group availability checking
+    - Create checkGroupAvailability method in reservationService
+    - Check availability for multiple room types simultaneously
+    - Return availability status for each requested room type
+    - _Requirements: 6.1.2_
+  
+  - [x] 12.7.3 Implement alternative room type suggestions
+    - Create findAlternativeRoomTypes method in reservationService
+    - Filter room types by capacity >= requested capacity
+    - Check availability for alternative types
+    - Calculate price comparison percentage
+    - Sort alternatives by price (cheapest first)
+    - _Requirements: 6.1.3_
+  
+  - [x] 12.7.4 Implement group booking creation
+    - Create createGroupBooking method in reservationService
+    - Generate unique groupId (UUID)
+    - Use Firestore batch write for atomicity
+    - Create N reservations with shared groupId
+    - Set groupSize, groupIndex for each reservation
+    - Validate all rooms are available before creating
+    - _Requirements: 6.1.6, 6.1.13_
+  
+  - [x] 12.7.5 Implement group booking retrieval
+    - Create getGroupReservations method in reservationService
+    - Query reservations by groupId
+    - Order by groupIndex
+    - _Requirements: 6.1.8_
+  
+  - [x] 12.7.6 Implement group check-in functionality
+    - Create checkInGroup method in reservationService
+    - Update all reservations in group to checked-in status
+    - Set checkedInAt timestamp for all
+    - Update all room statuses to occupied
+    - Use batch write for atomicity
+    - _Requirements: 6.1.9_
+  
+  - [x] 12.7.7 Implement group check-out functionality
+    - Create checkOutGroup method in reservationService
+    - Update all reservations in group to checked-out status
+    - Set checkedOutAt timestamp for all
+    - Update all room statuses to dirty
+    - Create housekeeping tasks for all rooms
+    - Use batch write for atomicity
+    - _Requirements: 6.1.10_
+  
+  - [x] 12.7.8 Implement group cancellation
+    - Create cancelGroupBooking method in reservationService
+    - Update all reservations in group to cancelled status
+    - Use batch write for atomicity
+    - _Requirements: 6.1.11_
+  
+  - [x] 12.7.9 Implement group total price calculation
+    - Create calculateGroupTotal method in reservationService
+    - Sum totalPrice from all reservations in group
+    - _Requirements: 6.1.12_
+  
+  - [x] 12.7.10 Create group booking form UI
+    - Create CreateGroupBookingForm component with multi-step wizard
+    - Step 1: Select customer, dates, source, and multiple room types with quantities
+    - Step 2: Display availability results with alternatives if needed
+    - Step 3: Select specific rooms for each room type
+    - Step 4: Review and confirm with total price breakdown
+    - Integrate pricing calculator for each room
+    - Display loading states during availability checks
+    - _Requirements: 6.1.1, 6.1.2, 6.1.3, 6.1.4, 6.1.5_
+  
+  - [x] 12.7.11 Create group reservation display component
+    - Create GroupReservationCard component
+    - Display group indicator badge
+    - Show total rooms and total price
+    - Implement expand/collapse to show individual rooms
+    - Display room details (room number, type, price) for each
+    - Add group action buttons (Check In All, Check Out All, Cancel All)
+    - _Requirements: 6.1.7, 6.1.8_
+  
+  - [x] 12.7.12 Update reservations list page for groups
+    - Detect and group reservations by groupId
+    - Display grouped reservations using GroupReservationCard
+    - Display single reservations normally
+    - Maintain existing filtering and sorting functionality
+    - _Requirements: 6.1.7_
+  
+  - [x] 12.7.13 Update front desk page for group operations
+    - Support group check-in from arrivals tab
+    - Support group check-out from departures tab
+    - Display group indicator in arrivals/departures lists
+    - Show combined folio for group check-out
+    - _Requirements: 6.1.9, 6.1.10_
+  
+  - [x] 12.7.14 Add group booking translations
+    - Add English translations for group booking UI
+    - Add Vietnamese translations for group booking UI
+    - Include labels for: group booking, room selection, alternatives, total rooms, etc.
+    - _Requirements: 15.1, 15.5_
+  
+  - [ ] 12.7.15 Write property tests for group booking
+    - **Property 38: Group Booking Atomicity**
+    - **Property 39: Group Booking Metadata Consistency**
+    - **Property 40: Group Availability Check Completeness**
+    - **Property 41: Alternative Room Type Suggestions**
+    - **Property 42: Group Check-In State Transition**
+    - **Property 43: Group Check-Out State Transition**
+    - **Property 44: Group Cancellation Consistency**
+    - **Property 45: Group Total Price Calculation**
+    - **Validates: Requirements 6.1.2, 6.1.3, 6.1.6, 6.1.9, 6.1.10, 6.1.11, 6.1.12, 6.1.13**
+  
+  - [ ] 12.7.16 Write unit tests for group booking edge cases
+    - Test group booking with all rooms available
+    - Test group booking with partial availability (alternatives needed)
+    - Test group booking with no availability
+    - Test group check-in with mixed statuses
+    - Test group cancellation
+    - Test group total calculation with different room prices
+    - _Requirements: 6.1.1-6.1.13_
+
 - [ ] 13. Checkpoint - Verify Core Features
   - Ensure all tests pass, ask the user if questions arise.
 
@@ -300,24 +423,32 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 8.5, 8.6, 8.7, 8.8**
 
 - [ ] 16. Pricing and Services Feature
-  - [ ] 16.1 Implement room types management
+  - [x] 16.1 Implement room types management
     - Create CRUD interface for room types
     - Implement base pricing, weekday pricing, seasonal pricing
     - Validate seasonal pricing non-overlap
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.6_
   
-  - [ ] 16.2 Implement pricing calculator utility
+  - [x] 16.2 Implement pricing calculator utility
     - Calculate reservation price based on dates and room type
     - Apply seasonal pricing, then weekday pricing, then base price
     - Calculate tax and total
     - _Requirements: 9.5_
   
-  - [ ] 16.3 Implement services management
+  - [x] 16.2.1 Integrate pricing calculator into reservation form
+    - Import and use calculateReservationPrice in CreateReservationForm
+    - Auto-calculate price when user selects room type and dates
+    - Display price breakdown (subtotal, tax, total) in the form
+    - Update totalPrice field before form submission
+    - Show loading state during price calculation
+    - _Requirements: 6.3, 9.5_
+  
+  - [x] 16.3 Implement services management
     - Create CRUD interface for services
     - Support multi-language descriptions
     - _Requirements: 10.1, 10.2, 10.7_
   
-  - [ ] 16.4 Implement service orders (simple POS)
+  - [x] 16.4 Implement service orders (simple POS)
     - Create service orders for in-house guests
     - Post charges to guest folio
     - _Requirements: 10.3, 10.4_
@@ -335,18 +466,18 @@ This implementation plan breaks down the hotel management system into incrementa
     - _Requirements: 9.5_
 
 - [ ] 17. Customers Feature
-  - [ ] 17.1 Implement customers list page
+  - [x] 17.1 Implement customers list page
     - Display all customers with search
     - Implement customer search by name, email, phone
     - _Requirements: 11.1, 11.7_
   
-  - [ ] 17.2 Implement customer CRUD operations
+  - [x] 17.2 Implement customer CRUD operations
     - Create form to add/edit customers
     - Store customer information in Firestore
     - Display customer booking history
     - _Requirements: 11.2, 11.3, 11.6_
   
-  - [ ] 17.3 Implement companies/partners management
+  - [x] 17.3 Implement companies/partners management
     - Create CRUD interface for companies
     - Link customers to companies
     - _Requirements: 11.4, 11.5_
@@ -356,25 +487,25 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 11.7**
 
 - [ ] 18. Reports Feature
-  - [ ] 18.1 Implement occupancy report
+  - [x] 18.1 Implement occupancy report
     - Calculate occupancy percentage by date
     - Display report in table format
     - Support date range filtering
     - _Requirements: 12.1_
   
-  - [ ] 18.2 Implement revenue report
+  - [x] 18.2 Implement revenue report
     - Calculate total revenue, revenue by room type, revenue by service
     - Display summary statistics
     - Support date range filtering
     - _Requirements: 12.2_
   
-  - [ ] 18.3 Implement reservation report
+  - [x] 18.3 Implement reservation report
     - Show bookings by source
     - Show cancellations and no-shows
     - Support date range filtering
     - _Requirements: 12.3_
   
-  - [ ] 18.4 Implement report export functionality
+  - [x] 18.4 Implement report export functionality
     - Export reports to CSV format
     - Export reports to PDF format
     - _Requirements: 12.6_
@@ -385,7 +516,7 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 12.1, 12.2**
 
 - [ ] 19. System Settings Feature
-  - [ ] 19.1 Implement hotel users and permissions management
+  - [-] 19.1 Implement hotel users and permissions management
     - Display users with access to current hotel
     - Allow adding users with permission levels
     - Allow changing user permissions
@@ -524,4 +655,4 @@ This implementation plan breaks down the hotel management system into incrementa
 - Checkpoints ensure incremental validation throughout development
 - All code should follow TypeScript best practices and feature-based architecture
 - All user-facing text must use i18n translations (no hardcoded strings)
-- Total of 40 correctness properties (Properties 1-37 from original design + Properties 38-40 for room CRUD)
+- Total of 45 correctness properties (Properties 1-37 from original design + Properties 38-40 for room CRUD + Properties 38-45 for group booking)

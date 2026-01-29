@@ -12,6 +12,7 @@ import {
   Row,
   Col,
   Card,
+  Spin,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { Dayjs } from 'dayjs';
@@ -20,6 +21,7 @@ import { useHotel } from '../../../contexts/HotelContext';
 import { customerService } from '../../../services/customerService';
 import { roomTypeService } from '../../../services/roomTypeService';
 import { reservationService } from '../../../services/reservationService';
+import { calculateReservationPrice } from '../../../utils/pricingCalculator';
 import type { Customer, RoomType, Room } from '../../../types';
 
 const { TextArea } = Input;
@@ -56,6 +58,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
     tax: number;
     total: number;
   } | null>(null);
+  const [calculatingPrice, setCalculatingPrice] = useState(false);
 
   // Load customers and room types on mount
   useEffect(() => {
@@ -123,6 +126,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
     roomTypeId: string
   ) => {
     setLoadingRooms(true);
+    setCalculatingPrice(true);
     try {
       const checkInStr = checkInDate.format('YYYY-MM-DD');
       const checkOutStr = checkOutDate.format('YYYY-MM-DD');
@@ -142,10 +146,12 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
       
       // Calculate price if room type is selected
       if (selectedRoomType) {
-        const pricing = roomTypeService.calculateTotalPrice(
-          selectedRoomType,
-          checkInStr,
-          checkOutStr,
+        const pricing = calculateReservationPrice(
+          {
+            roomType: selectedRoomType,
+            checkInDate: checkInStr,
+            checkOutDate: checkOutStr,
+          },
           currentHotel!.taxRate
         );
         setPriceBreakdown(pricing);
@@ -155,6 +161,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
       message.error(t('form.availabilityCheckError'));
     } finally {
       setLoadingRooms(false);
+      setCalculatingPrice(false);
     }
   };
 
@@ -169,13 +176,15 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
       const checkInStr = values.checkInDate.format('YYYY-MM-DD');
       const checkOutStr = values.checkOutDate.format('YYYY-MM-DD');
       
-      // Calculate total price
+      // Calculate total price using the pricing calculator
       let totalPrice = 0;
       if (selectedRoomType) {
-        const pricing = roomTypeService.calculateTotalPrice(
-          selectedRoomType,
-          checkInStr,
-          checkOutStr,
+        const pricing = calculateReservationPrice(
+          {
+            roomType: selectedRoomType,
+            checkInDate: checkInStr,
+            checkOutDate: checkOutStr,
+          },
           currentHotel.taxRate
         );
         totalPrice = pricing.total;
@@ -194,6 +203,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
         paidAmount: 0,
         notes: values.notes,
         status: 'pending',
+        isGroupBooking: false,
       });
       
       message.success(t('form.createSuccess'));
@@ -398,7 +408,17 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
         />
       </Form.Item>
 
-      {priceBreakdown && (
+      {calculatingPrice && (
+        <>
+          <Divider />
+          <Card size="small" style={{ backgroundColor: '#f5f5f5', textAlign: 'center' }}>
+            <Spin size="small" />
+            <span style={{ marginLeft: 8 }}>{t('form.calculatingPrice')}</span>
+          </Card>
+        </>
+      )}
+
+      {!calculatingPrice && priceBreakdown && (
         <>
           <Divider />
           <Card size="small" style={{ backgroundColor: '#f5f5f5' }}>

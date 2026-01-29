@@ -17,6 +17,8 @@ import {
   SwapOutlined,
   MenuOutlined,
   ToolOutlined,
+  ShoppingOutlined,
+  ShoppingCartOutlined,
 } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { useHotel } from '../contexts/HotelContext';
@@ -79,9 +81,24 @@ export function MainLayout() {
       label: t('pricing'),
     },
     {
+      key: '/services',
+      icon: <ShoppingOutlined />,
+      label: t('services'),
+    },
+    {
+      key: '/service-orders',
+      icon: <ShoppingCartOutlined />,
+      label: t('serviceOrders'),
+    },
+    {
       key: '/customers',
       icon: <UserOutlined />,
       label: t('customers'),
+    },
+    {
+      key: '/companies',
+      icon: <TeamOutlined />,
+      label: t('companies'),
     },
     {
       key: '/reports',
@@ -233,7 +250,7 @@ export function MainLayout() {
         </Header>
         <Content
           style={{
-            margin: isMobile ? '16px' : '24px',
+            margin: isMobile ? '1px' : '24px',
             padding: isMobile ? 16 : 24,
             background: '#fff',
             minHeight: 280,

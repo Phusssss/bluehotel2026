@@ -1,0 +1,73 @@
+{
+  "title": "Settings",
+  "tabs": {
+    "users": "Users & Permissions",
+    "general": "General Settings",
+    "generalComingSoon": "General settings coming soon..."
+  },
+  "users": {
+    "title": "Hotel Users & Permissions",
+    "addUser": "Add User",
+    "editPermission": "Edit Permission",
+    "error": "Error loading users",
+    "noPermission": "Insufficient Permissions",
+    "noPermissionDescription": "You need manager or owner permissions to manage users.",
+    "addSuccess": "User added successfully",
+    "addError": "Failed to add user",
+    "updateSuccess": "User permission updated successfully",
+    "updateError": "Failed to update user permission",
+    "removeSuccess": "User removed successfully",
+    "removeError": "Failed to remove user",
+    "table": {
+      "name": "Name",
+      "permission": "Permission",
+      "phone": "Phone",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "permissions": {
+      "owner": "Owner",
+      "manager": "Manager",
+      "receptionist": "Receptionist",
+      "housekeeping": "Housekeeping"
+    },
+    "permissionDescriptions": {
+      "owner": "Full access to all features and settings",
+      "manager": "Access to most features, can manage users and settings",
+      "receptionist": "Access to front desk, reservations, and customer management",
+      "housekeeping": "Access to room status and housekeeping tasks only"
+    },
+    "status": {
+      "active": "Active",
+      "locked": "Locked"
+    },
+    "actions": {
+      "editPermission": "Edit Permission",
+      "remove": "Remove User",
+      "removeConfirm": "Remove this user?",
+      "removeDescription": "This user will lose access to this hotel. This action cannot be undone."
+    },
+    "form": {
+      "email": "Email Address",
+      "emailPlaceholder": "Enter user's email address",
+      "emailRequired": "Email address is required",
+      "emailInvalid": "Please enter a valid email address",
+      "permission": "Permission Level",
+      "permissionPlaceholder": "Select permission level",
+      "permissionRequired": "Permission level is required",
+      "note": "Note",
+      "noteDescription": "The user must already have an account in the system. They will receive access to this hotel with the selected permission level.",
+      "warning": "Warning",
+      "warningDescription": "Changing permissions will immediately affect what this user can access in the system."
+    }
+  },
+  "common": {
+    "add": "Add",
+    "save": "Save",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "retry": "Retry",
+    "pagination": "{{start}}-{{end}} of {{total}} items"
+  }
+}

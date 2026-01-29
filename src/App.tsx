@@ -18,6 +18,12 @@ import { FrontDeskPage } from './features/frontDesk/pages/FrontDeskPage';
 import { RoomsPage } from './features/rooms/pages/RoomsPage';
 import { HousekeepingBoard } from './features/rooms/components/HousekeepingBoard';
 import { PricingPage } from './features/pricing/pages/PricingPage';
+import { ServicesPage } from './features/pricing/pages/ServicesPage';
+import { ServiceOrdersPage } from './features/pricing/pages/ServiceOrdersPage';
+import { CustomersPage } from './features/customers/pages/CustomersPage';
+import { CompaniesPage } from './features/customers/pages/CompaniesPage';
+import { ReportsPage } from './features/reports/pages/ReportsPage';
+import { SettingsPage } from './features/settings/pages/SettingsPage';
 import './locales';
 
 /**
@@ -59,9 +65,12 @@ function AppContent() {
                     <Route path="/rooms" element={<RoomsPage />} />
                     <Route path="/housekeeping" element={<HousekeepingBoard />} />
                     <Route path="/pricing" element={<PricingPage />} />
-                    <Route path="/customers" element={<div>Customers (Coming Soon)</div>} />
-                    <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
-                    <Route path="/settings" element={<div>Settings (Coming Soon)</div>} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/service-orders" element={<ServiceOrdersPage />} />
+                    <Route path="/customers" element={<CustomersPage />} />
+                    <Route path="/companies" element={<CompaniesPage />} />
+                    <Route path="/reports" element={<ReportsPage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
                   </Route>
                 </Route>
               </Route>

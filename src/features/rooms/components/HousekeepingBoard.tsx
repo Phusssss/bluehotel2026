@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-  Card,
   Table,
   Select,
   Button,
@@ -12,6 +11,7 @@ import {
   Modal,
   message,
   Empty,
+  Typography,
 } from 'antd';
 import { 
   ReloadOutlined, 
@@ -24,6 +24,7 @@ import type { HousekeepingTask } from '../../../types';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+const { Title } = Typography;
 const { Option } = Select;
 
 /**
@@ -47,6 +48,7 @@ const PRIORITY_COLORS: Record<HousekeepingTask['priority'], string> = {
 
 /**
  * HousekeepingBoard component - displays housekeeping tasks with assignment
+ * Matches PricingPage UI style for consistency
  */
 export function HousekeepingBoard() {
   const { t } = useTranslation('rooms');
@@ -69,21 +71,10 @@ export function HousekeepingBoard() {
   const [selectedTask, setSelectedTask] = useState<HousekeepingTask | null>(null);
   const [selectedStaffId, setSelectedStaffId] = useState<string | undefined>();
   const [actionLoading, setActionLoading] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Show error message if there's an error
+  /**
+   * Show error message if there's an error
+   */
   useEffect(() => {
     if (error) {
       message.error(error.message || t('housekeeping.messages.loadError'));
@@ -179,7 +170,7 @@ export function HousekeepingBoard() {
   };
 
   /**
-   * Table columns configuration
+   * Table columns configuration with responsive breakpoints
    */
   const columns: ColumnsType<HousekeepingTask> = [
     {
@@ -190,8 +181,7 @@ export function HousekeepingBoard() {
         const room = getRoomById(roomId);
         return <Tag color="blue">{room?.roomNumber || roomId}</Tag>;
       },
-      width: isMobile ? 80 : 100,
-      fixed: isMobile ? undefined : 'left',
+      width: 100,
     },
     {
       title: t('housekeeping.table.taskType'),
@@ -200,7 +190,7 @@ export function HousekeepingBoard() {
       render: (taskType: HousekeepingTask['taskType']) => (
         <span>{t(`housekeeping.taskType.${taskType}`)}</span>
       ),
-      width: isMobile ? 100 : 120,
+      width: 120,
       responsive: ['md'],
     },
     {
@@ -209,10 +199,10 @@ export function HousekeepingBoard() {
       key: 'priority',
       render: (priority: HousekeepingTask['priority']) => (
         <Tag color={PRIORITY_COLORS[priority]}>
-          {isMobile ? priority.substring(0, 3).toUpperCase() : t(`housekeeping.priority.${priority}`)}
+          {t(`housekeeping.priority.${priority}`)}
         </Tag>
       ),
-      width: isMobile ? 80 : 100,
+      width: 100,
     },
     {
       title: t('housekeeping.table.status'),
@@ -220,10 +210,10 @@ export function HousekeepingBoard() {
       key: 'status',
       render: (status: HousekeepingTask['status']) => (
         <Tag color={STATUS_COLORS[status]}>
-          {isMobile ? status.substring(0, 4) : t(`housekeeping.taskStatus.${status}`)}
+          {t(`housekeeping.taskStatus.${status}`)}
         </Tag>
       ),
-      width: isMobile ? 80 : 120,
+      width: 120,
     },
     {
       title: t('housekeeping.table.assignedTo'),
@@ -232,6 +222,7 @@ export function HousekeepingBoard() {
       render: (assignedTo: string | undefined) => getStaffName(assignedTo),
       width: 120,
       responsive: ['lg'],
+      ellipsis: true,
     },
     {
       title: t('housekeeping.table.createdAt'),
@@ -240,16 +231,16 @@ export function HousekeepingBoard() {
       render: (createdAt: any) => {
         if (!createdAt) return '-';
         const date = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
-        return dayjs(date).format(isMobile ? 'MM/DD' : 'MMM DD, HH:mm');
+        return dayjs(date).format('MMM DD, HH:mm');
       },
-      width: isMobile ? 80 : 120,
+      width: 120,
       responsive: ['lg'],
     },
     {
-      title: t('housekeeping.table.actions'),
+      title: '',
       key: 'actions',
       render: (_, record) => (
-        <Space size="small" direction={isMobile ? 'vertical' : 'horizontal'}>
+        <Space size="small">
           {record.status !== 'completed' && (
             <Button
               type="link"
@@ -258,7 +249,7 @@ export function HousekeepingBoard() {
               size="small"
               style={{ padding: 0 }}
             >
-              {!isMobile && t('housekeeping.actions.assign')}
+              {t('housekeeping.actions.assign')}
             </Button>
           )}
           {record.status === 'in-progress' && (
@@ -270,149 +261,144 @@ export function HousekeepingBoard() {
               loading={actionLoading}
               style={{ padding: 0 }}
             >
-              {!isMobile && t('housekeeping.actions.complete')}
+              {t('housekeeping.actions.complete')}
             </Button>
           )}
         </Space>
       ),
-      width: isMobile ? 80 : 100,
-      fixed: 'right',
+      width: 100,
     },
   ];
 
   return (
-    <div style={{ padding: isMobile ? '0' : '24px' }}>
-      <Card
-        title={t('housekeeping.title')}
-        extra={
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={refresh} 
-            loading={loading}
-            size={isMobile ? 'small' : 'middle'}
-          >
-            {!isMobile && tCommon('common.refresh')}
-          </Button>
-        }
-      >
-        {/* Filters */}
-        <Card
-          size="small"
-          style={{ marginBottom: 16, backgroundColor: '#fafafa' }}
+    <div style={{ padding: '1px' }}>
+      {/* Page Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <Title level={2} style={{ margin: 0, fontSize: '24px' }}>{t('housekeeping.title')}</Title>
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={refresh} 
+          loading={loading}
+          size="middle"
         >
-          <Row gutter={[8, 8]}>
-            <Col xs={24} sm={12} lg={6}>
-              <div style={{ marginBottom: 8, fontSize: isMobile ? 12 : 14 }}>
-                <strong>{t('housekeeping.filters.taskStatus')}</strong>
-              </div>
-              <Select
-                placeholder={t('housekeeping.filters.taskStatus')}
-                style={{ width: '100%' }}
-                size={isMobile ? 'small' : 'middle'}
-                value={filters.status}
-                onChange={handleStatusChange}
-                allowClear
-              >
-                <Option value={undefined}>{t('housekeeping.filters.taskStatusAll')}</Option>
-                <Option value="pending">{t('housekeeping.taskStatus.pending')}</Option>
-                <Option value="in-progress">{t('housekeeping.taskStatus.in-progress')}</Option>
-                <Option value="completed">{t('housekeeping.taskStatus.completed')}</Option>
-              </Select>
-            </Col>
+          {tCommon('common.refresh')}
+        </Button>
+      </div>
 
-            <Col xs={24} sm={12} lg={6}>
-              <div style={{ marginBottom: 8, fontSize: isMobile ? 12 : 14 }}>
-                <strong>{t('housekeeping.filters.taskType')}</strong>
-              </div>
-              <Select
-                placeholder={t('housekeeping.filters.taskType')}
-                style={{ width: '100%' }}
-                size={isMobile ? 'small' : 'middle'}
-                value={filters.taskType}
-                onChange={handleTaskTypeChange}
-                allowClear
-              >
-                <Option value={undefined}>{t('housekeeping.filters.taskTypeAll')}</Option>
-                <Option value="clean">{t('housekeeping.taskType.clean')}</Option>
-                <Option value="deep-clean">{t('housekeeping.taskType.deep-clean')}</Option>
-                <Option value="turndown">{t('housekeeping.taskType.turndown')}</Option>
-                <Option value="inspection">{t('housekeeping.taskType.inspection')}</Option>
-              </Select>
-            </Col>
+      {/* Filters Card */}
+      <div style={{ 
+        background: '#fff', 
+        borderRadius: '8px',
+        padding: '16px',
+        marginBottom: '16px',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+      }}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} sm={12} lg={6}>
+            <Select
+              placeholder={t('housekeeping.filters.taskStatus')}
+              style={{ width: '100%' }}
+              value={filters.status}
+              onChange={handleStatusChange}
+              allowClear
+            >
+              <Option value={undefined}>{t('housekeeping.filters.taskStatusAll')}</Option>
+              <Option value="pending">{t('housekeeping.taskStatus.pending')}</Option>
+              <Option value="in-progress">{t('housekeeping.taskStatus.in-progress')}</Option>
+              <Option value="completed">{t('housekeeping.taskStatus.completed')}</Option>
+            </Select>
+          </Col>
 
-            <Col xs={24} sm={12} lg={6}>
-              <div style={{ marginBottom: 8, fontSize: isMobile ? 12 : 14 }}>
-                <strong>{t('housekeeping.filters.priority')}</strong>
-              </div>
-              <Select
-                placeholder={t('housekeeping.filters.priority')}
-                style={{ width: '100%' }}
-                size={isMobile ? 'small' : 'middle'}
-                value={filters.priority}
-                onChange={handlePriorityChange}
-                allowClear
-              >
-                <Option value={undefined}>{t('housekeeping.filters.priorityAll')}</Option>
-                <Option value="low">{t('housekeeping.priority.low')}</Option>
-                <Option value="normal">{t('housekeeping.priority.normal')}</Option>
-                <Option value="high">{t('housekeeping.priority.high')}</Option>
-                <Option value="urgent">{t('housekeeping.priority.urgent')}</Option>
-              </Select>
-            </Col>
+          <Col xs={24} sm={12} lg={6}>
+            <Select
+              placeholder={t('housekeeping.filters.taskType')}
+              style={{ width: '100%' }}
+              value={filters.taskType}
+              onChange={handleTaskTypeChange}
+              allowClear
+            >
+              <Option value={undefined}>{t('housekeeping.filters.taskTypeAll')}</Option>
+              <Option value="clean">{t('housekeeping.taskType.clean')}</Option>
+              <Option value="deep-clean">{t('housekeeping.taskType.deep-clean')}</Option>
+              <Option value="turndown">{t('housekeeping.taskType.turndown')}</Option>
+              <Option value="inspection">{t('housekeeping.taskType.inspection')}</Option>
+            </Select>
+          </Col>
 
-            <Col xs={24} sm={12} lg={6}>
-              <div style={{ marginBottom: 8, fontSize: isMobile ? 12 : 14 }}>
-                <strong>{t('housekeeping.filters.assignedTo')}</strong>
-              </div>
-              <Select
-                placeholder={t('housekeeping.filters.assignedTo')}
-                style={{ width: '100%' }}
-                size={isMobile ? 'small' : 'middle'}
-                value={filters.assignedTo}
-                onChange={handleAssignedToChange}
-                allowClear
-              >
-                <Option value={undefined}>{t('housekeeping.filters.assignedToAll')}</Option>
-                {staff.map((staffMember) => (
-                  <Option key={staffMember.id} value={staffMember.userId}>
-                    {staffMember.userId}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-          </Row>
+          <Col xs={24} sm={12} lg={6}>
+            <Select
+              placeholder={t('housekeeping.filters.priority')}
+              style={{ width: '100%' }}
+              value={filters.priority}
+              onChange={handlePriorityChange}
+              allowClear
+            >
+              <Option value={undefined}>{t('housekeeping.filters.priorityAll')}</Option>
+              <Option value="low">{t('housekeeping.priority.low')}</Option>
+              <Option value="normal">{t('housekeeping.priority.normal')}</Option>
+              <Option value="high">{t('housekeeping.priority.high')}</Option>
+              <Option value="urgent">{t('housekeeping.priority.urgent')}</Option>
+            </Select>
+          </Col>
 
-          <Row style={{ marginTop: isMobile ? 8 : 16 }}>
-            <Col span={24}>
-              <Space size={isMobile ? 'small' : 'middle'}>
-                <Button 
-                  icon={<ReloadOutlined />} 
-                  onClick={handleResetFilters}
-                  size={isMobile ? 'small' : 'middle'}
-                >
-                  {tCommon('filters.reset')}
-                </Button>
-              </Space>
-            </Col>
-          </Row>
-        </Card>
+          <Col xs={24} sm={12} lg={6}>
+            <Select
+              placeholder={t('housekeeping.filters.assignedTo')}
+              style={{ width: '100%' }}
+              value={filters.assignedTo}
+              onChange={handleAssignedToChange}
+              allowClear
+            >
+              <Option value={undefined}>{t('housekeeping.filters.assignedToAll')}</Option>
+              {staff.map((staffMember) => (
+                <Option key={staffMember.id} value={staffMember.userId}>
+                  {staffMember.userId}
+                </Option>
+              ))}
+            </Select>
+          </Col>
+        </Row>
 
-        {/* Table */}
+        <Row style={{ marginTop: '16px' }}>
+          <Col>
+            <Button 
+              icon={<ReloadOutlined />} 
+              onClick={handleResetFilters}
+            >
+              {tCommon('filters.reset')}
+            </Button>
+          </Col>
+        </Row>
+      </div>
+
+      {/* Table */}
+      <div style={{ 
+        background: '#fff', 
+        borderRadius: '8px',
+        overflow: 'hidden',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+      }}>
         <Spin spinning={loading} tip={t('housekeeping.loadingTasks')}>
           <Table
             columns={columns}
             dataSource={tasks}
             rowKey="id"
-            scroll={{ x: isMobile ? 600 : 800 }}
+            scroll={{ x: 800 }}
             pagination={{
-              pageSize: isMobile ? 10 : 20,
-              showSizeChanger: !isMobile,
-              showQuickJumper: !isMobile,
+              pageSize: 10,
+              showSizeChanger: true,
+              showQuickJumper: false,
               showTotal: (total, range) => 
-                isMobile 
-                  ? `${total}` 
-                  : `${range[0]}-${range[1]} ${tCommon('common.of')} ${total} ${tCommon('common.items')}`,
-              simple: isMobile,
+                `${range[0]}-${range[1]} / ${total}`,
+              responsive: true,
+              size: 'default',
             }}
             locale={{
               emptyText: (
@@ -422,10 +408,10 @@ export function HousekeepingBoard() {
                 />
               ),
             }}
-            size={isMobile ? 'small' : 'middle'}
+            size="middle"
           />
         </Spin>
-      </Card>
+      </div>
 
       {/* Assign Task Modal */}
       <Modal
@@ -440,8 +426,8 @@ export function HousekeepingBoard() {
         confirmLoading={actionLoading}
         okText={t('housekeeping.modal.confirm')}
         cancelText={t('housekeeping.modal.cancel')}
-        width={isMobile ? '100%' : 400}
-        style={isMobile ? { top: 0, maxWidth: '100vw', margin: 0, padding: 0 } : undefined}
+        width="95%"
+        style={{ maxWidth: 400, top: 20 }}
       >
         <div style={{ padding: '16px 0' }}>
           <Select

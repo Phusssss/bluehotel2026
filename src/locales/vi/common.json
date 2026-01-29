@@ -24,7 +24,9 @@
   "common": {
     "refresh": "Làm mới",
     "of": "của",
-    "items": "mục"
+    "items": "mục",
+    "yes": "Có",
+    "no": "Không"
   },
   "filters": {
     "reset": "Đặt lại bộ lọc"

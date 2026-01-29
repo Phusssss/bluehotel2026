@@ -5,7 +5,10 @@
   "rooms": "Rooms",
   "housekeeping": "Housekeeping",
   "pricing": "Pricing",
+  "services": "Services",
+  "serviceOrders": "Service Orders",
   "customers": "Customers",
+  "companies": "Companies",
   "reports": "Reports",
   "settings": "Settings",
   "admin": "Admin"

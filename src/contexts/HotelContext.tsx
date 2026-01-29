@@ -12,6 +12,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from './AuthContext';
+import { HotelUserService } from '../services/hotelUserService';
+import { HotelUser } from '../types';
 
 export interface Hotel {
   id: string;
@@ -30,6 +32,7 @@ export interface HotelContextValue {
   currentHotel: Hotel | null;
   hotels: Hotel[];
   loading: boolean;
+  userPermission: HotelUser['permission'] | null;
   selectHotel: (hotelId: string) => void;
   addHotel: (hotel: Omit<Hotel, 'id'>) => Promise<string>;
   updateHotel: (hotelId: string, data: Partial<Hotel>) => Promise<void>;
@@ -44,6 +47,7 @@ export function HotelProvider({ children }: { children: ReactNode }) {
   const [currentHotel, setCurrentHotel] = useState<Hotel | null>(null);
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userPermission, setUserPermission] = useState<HotelUser['permission'] | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -51,6 +55,7 @@ export function HotelProvider({ children }: { children: ReactNode }) {
     } else {
       setCurrentHotel(null);
       setHotels([]);
+      setUserPermission(null);
       setLoading(false);
       localStorage.removeItem(CURRENT_HOTEL_KEY);
     }
@@ -97,10 +102,18 @@ export function HotelProvider({ children }: { children: ReactNode }) {
       if (savedHotelId && validHotels.some((h) => h.id === savedHotelId)) {
         const hotel = validHotels.find((h) => h.id === savedHotelId);
         setCurrentHotel(hotel || null);
+        // Load user permission for the selected hotel
+        if (hotel) {
+          const permission = await HotelUserService.getUserPermission(hotel.id, user.uid);
+          setUserPermission(permission);
+        }
       } else if (validHotels.length > 0) {
         // Auto-select first hotel if no saved selection
         setCurrentHotel(validHotels[0]);
         localStorage.setItem(CURRENT_HOTEL_KEY, validHotels[0].id);
+        // Load user permission for the first hotel
+        const permission = await HotelUserService.getUserPermission(validHotels[0].id, user.uid);
+        setUserPermission(permission);
       }
     } catch (error) {
       console.error('Error loading user hotels:', error);
@@ -109,11 +122,14 @@ export function HotelProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const selectHotel = (hotelId: string) => {
+  const selectHotel = async (hotelId: string) => {
     const hotel = hotels.find((h) => h.id === hotelId);
-    if (hotel) {
+    if (hotel && user) {
       setCurrentHotel(hotel);
       localStorage.setItem(CURRENT_HOTEL_KEY, hotelId);
+      // Load user permission for the selected hotel
+      const permission = await HotelUserService.getUserPermission(hotelId, user.uid);
+      setUserPermission(permission);
     }
   };
 
@@ -186,6 +202,7 @@ export function HotelProvider({ children }: { children: ReactNode }) {
     currentHotel,
     hotels,
     loading,
+    userPermission,
     selectHotel,
     addHotel,
     updateHotel,

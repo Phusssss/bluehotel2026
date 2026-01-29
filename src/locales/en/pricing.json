@@ -5,6 +5,7 @@
     "create": "Create Room Type",
     "edit": "Edit Room Type",
     "delete": "Delete Room Type",
+    "details": "Room Type Details",
     "deleteConfirm": "Are you sure you want to delete this room type?",
     "deleteError": "Cannot delete room type that is assigned to rooms",
     "name": "Room Type Name",
@@ -63,5 +64,110 @@
     "capacity": "Capacity",
     "amenities": "Amenities",
     "actions": "Actions"
+  },
+  "details": {
+    "name": "Room Type Name",
+    "description": "Description",
+    "basePrice": "Base Price",
+    "capacity": "Capacity",
+    "amenities": "Amenities",
+    "weekdayPricing": "Weekday Pricing",
+    "seasonalPricing": "Seasonal Pricing",
+    "period": "Period",
+    "price": "Price"
+  },
+  "weekdays": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday"
+  },
+  "services": {
+    "title": "Services",
+    "create": "Create Service",
+    "createButton": "Create Service",
+    "createTitle": "Create New Service",
+    "edit": "Edit Service",
+    "editTitle": "Edit Service",
+    "delete": "Delete Service",
+    "deleteConfirm": "Are you sure you want to delete this service?",
+    "name": "Service Name",
+    "namePlaceholder": "Enter service name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter service description",
+    "price": "Price",
+    "pricePlaceholder": "Enter price",
+    "category": "Category",
+    "categoryPlaceholder": "Select category",
+    "taxable": "Taxable",
+    "active": "Active",
+    "totalItems": "Total {{count}} services",
+    "categories": {
+      "laundry": "Laundry",
+      "food": "Food & Beverage",
+      "transport": "Transport",
+      "spa": "Spa & Wellness",
+      "other": "Other"
+    },
+    "success": {
+      "created": "Service created successfully",
+      "updated": "Service updated successfully",
+      "deleted": "Service deleted successfully",
+      "activated": "Service activated successfully",
+      "deactivated": "Service deactivated successfully"
+    },
+    "errors": {
+      "createFailed": "Failed to create service",
+      "updateFailed": "Failed to update service",
+      "deleteFailed": "Failed to delete service",
+      "loadFailed": "Failed to load services",
+      "toggleFailed": "Failed to toggle service status"
+    },
+    "validation": {
+      "nameRequired": "Service name is required",
+      "priceRequired": "Price is required",
+      "priceMin": "Price must be 0 or greater",
+      "categoryRequired": "Category is required"
+    }
+  },
+  "serviceOrders": {
+    "title": "Service Orders",
+    "pos": "Point of Sale",
+    "createButton": "New Order",
+    "createTitle": "Create Service Order",
+    "createOrder": "Create Order",
+    "posDescription": "Create service orders for in-house guests. Charges will be posted to their room folio.",
+    "reservation": "Reservation",
+    "reservationPlaceholder": "Select reservation",
+    "service": "Service",
+    "servicePlaceholder": "Select service",
+    "quantity": "Quantity",
+    "quantityPlaceholder": "Enter quantity",
+    "unitPrice": "Unit Price",
+    "total": "Total",
+    "notes": "Notes",
+    "notesPlaceholder": "Enter notes (optional)",
+    "submit": "Create Order",
+    "room": "Room",
+    "success": {
+      "created": "Service order created successfully",
+      "updated": "Service order updated successfully",
+      "cancelled": "Service order cancelled successfully"
+    },
+    "errors": {
+      "createFailed": "Failed to create service order",
+      "updateFailed": "Failed to update service order",
+      "cancelFailed": "Failed to cancel service order",
+      "loadFailed": "Failed to load service orders"
+    },
+    "validation": {
+      "reservationRequired": "Reservation is required",
+      "serviceRequired": "Service is required",
+      "quantityRequired": "Quantity is required",
+      "quantityMin": "Quantity must be at least 1"
+    }
   }
 }

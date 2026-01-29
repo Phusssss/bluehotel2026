@@ -1,0 +1,103 @@
+{
+  "title": "Báo Cáo",
+  "occupancy": {
+    "title": "Báo Cáo Tỷ Lệ Lấp Đầy",
+    "description": "Xem thống kê tỷ lệ lấp đầy phòng cho bất kỳ khoảng thời gian nào",
+    "filters": {
+      "startDate": "Ngày Bắt Đầu",
+      "endDate": "Ngày Kết Thúc",
+      "generate": "Tạo Báo Cáo"
+    },
+    "table": {
+      "date": "Ngày",
+      "totalRooms": "Tổng Số Phòng",
+      "occupiedRooms": "Phòng Đã Đặt",
+      "occupancyPercentage": "Tỷ Lệ Lấp Đầy %"
+    },
+    "summary": {
+      "title": "Tóm Tắt",
+      "averageOccupancy": "Tỷ Lệ Lấp Đầy Trung Bình",
+      "maxOccupancy": "Tỷ Lệ Lấp Đầy Tối Đa",
+      "minOccupancy": "Tỷ Lệ Lấp Đầy Tối Thiểu",
+      "totalDays": "Tổng Số Ngày"
+    },
+    "noData": "Không có dữ liệu cho khoảng thời gian đã chọn",
+    "error": "Tạo báo cáo tỷ lệ lấp đầy thất bại",
+    "success": "Tạo báo cáo tỷ lệ lấp đầy thành công"
+  },
+  "revenue": {
+    "title": "Báo Cáo Doanh Thu",
+    "description": "Xem thống kê doanh thu theo loại phòng và dịch vụ",
+    "filters": {
+      "startDate": "Ngày Bắt Đầu",
+      "endDate": "Ngày Kết Thúc",
+      "generate": "Tạo Báo Cáo"
+    },
+    "summary": {
+      "title": "Tóm Tắt Doanh Thu",
+      "totalRevenue": "Tổng Doanh Thu",
+      "roomRevenue": "Doanh Thu Phòng",
+      "serviceRevenue": "Doanh Thu Dịch Vụ"
+    },
+    "roomTypes": {
+      "title": "Doanh Thu Theo Loại Phòng",
+      "table": {
+        "roomType": "Loại Phòng",
+        "revenue": "Doanh Thu",
+        "reservations": "Đặt Phòng"
+      }
+    },
+    "services": {
+      "title": "Doanh Thu Theo Dịch Vụ",
+      "table": {
+        "service": "Dịch Vụ",
+        "revenue": "Doanh Thu",
+        "orders": "Đơn Hàng"
+      }
+    },
+    "noData": "Không có dữ liệu doanh thu cho khoảng thời gian đã chọn",
+    "error": "Tạo báo cáo doanh thu thất bại",
+    "success": "Tạo báo cáo doanh thu thành công"
+  },
+  "reservation": {
+    "title": "Báo Cáo Đặt Phòng",
+    "description": "Xem thống kê đặt phòng theo nguồn, hủy phòng và không đến",
+    "filters": {
+      "startDate": "Ngày Bắt Đầu",
+      "endDate": "Ngày Kết Thúc",
+      "generate": "Tạo Báo Cáo"
+    },
+    "summary": {
+      "title": "Tóm Tắt Đặt Phòng",
+      "totalBookings": "Tổng Số Đặt Phòng",
+      "totalCancellations": "Tổng Số Hủy Phòng",
+      "totalNoShows": "Tổng Số Không Đến",
+      "cancellationRate": "Tỷ Lệ Hủy Phòng",
+      "noShowRate": "Tỷ Lệ Không Đến"
+    },
+    "bookingsBySource": {
+      "title": "Đặt Phòng Theo Nguồn",
+      "table": {
+        "source": "Nguồn Đặt Phòng",
+        "count": "Số Lượng",
+        "percentage": "Tỷ Lệ"
+      }
+    },
+    "cancellationsAndNoShows": {
+      "title": "Hủy Phòng và Không Đến Theo Ngày",
+      "table": {
+        "date": "Ngày",
+        "cancelled": "Đã Hủy",
+        "noShows": "Không Đến",
+        "total": "Tổng Cộng"
+      }
+    },
+    "noData": "Không có dữ liệu đặt phòng cho khoảng thời gian đã chọn",
+    "error": "Tạo báo cáo đặt phòng thất bại",
+    "success": "Tạo báo cáo đặt phòng thành công"
+  },
+  "export": {
+    "csv": "Xuất ra CSV",
+    "pdf": "Xuất ra PDF"
+  }
+}

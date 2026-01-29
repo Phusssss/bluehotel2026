@@ -1021,6 +1021,569 @@ function calculateReservationPrice(
 ```
 
 
+### Group Booking Implementation
+
+#### Overview
+
+Group bookings allow customers to reserve multiple rooms in a single transaction. The implementation uses a "linked reservations" approach where each room gets its own reservation document, but all reservations in the group are linked via a shared `groupId`.
+
+#### Data Model Changes
+
+Add the following fields to the `ReservationDocument` interface:
+
+```typescript
+interface ReservationDocument {
+  // ... existing fields ...
+  
+  // Group booking fields
+  groupId?: string;              // UUID linking reservations in the same group
+  groupSize?: number;            // Total number of rooms in the group
+  groupIndex?: number;           // Position in group (1, 2, 3, ...)
+  isGroupBooking: boolean;       // Flag indicating if this is part of a group
+}
+```
+
+#### Group Booking Flow
+
+```mermaid
+sequenceDiagram
+    participant Staff
+    participant Form
+    participant Service
+    participant Firestore
+    
+    Staff->>Form: Select customer, dates, source
+    Staff->>Form: Select multiple room types with quantities
+    Form->>Service: Check availability for all room types
+    Service->>Firestore: Query available rooms
+    
+    alt All room types available
+        Firestore-->>Service: Return available rooms
+        Service-->>Form: Display available rooms
+    else Some room types unavailable
+        Firestore-->>Service: Return partial availability
+        Service->>Service: Find alternative room types (upgrades)
+        Service-->>Form: Display available + suggested alternatives
+    end
+    
+    Staff->>Form: Select specific rooms for each type
+    Staff->>Form: Submit group booking
+    Form->>Service: Create group booking
+    Service->>Service: Generate groupId (UUID)
+    Service->>Firestore: Batch write all reservations
+    Firestore-->>Service: Success
+    Service-->>Form: Group booking created
+    Form-->>Staff: Show success message
+```
+
+#### Service Layer Implementation
+
+```typescript
+// services/reservationService.ts
+
+interface GroupBookingInput {
+  hotelId: string;
+  customerId: string;
+  checkInDate: string;
+  checkOutDate: string;
+  source: Reservation['source'];
+  notes?: string;
+  rooms: Array<{
+    roomId: string;
+    roomTypeId: string;
+    numberOfGuests: number;
+    totalPrice: number;
+  }>;
+}
+
+interface RoomAvailability {
+  roomTypeId: string;
+  roomTypeName: string;
+  requestedQuantity: number;
+  availableRooms: Room[];
+  isFullyAvailable: boolean;
+  alternatives?: Array<{
+    roomTypeId: string;
+    roomTypeName: string;
+    availableRooms: Room[];
+    priceComparison: number; // Percentage difference from requested type
+  }>;
+}
+
+class ReservationService {
+  /**
+   * Check availability for multiple room types and suggest alternatives
+   */
+  async checkGroupAvailability(
+    hotelId: string,
+    checkInDate: string,
+    checkOutDate: string,
+    roomTypeRequests: Array<{ roomTypeId: string; quantity: number }>
+  ): Promise<RoomAvailability[]> {
+    const results: RoomAvailability[] = [];
+    
+    for (const request of roomTypeRequests) {
+      const availableRooms = await this.getAvailableRooms(
+        hotelId,
+        checkInDate,
+        checkOutDate,
+        request.roomTypeId
+      );
+      
+      const roomType = await roomTypeService.getRoomTypeById(request.roomTypeId);
+      const isFullyAvailable = availableRooms.length >= request.quantity;
+      
+      let alternatives: RoomAvailability['alternatives'] = undefined;
+      
+      // If not fully available, find alternatives (upgrades)
+      if (!isFullyAvailable) {
+        alternatives = await this.findAlternativeRoomTypes(
+          hotelId,
+          checkInDate,
+          checkOutDate,
+          request.roomTypeId,
+          request.quantity - availableRooms.length
+        );
+      }
+      
+      results.push({
+        roomTypeId: request.roomTypeId,
+        roomTypeName: roomType?.name || '',
+        requestedQuantity: request.quantity,
+        availableRooms,
+        isFullyAvailable,
+        alternatives,
+      });
+    }
+    
+    return results;
+  }
+  
+  /**
+   * Find alternative room types (typically upgrades) when requested type is unavailable
+   */
+  private async findAlternativeRoomTypes(
+    hotelId: string,
+    checkInDate: string,
+    checkOutDate: string,
+    requestedRoomTypeId: string,
+    neededQuantity: number
+  ): Promise<Array<{
+    roomTypeId: string;
+    roomTypeName: string;
+    availableRooms: Room[];
+    priceComparison: number;
+  }>> {
+    // Get requested room type for price comparison
+    const requestedType = await roomTypeService.getRoomTypeById(requestedRoomTypeId);
+    if (!requestedType) return [];
+    
+    // Get all room types for this hotel
+    const allRoomTypes = await roomTypeService.getRoomTypes(hotelId);
+    
+    // Filter to room types with higher or equal capacity (upgrades)
+    const upgrades = allRoomTypes.filter(
+      rt => rt.id !== requestedRoomTypeId && rt.capacity >= requestedType.capacity
+    );
+    
+    const alternatives = [];
+    
+    for (const upgrade of upgrades) {
+      const availableRooms = await this.getAvailableRooms(
+        hotelId,
+        checkInDate,
+        checkOutDate,
+        upgrade.id
+      );
+      
+      if (availableRooms.length >= neededQuantity) {
+        const priceComparison = ((upgrade.basePrice - requestedType.basePrice) / requestedType.basePrice) * 100;
+        
+        alternatives.push({
+          roomTypeId: upgrade.id,
+          roomTypeName: upgrade.name,
+          availableRooms: availableRooms.slice(0, neededQuantity),
+          priceComparison: Math.round(priceComparison),
+        });
+      }
+    }
+    
+    // Sort by price (cheapest alternatives first)
+    alternatives.sort((a, b) => a.priceComparison - b.priceComparison);
+    
+    return alternatives;
+  }
+  
+  /**
+   * Create a group booking with multiple rooms
+   */
+  async createGroupBooking(input: GroupBookingInput): Promise<string[]> {
+    const { hotelId, customerId, checkInDate, checkOutDate, source, notes, rooms } = input;
+    
+    // Validate all rooms are available
+    for (const room of rooms) {
+      const isAvailable = await this.checkRoomAvailability(
+        hotelId,
+        room.roomId,
+        checkInDate,
+        checkOutDate
+      );
+      
+      if (!isAvailable) {
+        throw new Error(`Room ${room.roomId} is not available for the selected dates`);
+      }
+    }
+    
+    // Generate group ID
+    const groupId = crypto.randomUUID();
+    const groupSize = rooms.length;
+    const now = Timestamp.now();
+    
+    // Create batch write
+    const batch = writeBatch(db);
+    const reservationIds: string[] = [];
+    
+    // Create a reservation for each room
+    rooms.forEach((room, index) => {
+      const reservationRef = doc(collection(db, 'reservations'));
+      const confirmationNumber = this.generateConfirmationNumber();
+      
+      const reservationData = deepRemoveUndefinedFields({
+        hotelId,
+        confirmationNumber,
+        customerId,
+        roomId: room.roomId,
+        roomTypeId: room.roomTypeId,
+        checkInDate,
+        checkOutDate,
+        numberOfGuests: room.numberOfGuests,
+        status: 'pending' as const,
+        source,
+        totalPrice: room.totalPrice,
+        paidAmount: 0,
+        notes,
+        groupId,
+        groupSize,
+        groupIndex: index + 1,
+        isGroupBooking: true,
+        createdAt: now,
+        updatedAt: now,
+      });
+      
+      batch.set(reservationRef, reservationData);
+      reservationIds.push(reservationRef.id);
+    });
+    
+    // Commit batch
+    await batch.commit();
+    
+    return reservationIds;
+  }
+  
+  /**
+   * Get all reservations in a group
+   */
+  async getGroupReservations(groupId: string): Promise<Reservation[]> {
+    const q = query(
+      collection(db, 'reservations'),
+      where('groupId', '==', groupId),
+      orderBy('groupIndex', 'asc')
+    );
+    
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Reservation[];
+  }
+  
+  /**
+   * Cancel all reservations in a group
+   */
+  async cancelGroupBooking(groupId: string): Promise<void> {
+    const reservations = await this.getGroupReservations(groupId);
+    
+    const batch = writeBatch(db);
+    const now = Timestamp.now();
+    
+    reservations.forEach(reservation => {
+      const docRef = doc(db, 'reservations', reservation.id);
+      batch.update(docRef, {
+        status: 'cancelled',
+        updatedAt: now,
+      });
+    });
+    
+    await batch.commit();
+  }
+  
+  /**
+   * Check in all reservations in a group
+   */
+  async checkInGroup(groupId: string): Promise<void> {
+    const reservations = await this.getGroupReservations(groupId);
+    
+    const batch = writeBatch(db);
+    const now = Timestamp.now();
+    
+    reservations.forEach(reservation => {
+      // Update reservation
+      const reservationRef = doc(db, 'reservations', reservation.id);
+      batch.update(reservationRef, {
+        status: 'checked-in',
+        checkedInAt: now,
+        updatedAt: now,
+      });
+      
+      // Update room status
+      const roomRef = doc(db, 'rooms', reservation.roomId);
+      batch.update(roomRef, {
+        status: 'occupied',
+        updatedAt: now,
+      });
+    });
+    
+    await batch.commit();
+  }
+  
+  /**
+   * Check out all reservations in a group
+   */
+  async checkOutGroup(groupId: string): Promise<void> {
+    const reservations = await this.getGroupReservations(groupId);
+    
+    const batch = writeBatch(db);
+    const now = Timestamp.now();
+    
+    reservations.forEach(reservation => {
+      // Update reservation
+      const reservationRef = doc(db, 'reservations', reservation.id);
+      batch.update(reservationRef, {
+        status: 'checked-out',
+        checkedOutAt: now,
+        updatedAt: now,
+      });
+      
+      // Update room status
+      const roomRef = doc(db, 'rooms', reservation.roomId);
+      batch.update(roomRef, {
+        status: 'dirty',
+        updatedAt: now,
+      });
+      
+      // Create housekeeping task
+      const taskRef = doc(collection(db, 'housekeepingTasks'));
+      batch.set(taskRef, {
+        hotelId: reservation.hotelId,
+        roomId: reservation.roomId,
+        taskType: 'clean',
+        priority: 'normal',
+        status: 'pending',
+        createdAt: now,
+      });
+    });
+    
+    await batch.commit();
+  }
+  
+  /**
+   * Calculate total price for group booking
+   */
+  calculateGroupTotal(reservations: Reservation[]): number {
+    return reservations.reduce((sum, res) => sum + res.totalPrice, 0);
+  }
+}
+```
+
+#### UI Components
+
+##### Group Booking Form
+
+```typescript
+// components/CreateGroupBookingForm.tsx
+
+interface RoomTypeSelection {
+  roomTypeId: string;
+  quantity: number;
+}
+
+interface SelectedRoom {
+  roomId: string;
+  roomTypeId: string;
+  numberOfGuests: number;
+}
+
+function CreateGroupBookingForm({ onSuccess, onCancel }: Props) {
+  const [step, setStep] = useState<'select-types' | 'select-rooms' | 'confirm'>(1);
+  const [roomTypeSelections, setRoomTypeSelections] = useState<RoomTypeSelection[]>([]);
+  const [availability, setAvailability] = useState<RoomAvailability[]>([]);
+  const [selectedRooms, setSelectedRooms] = useState<SelectedRoom[]>([]);
+  
+  const handleCheckAvailability = async () => {
+    const results = await reservationService.checkGroupAvailability(
+      currentHotel!.id,
+      checkInDate,
+      checkOutDate,
+      roomTypeSelections
+    );
+    setAvailability(results);
+    setStep('select-rooms');
+  };
+  
+  const handleSubmit = async () => {
+    // Calculate prices for each room
+    const roomsWithPrices = selectedRooms.map(room => {
+      const roomType = roomTypes.find(rt => rt.id === room.roomTypeId);
+      const pricing = calculateReservationPrice(
+        { roomType, checkInDate, checkOutDate },
+        currentHotel!.taxRate
+      );
+      
+      return {
+        ...room,
+        totalPrice: pricing.total,
+      };
+    });
+    
+    await reservationService.createGroupBooking({
+      hotelId: currentHotel!.id,
+      customerId,
+      checkInDate,
+      checkOutDate,
+      source,
+      notes,
+      rooms: roomsWithPrices,
+    });
+    
+    message.success(t('groupBooking.createSuccess'));
+    onSuccess();
+  };
+  
+  return (
+    <Steps current={step}>
+      <Step title={t('groupBooking.selectTypes')} />
+      <Step title={t('groupBooking.selectRooms')} />
+      <Step title={t('groupBooking.confirm')} />
+    </Steps>
+    
+    {step === 'select-types' && (
+      <RoomTypeSelectionStep
+        roomTypes={roomTypes}
+        selections={roomTypeSelections}
+        onChange={setRoomTypeSelections}
+        onNext={handleCheckAvailability}
+      />
+    )}
+    
+    {step === 'select-rooms' && (
+      <RoomSelectionStep
+        availability={availability}
+        selectedRooms={selectedRooms}
+        onChange={setSelectedRooms}
+        onNext={() => setStep('confirm')}
+        onBack={() => setStep('select-types')}
+      />
+    )}
+    
+    {step === 'confirm' && (
+      <ConfirmationStep
+        selectedRooms={selectedRooms}
+        onSubmit={handleSubmit}
+        onBack={() => setStep('select-rooms')}
+      />
+    )}
+  );
+}
+```
+
+##### Group Reservation Display
+
+```typescript
+// components/GroupReservationCard.tsx
+
+function GroupReservationCard({ groupId, reservations }: Props) {
+  const [expanded, setExpanded] = useState(false);
+  const totalPrice = reservationService.calculateGroupTotal(reservations);
+  
+  return (
+    <Card>
+      <div onClick={() => setExpanded(!expanded)}>
+        <Row>
+          <Col span={12}>
+            <Tag color="blue">GROUP</Tag>
+            <strong>{reservations[0].confirmationNumber}</strong>
+            <span> ({reservations.length} rooms)</span>
+          </Col>
+          <Col span={12} style={{ textAlign: 'right' }}>
+            <strong>{totalPrice.toLocaleString()} VND</strong>
+          </Col>
+        </Row>
+      </div>
+      
+      {expanded && (
+        <div style={{ marginTop: 16 }}>
+          {reservations.map((reservation, index) => (
+            <Card key={reservation.id} size="small" style={{ marginBottom: 8 }}>
+              <Row>
+                <Col span={8}>Room {index + 1}: {reservation.roomNumber}</Col>
+                <Col span={8}>{reservation.roomTypeName}</Col>
+                <Col span={8} style={{ textAlign: 'right' }}>
+                  {reservation.totalPrice.toLocaleString()} VND
+                </Col>
+              </Row>
+            </Card>
+          ))}
+          
+          <Space style={{ marginTop: 16 }}>
+            <Button onClick={() => handleCheckInGroup(groupId)}>
+              Check In All
+            </Button>
+            <Button onClick={() => handleCheckOutGroup(groupId)}>
+              Check Out All
+            </Button>
+            <Button danger onClick={() => handleCancelGroup(groupId)}>
+              Cancel All
+            </Button>
+          </Space>
+        </div>
+      )}
+    </Card>
+  );
+}
+```
+
+#### Firestore Indexes
+
+Add composite index for group queries:
+
+```json
+{
+  "indexes": [
+    {
+      "collectionGroup": "reservations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "hotelId", "order": "ASCENDING" },
+        { "fieldPath": "groupId", "order": "ASCENDING" },
+        { "fieldPath": "groupIndex", "order": "ASCENDING" }
+      ]
+    }
+  ]
+}
+```
+
+#### Alternative Suggestion Algorithm
+
+The system suggests alternative room types when requested types are unavailable:
+
+1. **Filter Criteria**: Only suggest room types with capacity >= requested type
+2. **Availability Check**: Ensure sufficient quantity available
+3. **Price Comparison**: Calculate percentage difference from requested type
+4. **Sorting**: Present cheapest alternatives first
+5. **User Choice**: Staff can accept alternatives or modify booking
+
+This approach maximizes booking conversion by offering upgrades instead of rejecting the booking entirely.
+
 ## Correctness Properties
 
 A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.
@@ -1260,6 +1823,54 @@ After analyzing all acceptance criteria, I identified the following key properti
 *For any* form with validation rules, submitting invalid data (e.g., email without @ symbol, check-out date before check-in date) should prevent submission and display error messages.
 
 **Validates: Requirements 19.1, 19.2, 19.3**
+
+#### Property 38: Group Booking Atomicity
+
+*For any* group booking with N rooms, the system should create exactly N reservation documents with the same groupId, or create none if any room is unavailable (all-or-nothing).
+
+**Validates: Requirements 6.1.6**
+
+#### Property 39: Group Booking Metadata Consistency
+
+*For any* group booking, all reservations in the group should have the same groupId, the same groupSize value equal to the number of rooms, and unique groupIndex values from 1 to groupSize.
+
+**Validates: Requirements 6.1.13**
+
+#### Property 40: Group Availability Check Completeness
+
+*For any* group booking request with multiple room types, the availability check should return results for all requested room types, indicating whether each is fully available.
+
+**Validates: Requirements 6.1.2**
+
+#### Property 41: Alternative Room Type Suggestions
+
+*For any* unavailable room type in a group booking, if alternative room types exist with capacity >= requested capacity and sufficient availability, the system should suggest them sorted by price difference.
+
+**Validates: Requirements 6.1.3**
+
+#### Property 42: Group Check-In State Transition
+
+*For any* group booking with groupId, performing group check-in should update all reservations in the group to status='checked-in', set checkedInAt timestamp for all, and mark all associated rooms as 'occupied'.
+
+**Validates: Requirements 6.1.9**
+
+#### Property 43: Group Check-Out State Transition
+
+*For any* group booking with groupId and all reservations in status='checked-in', performing group check-out should update all reservations to status='checked-out', set checkedOutAt timestamp for all, mark all rooms as 'dirty', and create housekeeping tasks for all rooms.
+
+**Validates: Requirements 6.1.10**
+
+#### Property 44: Group Cancellation Consistency
+
+*For any* group booking with groupId, canceling the group should update all reservations in the group to status='cancelled' and preserve all other fields.
+
+**Validates: Requirements 6.1.11**
+
+#### Property 45: Group Total Price Calculation
+
+*For any* group booking, the total price should equal the sum of totalPrice fields from all reservations in the group.
+
+**Validates: Requirements 6.1.12**
 
 
 ## Error Handling

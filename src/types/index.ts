@@ -138,6 +138,11 @@ export interface Reservation {
   updatedAt: Timestamp;
   checkedInAt?: Timestamp;
   checkedOutAt?: Timestamp;
+  // Group booking fields
+  groupId?: string;
+  groupSize?: number;
+  groupIndex?: number;
+  isGroupBooking: boolean;
 }
 
 /**
@@ -251,6 +256,57 @@ export interface ReservationFilters {
   status?: Reservation['status'];
   source?: Reservation['source'];
   customerId?: string;
+}
+
+/**
+ * Request for checking room type availability in group booking
+ */
+export interface RoomTypeAvailabilityRequest {
+  roomTypeId: string;
+  quantity: number;
+}
+
+/**
+ * Result of room type availability check
+ */
+export interface RoomTypeAvailabilityResult {
+  roomTypeId: string;
+  requested: number;
+  available: number;
+  isAvailable: boolean;
+}
+
+/**
+ * Alternative room type suggestion
+ */
+export interface AlternativeRoomType {
+  roomTypeId: string;
+  roomType: RoomType;
+  availableCount: number;
+  priceComparison: number; // Percentage difference from original (e.g., 20 means 20% more expensive)
+}
+
+/**
+ * Input for creating a single reservation in a group booking
+ */
+export interface GroupReservationInput {
+  roomId: string;
+  roomTypeId: string;
+  numberOfGuests: number;
+  totalPrice: number;
+}
+
+/**
+ * Input for creating a group booking
+ */
+export interface CreateGroupBookingInput {
+  hotelId: string;
+  customerId: string;
+  checkInDate: string;
+  checkOutDate: string;
+  source: Reservation['source'];
+  reservations: GroupReservationInput[];
+  notes?: string;
 }
 
 /**

@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { MaintenanceTicket } from '../types';
-import { removeUndefinedFields } from '../utils/firestore';
+import { deepRemoveUndefinedFields } from '../utils/firestore';
 import { roomService } from './roomService';
 
 /**
@@ -115,7 +115,7 @@ export class MaintenanceService {
     try {
       const now = Timestamp.now();
 
-      const ticketData = removeUndefinedFields({
+      const ticketData = deepRemoveUndefinedFields({
         ...data,
         status: data.status || 'open',
         priority: data.priority || 'normal',
@@ -152,7 +152,7 @@ export class MaintenanceService {
         throw new Error('Maintenance ticket not found');
       }
 
-      await updateDoc(docRef, removeUndefinedFields(data));
+      await updateDoc(docRef, deepRemoveUndefinedFields(data));
     } catch (error) {
       console.error('Error updating maintenance ticket:', error);
       throw error;

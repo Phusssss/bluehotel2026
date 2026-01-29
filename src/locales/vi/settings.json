@@ -1,0 +1,73 @@
+{
+  "title": "Cài Đặt",
+  "tabs": {
+    "users": "Người Dùng & Quyền Hạn",
+    "general": "Cài Đặt Chung",
+    "generalComingSoon": "Cài đặt chung sẽ có sớm..."
+  },
+  "users": {
+    "title": "Người Dùng & Quyền Hạn Khách Sạn",
+    "addUser": "Thêm Người Dùng",
+    "editPermission": "Sửa Quyền Hạn",
+    "error": "Lỗi khi tải danh sách người dùng",
+    "noPermission": "Không Đủ Quyền Hạn",
+    "noPermissionDescription": "Bạn cần quyền quản lý hoặc chủ sở hữu để quản lý người dùng.",
+    "addSuccess": "Thêm người dùng thành công",
+    "addError": "Thêm người dùng thất bại",
+    "updateSuccess": "Cập nhật quyền hạn thành công",
+    "updateError": "Cập nhật quyền hạn thất bại",
+    "removeSuccess": "Xóa người dùng thành công",
+    "removeError": "Xóa người dùng thất bại",
+    "table": {
+      "name": "Tên",
+      "permission": "Quyền Hạn",
+      "phone": "Điện Thoại",
+      "status": "Trạng Thái",
+      "actions": "Thao Tác"
+    },
+    "permissions": {
+      "owner": "Chủ Sở Hữu",
+      "manager": "Quản Lý",
+      "receptionist": "Lễ Tân",
+      "housekeeping": "Dọn Phòng"
+    },
+    "permissionDescriptions": {
+      "owner": "Quyền truy cập đầy đủ tất cả tính năng và cài đặt",
+      "manager": "Truy cập hầu hết tính năng, có thể quản lý người dùng và cài đặt",
+      "receptionist": "Truy cập lễ tân, đặt phòng và quản lý khách hàng",
+      "housekeeping": "Chỉ truy cập trạng thái phòng và công việc dọn phòng"
+    },
+    "status": {
+      "active": "Hoạt Động",
+      "locked": "Bị Khóa"
+    },
+    "actions": {
+      "editPermission": "Sửa Quyền Hạn",
+      "remove": "Xóa Người Dùng",
+      "removeConfirm": "Xóa người dùng này?",
+      "removeDescription": "Người dùng này sẽ mất quyền truy cập vào khách sạn. Hành động này không thể hoàn tác."
+    },
+    "form": {
+      "email": "Địa Chỉ Email",
+      "emailPlaceholder": "Nhập địa chỉ email của người dùng",
+      "emailRequired": "Địa chỉ email là bắt buộc",
+      "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ",
+      "permission": "Cấp Độ Quyền Hạn",
+      "permissionPlaceholder": "Chọn cấp độ quyền hạn",
+      "permissionRequired": "Cấp độ quyền hạn là bắt buộc",
+      "note": "Ghi Chú",
+      "noteDescription": "Người dùng phải đã có tài khoản trong hệ thống. Họ sẽ nhận được quyền truy cập vào khách sạn này với cấp độ quyền hạn đã chọn.",
+      "warning": "Cảnh Báo",
+      "warningDescription": "Thay đổi quyền hạn sẽ ngay lập tức ảnh hưởng đến những gì người dùng này có thể truy cập trong hệ thống."
+    }
+  },
+  "common": {
+    "add": "Thêm",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "yes": "Có",
+    "no": "Không",
+    "retry": "Thử Lại",
+    "pagination": "{{start}}-{{end}} của {{total}} mục"
+  }
+}

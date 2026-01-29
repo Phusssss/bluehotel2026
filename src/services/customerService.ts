@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { Customer, CreateCustomerInput, Reservation } from '../types';
-import { removeUndefinedFields } from '../utils/firestore';
+import { deepRemoveUndefinedFields } from '../utils/firestore';
 
 /**
  * Service class for managing customers in Firestore
@@ -144,7 +144,7 @@ export class CustomerService {
 
       const now = Timestamp.now();
 
-      const customerData = removeUndefinedFields({
+      const customerData = deepRemoveUndefinedFields({
         ...data,
         createdAt: now,
         updatedAt: now,
@@ -187,7 +187,7 @@ export class CustomerService {
         }
       }
 
-      await updateDoc(docRef, removeUndefinedFields({
+      await updateDoc(docRef, deepRemoveUndefinedFields({
         ...data,
         updatedAt: Timestamp.now(),
       }));
@@ -231,10 +231,14 @@ export class CustomerService {
   /**
    * Get customer booking history
    */
-  async getCustomerBookingHistory(customerId: string): Promise<Reservation[]> {
+  async getCustomerBookingHistory(
+    hotelId: string,
+    customerId: string
+  ): Promise<Reservation[]> {
     try {
       const q = query(
         collection(db, 'reservations'),
+        where('hotelId', '==', hotelId),
         where('customerId', '==', customerId),
         orderBy('checkInDate', 'desc')
       );

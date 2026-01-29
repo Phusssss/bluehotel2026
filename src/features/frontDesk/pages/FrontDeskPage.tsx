@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Card, Tabs, Table, Button, Space, Tag, Empty, Input } from 'antd';
+import { useState, useMemo } from 'react';
+import { Tabs, Table, Button, Space, Tag, Empty, Input, Typography } from 'antd';
 import { ReloadOutlined, LoginOutlined, LogoutOutlined, EyeOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
@@ -7,6 +7,8 @@ import dayjs from 'dayjs';
 import { useFrontDesk, type ReservationWithDetails } from '../hooks/useFrontDesk';
 import { ReservationDetailsModal } from '../../reservations/components/ReservationDetailsModal';
 import type { Reservation } from '../../../types';
+
+const { Title } = Typography;
 
 /**
  * Get color for reservation status tag
@@ -29,28 +31,16 @@ const getStatusColor = (status: Reservation['status']) => {
  * Front Desk Page Component
  * Displays three tabs: Arrivals, In-House, and Departures
  * Allows front desk staff to check in/out guests and view reservation details
+ * Supports responsive design for mobile, tablet, and desktop
  */
 export function FrontDeskPage() {
   const { t } = useTranslation('frontDesk');
   const { t: tReservations } = useTranslation('reservations');
-  const { arrivals, inHouse, departures, searchResults, loading, searching, refresh, checkIn, checkOut, search, clearSearch } = useFrontDesk();
+  const { arrivals, inHouse, departures, searchResults, loading, searching, refresh, checkIn, checkOut, checkInGroup, checkOutGroup, search, clearSearch } = useFrontDesk();
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('arrivals');
-
-  // Detect mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   /**
    * Open reservation details modal
@@ -103,6 +93,20 @@ export function FrontDeskPage() {
   };
 
   /**
+   * Check in a group booking
+   */
+  const handleCheckInGroup = async (groupId: string) => {
+    await checkInGroup(groupId);
+  };
+
+  /**
+   * Check out a group booking
+   */
+  const handleCheckOutGroup = async (groupId: string) => {
+    await checkOutGroup(groupId);
+  };
+
+  /**
    * Table columns for Arrivals tab
    * Shows pending/confirmed reservations with check-in today
    */
@@ -113,7 +117,16 @@ export function FrontDeskPage() {
         dataIndex: 'confirmationNumber',
         key: 'confirmationNumber',
         width: 150,
-        render: (text: string) => <strong>{text}</strong>,
+        render: (text: string, record: ReservationWithDetails) => (
+          <Space direction="vertical" size={0}>
+            <strong>{text}</strong>
+            {record.isGroupBooking && record.groupId && (
+              <Tag color="purple" style={{ fontSize: '11px' }}>
+                {t('group.indicator')} ({record.groupSize} {t('group.rooms', { count: record.groupSize })})
+              </Tag>
+            )}
+          </Space>
+        ),
       },
       {
         title: t('table.guestName'),
@@ -153,31 +166,42 @@ export function FrontDeskPage() {
       {
         title: t('table.actions'),
         key: 'actions',
-        width: isMobile ? 120 : 200,
-        fixed: 'right',
+        width: 200,
         render: (_, record) => (
-          <Space size="small" direction={isMobile ? 'vertical' : 'horizontal'}>
+          <Space size="small">
             <Button
               type="link"
               size="small"
               icon={<EyeOutlined />}
               onClick={() => handleViewDetails(record)}
+              style={{ padding: 0 }}
             >
-              {!isMobile && t('actions.viewDetails')}
+              {t('actions.viewDetails')}
             </Button>
-            <Button
-              type="primary"
-              size="small"
-              icon={<LoginOutlined />}
-              onClick={() => handleCheckIn(record.id)}
-            >
-              {t('actions.checkIn')}
-            </Button>
+            {record.isGroupBooking && record.groupId && record.groupIndex === 1 ? (
+              <Button
+                type="primary"
+                size="small"
+                icon={<LoginOutlined />}
+                onClick={() => handleCheckInGroup(record.groupId!)}
+              >
+                {t('actions.checkInGroup')}
+              </Button>
+            ) : !record.isGroupBooking ? (
+              <Button
+                type="primary"
+                size="small"
+                icon={<LoginOutlined />}
+                onClick={() => handleCheckIn(record.id)}
+              >
+                {t('actions.checkIn')}
+              </Button>
+            ) : null}
           </Space>
         ),
       },
     ],
-    [t, tReservations, isMobile, handleCheckIn]
+    [t, tReservations, handleCheckIn, handleCheckInGroup]
   );
 
   /**
@@ -236,8 +260,7 @@ export function FrontDeskPage() {
       {
         title: t('table.actions'),
         key: 'actions',
-        width: isMobile ? 100 : 150,
-        fixed: 'right',
+        width: 150,
         render: (_, record) => (
           <Space size="small">
             <Button
@@ -245,14 +268,15 @@ export function FrontDeskPage() {
               size="small"
               icon={<EyeOutlined />}
               onClick={() => handleViewDetails(record)}
+              style={{ padding: 0 }}
             >
-              {!isMobile && t('actions.viewDetails')}
+              {t('actions.viewDetails')}
             </Button>
           </Space>
         ),
       },
     ],
-    [t, isMobile]
+    [t]
   );
 
   /**
@@ -266,7 +290,16 @@ export function FrontDeskPage() {
         dataIndex: 'confirmationNumber',
         key: 'confirmationNumber',
         width: 150,
-        render: (text: string) => <strong>{text}</strong>,
+        render: (text: string, record: ReservationWithDetails) => (
+          <Space direction="vertical" size={0}>
+            <strong>{text}</strong>
+            {record.isGroupBooking && record.groupId && (
+              <Tag color="purple" style={{ fontSize: '11px' }}>
+                {t('group.indicator')} ({record.groupSize} {t('group.rooms', { count: record.groupSize })})
+              </Tag>
+            )}
+          </Space>
+        ),
       },
       {
         title: t('table.guestName'),
@@ -297,32 +330,44 @@ export function FrontDeskPage() {
       {
         title: t('table.actions'),
         key: 'actions',
-        width: isMobile ? 120 : 200,
-        fixed: 'right',
+        width: 200,
         render: (_, record) => (
-          <Space size="small" direction={isMobile ? 'vertical' : 'horizontal'}>
+          <Space size="small">
             <Button
               type="link"
               size="small"
               icon={<EyeOutlined />}
               onClick={() => handleViewDetails(record)}
+              style={{ padding: 0 }}
             >
-              {!isMobile && t('actions.viewDetails')}
+              {t('actions.viewDetails')}
             </Button>
-            <Button
-              type="primary"
-              size="small"
-              danger
-              icon={<LogoutOutlined />}
-              onClick={() => handleCheckOut(record.id)}
-            >
-              {t('actions.checkOut')}
-            </Button>
+            {record.isGroupBooking && record.groupId && record.groupIndex === 1 ? (
+              <Button
+                type="primary"
+                size="small"
+                danger
+                icon={<LogoutOutlined />}
+                onClick={() => handleCheckOutGroup(record.groupId!)}
+              >
+                {t('actions.checkOutGroup')}
+              </Button>
+            ) : !record.isGroupBooking ? (
+              <Button
+                type="primary"
+                size="small"
+                danger
+                icon={<LogoutOutlined />}
+                onClick={() => handleCheckOut(record.id)}
+              >
+                {t('actions.checkOut')}
+              </Button>
+            ) : null}
           </Space>
         ),
       },
     ],
-    [t, isMobile, handleCheckOut]
+    [t, handleCheckOut, handleCheckOutGroup]
   );
 
   /**
@@ -383,8 +428,7 @@ export function FrontDeskPage() {
       {
         title: t('table.actions'),
         key: 'actions',
-        width: isMobile ? 100 : 150,
-        fixed: 'right',
+        width: 150,
         render: (_, record) => (
           <Space size="small">
             <Button
@@ -392,55 +436,75 @@ export function FrontDeskPage() {
               size="small"
               icon={<EyeOutlined />}
               onClick={() => handleViewDetails(record)}
+              style={{ padding: 0 }}
             >
-              {!isMobile && t('actions.viewDetails')}
+              {t('actions.viewDetails')}
             </Button>
           </Space>
         ),
       },
     ],
-    [t, tReservations, isMobile]
+    [t, tReservations]
   );
 
   return (
-    <div style={{ padding: isMobile ? '0' : '24px' }}>
-      <Card
-        title={t('title')}
-        extra={
-          <Button icon={<ReloadOutlined />} onClick={refresh} loading={loading}>
-            {!isMobile && 'Refresh'}
+    <div style={{ padding: '1px' }}>
+      {/* Page Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <Title level={2} style={{ margin: 0, fontSize: '24px' }}>{t('title')}</Title>
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={refresh}
+          loading={loading}
+          size="middle"
+        />
+      </div>
+
+      {/* Search Bar */}
+      <div style={{ 
+        background: '#fff', 
+        borderRadius: '8px',
+        padding: '16px',
+        marginBottom: '16px',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+      }}>
+        <Space.Compact style={{ width: '100%', maxWidth: 600 }}>
+          <Input
+            placeholder={t('search.placeholder')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={handleSearchKeyPress}
+            prefix={<SearchOutlined />}
+            allowClear
+          />
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            onClick={handleSearch}
+            loading={searching}
+          >
+            {t('search.button')}
           </Button>
-        }
-      >
-        {/* Search Bar */}
-        <div style={{ marginBottom: 16 }}>
-          <Space.Compact style={{ width: '100%', maxWidth: 600 }}>
-            <Input
-              placeholder={t('search.placeholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleSearchKeyPress}
-              prefix={<SearchOutlined />}
-              allowClear
-            />
+          {searchResults.length > 0 && (
             <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              onClick={handleSearch}
-              loading={searching}
+              icon={<CloseOutlined />}
+              onClick={handleClearSearch}
             >
-              {!isMobile && t('search.button')}
+              {t('search.clear')}
             </Button>
-            {searchResults.length > 0 && (
-              <Button
-                icon={<CloseOutlined />}
-                onClick={handleClearSearch}
-              >
-                {!isMobile && t('search.clear')}
-              </Button>
-            )}
-          </Space.Compact>
-        </div>
+          )}
+        </Space.Compact>
+      </div>
+
+      {/* Tabs and Tables */}
+      <div>
 
         <Tabs
           activeKey={activeTab}
@@ -450,18 +514,26 @@ export function FrontDeskPage() {
               key: 'arrivals',
               label: t('tabs.arrivals'),
               children: (
-                <div>
+                <div style={{ 
+                  background: '#fff', 
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+                }}>
                   <Table
                     columns={arrivalsColumns}
                     dataSource={arrivals}
                     rowKey="id"
                     loading={loading}
-                    scroll={{ x: isMobile ? 800 : 1000 }}
+                    scroll={{ x: 1000 }}
                     pagination={{
-                      pageSize: isMobile ? 10 : 20,
-                      showSizeChanger: !isMobile,
-                      showTotal: (total) => !isMobile ? `Total ${total} arrivals` : `${total}`,
-                      simple: isMobile,
+                      pageSize: 10,
+                      showSizeChanger: true,
+                      showQuickJumper: false,
+                      showTotal: (total, range) =>
+                        `${range[0]}-${range[1]} / ${total}`,
+                      responsive: true,
+                      size: 'default',
                     }}
                     locale={{
                       emptyText: (
@@ -471,6 +543,7 @@ export function FrontDeskPage() {
                         />
                       ),
                     }}
+                    size="middle"
                   />
                 </div>
               ),
@@ -479,18 +552,26 @@ export function FrontDeskPage() {
               key: 'inHouse',
               label: t('tabs.inHouse'),
               children: (
-                <div>
+                <div style={{ 
+                  background: '#fff', 
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+                }}>
                   <Table
                     columns={inHouseColumns}
                     dataSource={inHouse}
                     rowKey="id"
                     loading={loading}
-                    scroll={{ x: isMobile ? 800 : 1000 }}
+                    scroll={{ x: 1000 }}
                     pagination={{
-                      pageSize: isMobile ? 10 : 20,
-                      showSizeChanger: !isMobile,
-                      showTotal: (total) => !isMobile ? `Total ${total} guests` : `${total}`,
-                      simple: isMobile,
+                      pageSize: 10,
+                      showSizeChanger: true,
+                      showQuickJumper: false,
+                      showTotal: (total, range) =>
+                        `${range[0]}-${range[1]} / ${total}`,
+                      responsive: true,
+                      size: 'default',
                     }}
                     locale={{
                       emptyText: (
@@ -500,6 +581,7 @@ export function FrontDeskPage() {
                         />
                       ),
                     }}
+                    size="middle"
                   />
                 </div>
               ),
@@ -508,18 +590,26 @@ export function FrontDeskPage() {
               key: 'departures',
               label: t('tabs.departures'),
               children: (
-                <div>
+                <div style={{ 
+                  background: '#fff', 
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+                }}>
                   <Table
                     columns={departuresColumns}
                     dataSource={departures}
                     rowKey="id"
                     loading={loading}
-                    scroll={{ x: isMobile ? 800 : 1000 }}
+                    scroll={{ x: 1000 }}
                     pagination={{
-                      pageSize: isMobile ? 10 : 20,
-                      showSizeChanger: !isMobile,
-                      showTotal: (total) => !isMobile ? `Total ${total} departures` : `${total}`,
-                      simple: isMobile,
+                      pageSize: 10,
+                      showSizeChanger: true,
+                      showQuickJumper: false,
+                      showTotal: (total, range) =>
+                        `${range[0]}-${range[1]} / ${total}`,
+                      responsive: true,
+                      size: 'default',
                     }}
                     locale={{
                       emptyText: (
@@ -529,6 +619,7 @@ export function FrontDeskPage() {
                         />
                       ),
                     }}
+                    size="middle"
                   />
                 </div>
               ),
@@ -541,33 +632,44 @@ export function FrontDeskPage() {
                   <div style={{ marginBottom: 16 }}>
                     <Tag color="blue">{t('search.resultsCount', { count: searchResults.length })}</Tag>
                   </div>
-                  <Table
-                    columns={searchColumns}
-                    dataSource={searchResults}
-                    rowKey="id"
-                    loading={searching}
-                    scroll={{ x: isMobile ? 900 : 1200 }}
-                    pagination={{
-                      pageSize: isMobile ? 10 : 20,
-                      showSizeChanger: !isMobile,
-                      showTotal: (total) => !isMobile ? `Total ${total} results` : `${total}`,
-                      simple: isMobile,
-                    }}
-                    locale={{
-                      emptyText: (
-                        <Empty
-                          description={t('search.noResults')}
-                          image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        />
-                      ),
-                    }}
-                  />
+                  <div style={{ 
+                    background: '#fff', 
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+                  }}>
+                    <Table
+                      columns={searchColumns}
+                      dataSource={searchResults}
+                      rowKey="id"
+                      loading={searching}
+                      scroll={{ x: 1200 }}
+                      pagination={{
+                        pageSize: 10,
+                        showSizeChanger: true,
+                        showQuickJumper: false,
+                        showTotal: (total, range) =>
+                          `${range[0]}-${range[1]} / ${total}`,
+                        responsive: true,
+                        size: 'default',
+                      }}
+                      locale={{
+                        emptyText: (
+                          <Empty
+                            description={t('search.noResults')}
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                          />
+                        ),
+                      }}
+                      size="middle"
+                    />
+                  </div>
                 </div>
               ),
             }] : []),
           ]}
         />
-      </Card>
+      </div>
 
       {/* Details Modal */}
       <ReservationDetailsModal

@@ -1,0 +1,103 @@
+{
+  "title": "Reports",
+  "occupancy": {
+    "title": "Occupancy Report",
+    "description": "View room occupancy statistics for any date range",
+    "filters": {
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "generate": "Generate Report"
+    },
+    "table": {
+      "date": "Date",
+      "totalRooms": "Total Rooms",
+      "occupiedRooms": "Occupied Rooms",
+      "occupancyPercentage": "Occupancy %"
+    },
+    "summary": {
+      "title": "Summary",
+      "averageOccupancy": "Average Occupancy",
+      "maxOccupancy": "Maximum Occupancy",
+      "minOccupancy": "Minimum Occupancy",
+      "totalDays": "Total Days"
+    },
+    "noData": "No data available for the selected date range",
+    "error": "Failed to generate occupancy report",
+    "success": "Occupancy report generated successfully"
+  },
+  "revenue": {
+    "title": "Revenue Report",
+    "description": "View revenue statistics broken down by room types and services",
+    "filters": {
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "generate": "Generate Report"
+    },
+    "summary": {
+      "title": "Revenue Summary",
+      "totalRevenue": "Total Revenue",
+      "roomRevenue": "Room Revenue",
+      "serviceRevenue": "Service Revenue"
+    },
+    "roomTypes": {
+      "title": "Revenue by Room Type",
+      "table": {
+        "roomType": "Room Type",
+        "revenue": "Revenue",
+        "reservations": "Reservations"
+      }
+    },
+    "services": {
+      "title": "Revenue by Service",
+      "table": {
+        "service": "Service",
+        "revenue": "Revenue",
+        "orders": "Orders"
+      }
+    },
+    "noData": "No revenue data available for the selected date range",
+    "error": "Failed to generate revenue report",
+    "success": "Revenue report generated successfully"
+  },
+  "reservation": {
+    "title": "Reservation Report",
+    "description": "View booking statistics by source, cancellations, and no-shows",
+    "filters": {
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "generate": "Generate Report"
+    },
+    "summary": {
+      "title": "Booking Summary",
+      "totalBookings": "Total Bookings",
+      "totalCancellations": "Total Cancellations",
+      "totalNoShows": "Total No-Shows",
+      "cancellationRate": "Cancellation Rate",
+      "noShowRate": "No-Show Rate"
+    },
+    "bookingsBySource": {
+      "title": "Bookings by Source",
+      "table": {
+        "source": "Booking Source",
+        "count": "Count",
+        "percentage": "Percentage"
+      }
+    },
+    "cancellationsAndNoShows": {
+      "title": "Cancellations and No-Shows by Date",
+      "table": {
+        "date": "Date",
+        "cancelled": "Cancelled",
+        "noShows": "No-Shows",
+        "total": "Total"
+      }
+    },
+    "noData": "No reservation data available for the selected date range",
+    "error": "Failed to generate reservation report",
+    "success": "Reservation report generated successfully"
+  },
+  "export": {
+    "csv": "Export to CSV",
+    "pdf": "Export to PDF"
+  }
+}

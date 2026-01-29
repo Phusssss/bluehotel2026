@@ -88,22 +88,30 @@ export function ReservationDetailsModal({
         )}
 
         <Descriptions.Item label={t('modal.createdAt')}>
-          {dayjs(reservation.createdAt.toDate()).format('YYYY-MM-DD HH:mm')}
+          {reservation.createdAt && typeof reservation.createdAt === 'object' && 'toDate' in reservation.createdAt
+            ? dayjs(reservation.createdAt.toDate()).format('YYYY-MM-DD HH:mm')
+            : dayjs(reservation.createdAt).format('YYYY-MM-DD HH:mm')}
         </Descriptions.Item>
 
         <Descriptions.Item label={t('modal.updatedAt')}>
-          {dayjs(reservation.updatedAt.toDate()).format('YYYY-MM-DD HH:mm')}
+          {reservation.updatedAt && typeof reservation.updatedAt === 'object' && 'toDate' in reservation.updatedAt
+            ? dayjs(reservation.updatedAt.toDate()).format('YYYY-MM-DD HH:mm')
+            : dayjs(reservation.updatedAt).format('YYYY-MM-DD HH:mm')}
         </Descriptions.Item>
 
         {reservation.checkedInAt && (
           <Descriptions.Item label={t('modal.checkedInAt')} span={2}>
-            {dayjs(reservation.checkedInAt.toDate()).format('YYYY-MM-DD HH:mm')}
+            {typeof reservation.checkedInAt === 'object' && 'toDate' in reservation.checkedInAt
+              ? dayjs(reservation.checkedInAt.toDate()).format('YYYY-MM-DD HH:mm')
+              : dayjs(reservation.checkedInAt).format('YYYY-MM-DD HH:mm')}
           </Descriptions.Item>
         )}
 
         {reservation.checkedOutAt && (
           <Descriptions.Item label={t('modal.checkedOutAt')} span={2}>
-            {dayjs(reservation.checkedOutAt.toDate()).format('YYYY-MM-DD HH:mm')}
+            {typeof reservation.checkedOutAt === 'object' && 'toDate' in reservation.checkedOutAt
+              ? dayjs(reservation.checkedOutAt.toDate()).format('YYYY-MM-DD HH:mm')
+              : dayjs(reservation.checkedOutAt).format('YYYY-MM-DD HH:mm')}
           </Descriptions.Item>
         )}
       </Descriptions>

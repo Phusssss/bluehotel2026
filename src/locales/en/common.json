@@ -24,7 +24,9 @@
   "common": {
     "refresh": "Refresh",
     "of": "of",
-    "items": "items"
+    "items": "items",
+    "yes": "Yes",
+    "no": "No"
   },
   "filters": {
     "reset": "Reset Filters"

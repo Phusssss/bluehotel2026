@@ -63,5 +63,110 @@
     "capacity": "Sức Chứa",
     "amenities": "Tiện Nghi",
     "actions": "Thao Tác"
+  },
+  "details": {
+    "name": "Tên Loại Phòng",
+    "description": "Mô Tả",
+    "basePrice": "Giá Cơ Bản",
+    "capacity": "Sức Chứa",
+    "amenities": "Tiện Nghi",
+    "weekdayPricing": "Giá Theo Ngày",
+    "seasonalPricing": "Giá Theo Mùa",
+    "period": "Thời Gian",
+    "price": "Giá"
+  },
+  "weekdays": {
+    "monday": "Thứ Hai",
+    "tuesday": "Thứ Ba",
+    "wednesday": "Thứ Tư",
+    "thursday": "Thứ Năm",
+    "friday": "Thứ Sáu",
+    "saturday": "Thứ Bảy",
+    "sunday": "Chủ Nhật"
+  },
+  "services": {
+    "title": "Dịch Vụ",
+    "create": "Tạo Dịch Vụ",
+    "createButton": "Tạo Dịch Vụ",
+    "createTitle": "Tạo Dịch Vụ Mới",
+    "edit": "Sửa Dịch Vụ",
+    "editTitle": "Sửa Dịch Vụ",
+    "delete": "Xóa Dịch Vụ",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa dịch vụ này?",
+    "name": "Tên Dịch Vụ",
+    "namePlaceholder": "Nhập tên dịch vụ",
+    "description": "Mô Tả",
+    "descriptionPlaceholder": "Nhập mô tả dịch vụ",
+    "price": "Giá",
+    "pricePlaceholder": "Nhập giá",
+    "category": "Danh Mục",
+    "categoryPlaceholder": "Chọn danh mục",
+    "taxable": "Chịu Thuế",
+    "active": "Hoạt Động",
+    "totalItems": "Tổng {{count}} dịch vụ",
+    "categories": {
+      "laundry": "Giặt Ủi",
+      "food": "Ăn Uống",
+      "transport": "Vận Chuyển",
+      "spa": "Spa & Chăm Sóc",
+      "other": "Khác"
+    },
+    "success": {
+      "created": "Tạo dịch vụ thành công",
+      "updated": "Cập nhật dịch vụ thành công",
+      "deleted": "Xóa dịch vụ thành công",
+      "activated": "Kích hoạt dịch vụ thành công",
+      "deactivated": "Vô hiệu hóa dịch vụ thành công"
+    },
+    "errors": {
+      "createFailed": "Tạo dịch vụ thất bại",
+      "updateFailed": "Cập nhật dịch vụ thất bại",
+      "deleteFailed": "Xóa dịch vụ thất bại",
+      "loadFailed": "Tải danh sách dịch vụ thất bại",
+      "toggleFailed": "Thay đổi trạng thái dịch vụ thất bại"
+    },
+    "validation": {
+      "nameRequired": "Tên dịch vụ là bắt buộc",
+      "priceRequired": "Giá là bắt buộc",
+      "priceMin": "Giá phải từ 0 trở lên",
+      "categoryRequired": "Danh mục là bắt buộc"
+    }
+  },
+  "serviceOrders": {
+    "title": "Đơn Dịch Vụ",
+    "pos": "Điểm Bán Hàng",
+    "createButton": "Đơn Mới",
+    "createTitle": "Tạo Đơn Dịch Vụ",
+    "createOrder": "Tạo Đơn",
+    "posDescription": "Tạo đơn dịch vụ cho khách đang ở. Phí sẽ được ghi vào hóa đơn phòng của họ.",
+    "reservation": "Đặt Phòng",
+    "reservationPlaceholder": "Chọn đặt phòng",
+    "service": "Dịch Vụ",
+    "servicePlaceholder": "Chọn dịch vụ",
+    "quantity": "Số Lượng",
+    "quantityPlaceholder": "Nhập số lượng",
+    "unitPrice": "Đơn Giá",
+    "total": "Tổng Cộng",
+    "notes": "Ghi Chú",
+    "notesPlaceholder": "Nhập ghi chú (tùy chọn)",
+    "submit": "Tạo Đơn",
+    "room": "Phòng",
+    "success": {
+      "created": "Tạo đơn dịch vụ thành công",
+      "updated": "Cập nhật đơn dịch vụ thành công",
+      "cancelled": "Hủy đơn dịch vụ thành công"
+    },
+    "errors": {
+      "createFailed": "Tạo đơn dịch vụ thất bại",
+      "updateFailed": "Cập nhật đơn dịch vụ thất bại",
+      "cancelFailed": "Hủy đơn dịch vụ thất bại",
+      "loadFailed": "Tải danh sách đơn dịch vụ thất bại"
+    },
+    "validation": {
+      "reservationRequired": "Đặt phòng là bắt buộc",
+      "serviceRequired": "Dịch vụ là bắt buộc",
+      "quantityRequired": "Số lượng là bắt buộc",
+      "quantityMin": "Số lượng phải ít nhất là 1"
+    }
   }
 }

@@ -64,55 +64,73 @@ service cloud.firestore {
     // Room Types collection
     match /roomTypes/{roomTypeId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Rooms collection
     match /rooms/{roomId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Reservations collection
     match /reservations/{reservationId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Customers collection
     match /customers/{customerId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Companies collection
     match /companies/{companyId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Services collection
     match /services/{serviceId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Service Orders collection
     match /serviceOrders/{serviceOrderId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Housekeeping Tasks collection
     match /housekeepingTasks/{taskId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
     
     // Maintenance Tickets collection
     match /maintenanceTickets/{ticketId} {
       allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow write: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
     }
   }
 }

@@ -14,7 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { HousekeepingTask } from '../types';
-import { removeUndefinedFields } from '../utils/firestore';
+import { deepRemoveUndefinedFields } from '../utils/firestore';
 
 /**
  * Filters for querying housekeeping tasks
@@ -110,7 +110,7 @@ export class HousekeepingService {
     try {
       const now = Timestamp.now();
 
-      const taskData = removeUndefinedFields({
+      const taskData = deepRemoveUndefinedFields({
         ...data,
         status: data.status || 'pending',
         priority: data.priority || 'normal',
@@ -144,7 +144,7 @@ export class HousekeepingService {
         throw new Error('Housekeeping task not found');
       }
 
-      await updateDoc(docRef, removeUndefinedFields(data));
+      await updateDoc(docRef, deepRemoveUndefinedFields(data));
     } catch (error) {
       console.error('Error updating housekeeping task:', error);
       throw error;

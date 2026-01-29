@@ -113,7 +113,27 @@ This document specifies the requirements for a comprehensive hotel management sy
 6. WHEN the user clicks on a reservation, THE System SHALL display full reservation details
 7. THE System SHALL allow editing reservation details before check-in
 8. THE System SHALL allow canceling reservations with status update
-9. WHERE group booking feature is enabled, THE System SHALL allow creating multiple reservations in one transaction
+9. THE System SHALL support group bookings where one customer can book multiple rooms in a single transaction
+
+### Requirement 6.1: Group Booking Support
+
+**User Story:** As a front desk staff member, I want to create group bookings for customers who need multiple rooms, so that I can efficiently handle multi-room reservations and avoid losing customers due to partial availability.
+
+#### Acceptance Criteria
+
+1. WHEN creating a group booking, THE System SHALL allow selecting multiple room types with quantities
+2. WHEN room types are selected, THE System SHALL check availability for all requested rooms
+3. IF any room type is unavailable, THE System SHALL suggest alternative room types (upgrades) to avoid losing the customer
+4. WHEN the user confirms room selection, THE System SHALL display available specific rooms for each room type
+5. WHEN the user submits a group booking, THE System SHALL create multiple reservation documents linked by a shared groupId
+6. WHEN creating group reservations, THE System SHALL use a batch write transaction to ensure atomicity
+7. WHEN displaying reservations, THE System SHALL group linked reservations together with expand/collapse functionality
+8. WHEN viewing a group booking, THE System SHALL display all rooms in the group with their individual details
+9. WHEN checking in a group booking, THE System SHALL allow checking in all rooms together or individually
+10. WHEN checking out a group booking, THE System SHALL display a combined folio showing charges for all rooms
+11. WHEN canceling a group booking, THE System SHALL allow canceling all rooms together or individually
+12. THE System SHALL calculate total price for group bookings as the sum of all individual room prices
+13. THE System SHALL store group metadata (groupId, groupSize, groupIndex, isGroupBooking) in each reservation document
 
 ### Requirement 7: Front Desk Operations
 

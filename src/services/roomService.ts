@@ -15,7 +15,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import type { Room, CreateRoomInput } from '../types';
-import { removeUndefinedFields } from '../utils/firestore';
+import { deepRemoveUndefinedFields } from '../utils/firestore';
 
 /**
  * Filters for querying rooms
@@ -137,7 +137,7 @@ export class RoomService {
 
       const now = Timestamp.now();
 
-      const roomData = removeUndefinedFields({
+      const roomData = deepRemoveUndefinedFields({
         ...data,
         status: data.status || 'vacant',
         createdAt: now,
@@ -178,7 +178,7 @@ export class RoomService {
         }
       }
 
-      await updateDoc(docRef, removeUndefinedFields({
+      await updateDoc(docRef, deepRemoveUndefinedFields({
         ...data,
         updatedAt: Timestamp.now(),
       }));

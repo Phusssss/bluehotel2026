@@ -42,7 +42,9 @@
   "actions": {
     "checkIn": "Nhận phòng",
     "checkOut": "Trả phòng",
-    "viewDetails": "Xem chi tiết"
+    "viewDetails": "Xem chi tiết",
+    "checkInGroup": "Nhận phòng tất cả",
+    "checkOutGroup": "Trả phòng tất cả"
   },
   "messages": {
     "loadError": "Không thể tải dữ liệu",
@@ -50,6 +52,15 @@
     "checkInError": "Không thể nhận phòng",
     "checkOutSuccess": "Trả phòng thành công",
     "checkOutError": "Không thể trả phòng",
-    "searchError": "Không thể tìm kiếm đặt phòng"
+    "searchError": "Không thể tìm kiếm đặt phòng",
+    "groupCheckInSuccess": "Nhận phòng nhóm thành công",
+    "groupCheckInError": "Không thể nhận phòng nhóm",
+    "groupCheckOutSuccess": "Trả phòng nhóm thành công",
+    "groupCheckOutError": "Không thể trả phòng nhóm"
+  },
+  "group": {
+    "indicator": "Nhóm",
+    "rooms": "{{count}} phòng",
+    "totalPrice": "Tổng: {{price}}"
   }
 }

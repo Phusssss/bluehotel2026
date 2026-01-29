@@ -12,6 +12,7 @@ import {
   orderBy,
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { deepRemoveUndefinedFields } from '../utils/firestore';
 import type { RoomType, CreateRoomTypeInput, SeasonalPricing } from '../types';
 
 /**
@@ -81,14 +82,11 @@ export class RoomTypeService {
 
       const now = Timestamp.now();
 
-      // Clean the data to remove undefined values
-      const cleanData = this.cleanRoomTypeData(data);
-
-      const roomTypeData = {
-        ...cleanData,
+      const roomTypeData = deepRemoveUndefinedFields({
+        ...data,
         createdAt: now,
         updatedAt: now,
-      };
+      });
 
       const docRef = await addDoc(
         collection(db, this.collectionName),
@@ -119,10 +117,10 @@ export class RoomTypeService {
         this.validateSeasonalPricing(data.seasonalPricing);
       }
 
-      await updateDoc(docRef, {
+      await updateDoc(docRef, deepRemoveUndefinedFields({
         ...data,
         updatedAt: Timestamp.now(),
-      });
+      }));
     } catch (error) {
       console.error('Error updating room type:', error);
       throw error;

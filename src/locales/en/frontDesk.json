@@ -42,7 +42,9 @@
   "actions": {
     "checkIn": "Check In",
     "checkOut": "Check Out",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "checkInGroup": "Check In All",
+    "checkOutGroup": "Check Out All"
   },
   "messages": {
     "loadError": "Failed to load data",
@@ -50,6 +52,15 @@
     "checkInError": "Failed to check in guest",
     "checkOutSuccess": "Guest checked out successfully",
     "checkOutError": "Failed to check out guest",
-    "searchError": "Failed to search reservations"
+    "searchError": "Failed to search reservations",
+    "groupCheckInSuccess": "Group checked in successfully",
+    "groupCheckInError": "Failed to check in group",
+    "groupCheckOutSuccess": "Group checked out successfully",
+    "groupCheckOutError": "Failed to check out group"
+  },
+  "group": {
+    "indicator": "Group",
+    "rooms": "{{count}} rooms",
+    "totalPrice": "Total: {{price}}"
   }
 }

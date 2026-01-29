@@ -114,21 +114,27 @@ export function RoomTypeForm({
         }
       }
 
-      const data: CreateRoomTypeInput = {
-        hotelId: '', // Will be set by the hook
+      const data: Partial<CreateRoomTypeInput> = {
         name: values.name,
         description: values.description,
         basePrice: values.basePrice,
         capacity: values.capacity,
         amenities: values.amenities
-          .split(',')
-          .map((amenity) => amenity.trim())
-          .filter((amenity) => amenity.length > 0),
+          ? values.amenities
+              .split(',')
+              .map((amenity) => amenity.trim())
+              .filter((amenity) => amenity.length > 0)
+          : [],
         weekdayPricing: values.weekdayPricing,
         seasonalPricing: seasonalPricing.length > 0 ? seasonalPricing : undefined,
       };
 
-      await onSubmit(data);
+      // Only include hotelId when creating (not editing)
+      if (!isEditing) {
+        data.hotelId = ''; // Will be set by the hook
+      }
+
+      await onSubmit(data as CreateRoomTypeInput);
     } catch (error) {
       // Error handling is done in the parent component
       throw error;

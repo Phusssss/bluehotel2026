@@ -5,7 +5,10 @@
   "rooms": "Phòng",
   "housekeeping": "Dọn phòng",
   "pricing": "Giá cả",
+  "services": "Dịch vụ",
+  "serviceOrders": "Đơn dịch vụ",
   "customers": "Khách hàng",
+  "companies": "Công ty",
   "reports": "Báo cáo",
   "settings": "Cài đặt",
   "admin": "Quản trị"
