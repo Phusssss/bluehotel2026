@@ -147,7 +147,7 @@ export function HotelUsersTab() {
     {
       title: t('users.table.actions'),
       key: 'actions',
-      render: (_: any, record: HotelUserWithDetails) => {
+      render: (_: unknown, record: HotelUserWithDetails) => {
         const isCurrentUser = record.userId === currentUser?.uid;
         const isOwner = record.permission === 'owner';
         

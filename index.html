@@ -4,10 +4,43 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Copyright Protection -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    
     <title>Hotel Management System</title>
+    
+    <!-- Disable text selection and context menu -->
+    <style>
+      body {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Copyright Notice -->
+    <script>
+      // Basic protection
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('selectstart', e => e.preventDefault());
+      document.addEventListener('dragstart', e => e.preventDefault());
+      
+      // Console warning
+      console.log('%c⚠️ CẢNH BÁO BẢN QUYỀN ⚠️', 'color: red; font-size: 20px; font-weight: bold;');
+      console.log('%cBạn không có quyền sử dụng mã nguồn này!', 'color: red; font-size: 16px;');
+      console.log('%c© 2024 Hotel Management System', 'color: blue; font-size: 14px;');
+    </script>
   </body>
 </html>

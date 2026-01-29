@@ -23,6 +23,8 @@ import enReports from './en/reports.json';
 import viReports from './vi/reports.json';
 import enSettings from './en/settings.json';
 import viSettings from './vi/settings.json';
+import enAdmin from './en/admin.json';
+import viAdmin from './vi/admin.json';
 
 const resources = {
   en: {
@@ -36,6 +38,7 @@ const resources = {
     customers: enCustomers,
     reports: enReports,
     settings: enSettings,
+    admin: enAdmin,
   },
   vi: {
     common: viCommon,
@@ -48,6 +51,7 @@ const resources = {
     customers: viCustomers,
     reports: viReports,
     settings: viSettings,
+    admin: viAdmin,
   },
 };
 
@@ -58,7 +62,7 @@ i18n
     resources,
     fallbackLng: 'en',
     defaultNS: 'common',
-    ns: ['common', 'sidebar', 'dashboard', 'reservations', 'frontDesk', 'rooms', 'pricing', 'customers', 'reports', 'settings'],
+    ns: ['common', 'sidebar', 'dashboard', 'reservations', 'frontDesk', 'rooms', 'pricing', 'customers', 'reports', 'settings', 'admin'],
     interpolation: {
       escapeValue: false, // React already escapes
     },

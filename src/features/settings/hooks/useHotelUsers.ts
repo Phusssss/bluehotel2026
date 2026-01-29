@@ -63,12 +63,8 @@ export function useHotelUsers(): UseHotelUsersResult {
       throw new Error('No hotel selected');
     }
 
-    try {
-      await HotelUserService.addUserToHotel(currentHotel.id, userEmail, permission);
-      await loadHotelUsers(); // Refresh the list
-    } catch (error) {
-      throw error;
-    }
+    await HotelUserService.addUserToHotel(currentHotel.id, userEmail, permission);
+    await loadHotelUsers(); // Refresh the list
   };
 
   const updateUserPermission = async (userId: string, permission: HotelUser['permission']) => {
@@ -76,12 +72,8 @@ export function useHotelUsers(): UseHotelUsersResult {
       throw new Error('No hotel selected');
     }
 
-    try {
-      await HotelUserService.updateUserPermission(currentHotel.id, userId, permission);
-      await loadHotelUsers(); // Refresh the list
-    } catch (error) {
-      throw error;
-    }
+    await HotelUserService.updateUserPermission(currentHotel.id, userId, permission);
+    await loadHotelUsers(); // Refresh the list
   };
 
   const removeUser = async (userId: string) => {
@@ -89,12 +81,8 @@ export function useHotelUsers(): UseHotelUsersResult {
       throw new Error('No hotel selected');
     }
 
-    try {
-      await HotelUserService.removeUserFromHotel(currentHotel.id, userId);
-      await loadHotelUsers(); // Refresh the list
-    } catch (error) {
-      throw error;
-    }
+    await HotelUserService.removeUserFromHotel(currentHotel.id, userId);
+    await loadHotelUsers(); // Refresh the list
   };
 
   const refresh = async () => {

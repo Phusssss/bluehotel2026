@@ -1,0 +1,61 @@
+{
+  "title": "Bảng Điều Khiển Quản Trị",
+  "subtitle": "Quản lý tất cả người dùng và cài đặt hệ thống",
+  "users": {
+    "title": "Tất Cả Người Dùng",
+    "columns": {
+      "name": "Tên",
+      "email": "Email",
+      "role": "Vai Trò",
+      "status": "Trạng Thái",
+      "createdAt": "Ngày Tạo",
+      "actions": "Hành Động"
+    },
+    "status": {
+      "active": "Hoạt Động",
+      "locked": "Bị Khóa"
+    },
+    "role": {
+      "super_admin": "Quản Trị Viên",
+      "regular": "Người Dùng Thường"
+    },
+    "actions": {
+      "viewDetails": "Xem Chi Tiết",
+      "lockUser": "Khóa Người Dùng",
+      "unlockUser": "Mở Khóa Người Dùng",
+      "resetPermissions": "Đặt Lại Quyền"
+    },
+    "confirmations": {
+      "lockUser": "Bạn có chắc chắn muốn khóa người dùng này? Họ sẽ không thể đăng nhập.",
+      "unlockUser": "Bạn có chắc chắn muốn mở khóa người dùng này?",
+      "resetPermissions": "Bạn có chắc chắn muốn đặt lại quyền của người dùng này? Họ sẽ bị xóa khỏi tất cả khách sạn."
+    },
+    "messages": {
+      "userLocked": "Người dùng đã được khóa thành công",
+      "userUnlocked": "Người dùng đã được mở khóa thành công",
+      "permissionsReset": "Quyền người dùng đã được đặt lại thành công",
+      "loadError": "Không thể tải danh sách người dùng",
+      "actionError": "Không thể thực hiện hành động"
+    },
+    "empty": "Không tìm thấy người dùng nào",
+    "loading": "Đang tải người dùng..."
+  },
+  "userDetails": {
+    "title": "Chi Tiết Người Dùng",
+    "basicInfo": "Thông Tin Cơ Bản",
+    "hotels": "Khách Sạn Liên Kết",
+    "noHotels": "Người dùng này không liên kết với khách sạn nào",
+    "fields": {
+      "displayName": "Tên Hiển Thị",
+      "email": "Email",
+      "phone": "Số Điện Thoại",
+      "address": "Địa Chỉ",
+      "language": "Ngôn Ngữ",
+      "timezone": "Múi Giờ",
+      "role": "Vai Trò",
+      "status": "Trạng Thái",
+      "createdAt": "Ngày Tạo",
+      "updatedAt": "Cập Nhật Lần Cuối"
+    }
+  }
+}

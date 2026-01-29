@@ -1,0 +1,61 @@
+{
+  "title": "Admin Dashboard",
+  "subtitle": "Manage all users and system settings",
+  "users": {
+    "title": "All Users",
+    "columns": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "createdAt": "Created",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "locked": "Locked"
+    },
+    "role": {
+      "super_admin": "Super Admin",
+      "regular": "Regular User"
+    },
+    "actions": {
+      "viewDetails": "View Details",
+      "lockUser": "Lock User",
+      "unlockUser": "Unlock User",
+      "resetPermissions": "Reset Permissions"
+    },
+    "confirmations": {
+      "lockUser": "Are you sure you want to lock this user? They will not be able to log in.",
+      "unlockUser": "Are you sure you want to unlock this user?",
+      "resetPermissions": "Are you sure you want to reset this user's permissions? They will be removed from all hotels."
+    },
+    "messages": {
+      "userLocked": "User has been locked successfully",
+      "userUnlocked": "User has been unlocked successfully",
+      "permissionsReset": "User permissions have been reset successfully",
+      "loadError": "Failed to load users",
+      "actionError": "Failed to perform action"
+    },
+    "empty": "No users found",
+    "loading": "Loading users..."
+  },
+  "userDetails": {
+    "title": "User Details",
+    "basicInfo": "Basic Information",
+    "hotels": "Associated Hotels",
+    "noHotels": "This user is not associated with any hotels",
+    "fields": {
+      "displayName": "Display Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "language": "Language",
+      "timezone": "Timezone",
+      "role": "Role",
+      "status": "Status",
+      "createdAt": "Created At",
+      "updatedAt": "Last Updated"
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { AuthProvider } from './contexts/AuthContext';
@@ -24,6 +25,9 @@ import { CustomersPage } from './features/customers/pages/CustomersPage';
 import { CompaniesPage } from './features/customers/pages/CompaniesPage';
 import { ReportsPage } from './features/reports/pages/ReportsPage';
 import { SettingsPage } from './features/settings/pages/SettingsPage';
+import { AdminDashboard } from './features/admin/pages/AdminDashboard';
+import { initializeProtection } from './utils/protection';
+import { initAdvancedProtection } from './utils/advancedProtection';
 import './locales';
 
 /**
@@ -77,7 +81,7 @@ function AppContent() {
 
               {/* Super admin routes */}
               <Route element={<ProtectedRoute roles={['super_admin']} />}>
-                <Route path="/admin" element={<div>Admin Dashboard (Coming Soon)</div>} />
+                <Route path="/admin" element={<AdminDashboard />} />
               </Route>
 
               {/* Default redirect */}
@@ -92,6 +96,12 @@ function AppContent() {
 }
 
 function App() {
+  // Initialize protection measures
+  React.useEffect(() => {
+    initializeProtection();
+    initAdvancedProtection();
+  }, []);
+
   return (
     <ThemeProvider>
       <AppContent />

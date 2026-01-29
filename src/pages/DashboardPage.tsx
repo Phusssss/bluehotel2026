@@ -1,4 +1,4 @@
-import { Card, Row, Col, Statistic, Spin, Alert, Typography, Divider } from 'antd';
+import { Card, Row, Col, Statistic, Spin, Alert, Typography, Divider, Button } from 'antd';
 import {
   UserOutlined,
   DollarOutlined,
@@ -8,6 +8,7 @@ import {
   ToolOutlined,
   CheckCircleOutlined,
   LogoutOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useDashboard } from '../features/dashboard/hooks/useDashboard';
@@ -18,7 +19,7 @@ const { Title } = Typography;
 export function DashboardPage() {
   const { t } = useTranslation('dashboard');
   const { currentHotel } = useHotel();
-  const { metrics, loading, error } = useDashboard();
+  const { metrics, loading, error, refresh } = useDashboard();
 
   if (loading) {
     return (
@@ -35,6 +36,11 @@ export function DashboardPage() {
         description={error.message}
         type="error"
         showIcon
+        action={
+          <Button size="small" danger onClick={refresh}>
+            {t('retry')}
+          </Button>
+        }
       />
     );
   }
@@ -51,7 +57,16 @@ export function DashboardPage() {
 
   return (
     <div>
-      <Title level={2}>{t('title')}</Title>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+        <Title level={2}>{t('title')}</Title>
+        <Button 
+          icon={<ReloadOutlined />} 
+          onClick={refresh}
+          type="default"
+        >
+          {t('refresh')}
+        </Button>
+      </div>
 
       {/* Occupancy and Revenue Metrics */}
       <Row gutter={[16, 16]}>

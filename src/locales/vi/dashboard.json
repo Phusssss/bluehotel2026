@@ -15,5 +15,7 @@
   "todayActivity": "Hoạt động hôm nay",
   "loading": "Đang tải dữ liệu...",
   "error": "Không thể tải dữ liệu tổng quan",
-  "noData": "Không có dữ liệu"
+  "noData": "Không có dữ liệu",
+  "refresh": "Làm mới",
+  "retry": "Thử lại"
 }

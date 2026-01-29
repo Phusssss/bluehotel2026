@@ -33,10 +33,12 @@ export class RoomTypeService {
       );
 
       const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc) => ({
+      const roomTypes = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as RoomType[];
+      
+      return roomTypes;
     } catch (error) {
       console.error('Error getting room types:', error);
       throw new Error('Failed to fetch room types');

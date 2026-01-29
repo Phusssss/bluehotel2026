@@ -37,6 +37,9 @@ export interface DashboardMetrics {
  * Service class for calculating dashboard metrics
  */
 export class DashboardService {
+  private cache = new Map<string, { data: DashboardMetrics; timestamp: number }>();
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
   /**
    * Get today's date in YYYY-MM-DD format
    */
@@ -66,138 +69,85 @@ export class DashboardService {
   }
 
   /**
-   * Calculate occupancy percentage for a date range
+   * Check if cached data is still valid
    */
-  private async calculateOccupancy(
-    hotelId: string,
-    startDate: string,
-    endDate: string,
-    totalRooms: number
-  ): Promise<number> {
-    if (totalRooms === 0) return 0;
-
-    try {
-      // Get all active reservations that overlap with the date range
-      const q = query(
-        collection(db, 'reservations'),
-        where('hotelId', '==', hotelId),
-        where('status', 'in', ['confirmed', 'checked-in'])
-      );
-
-      const snapshot = await getDocs(q);
-      const reservations = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Reservation[];
-
-      // Filter reservations that overlap with the date range
-      const overlappingReservations = reservations.filter((reservation) => {
-        return (
-          reservation.checkInDate <= endDate &&
-          reservation.checkOutDate >= startDate
-        );
-      });
-
-      // Calculate total room-nights
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      
-      const totalRoomNights = totalRooms * days;
-      let occupiedRoomNights = 0;
-
-      // Count occupied room-nights
-      for (const reservation of overlappingReservations) {
-        const resStart = new Date(Math.max(new Date(reservation.checkInDate).getTime(), start.getTime()));
-        const resEnd = new Date(Math.min(new Date(reservation.checkOutDate).getTime(), end.getTime()));
-        const resNights = Math.ceil((resEnd.getTime() - resStart.getTime()) / (1000 * 60 * 60 * 24));
-        occupiedRoomNights += Math.max(0, resNights);
-      }
-
-      return totalRoomNights > 0 ? (occupiedRoomNights / totalRoomNights) * 100 : 0;
-    } catch (error) {
-      console.error('Error calculating occupancy:', error);
-      return 0;
-    }
+  private isCacheValid(cacheKey: string): boolean {
+    const cached = this.cache.get(cacheKey);
+    if (!cached) return false;
+    
+    const now = Date.now();
+    return (now - cached.timestamp) < this.CACHE_DURATION;
   }
 
   /**
-   * Calculate revenue for a date range
+   * Get cached data if valid
    */
-  private async calculateRevenue(
-    hotelId: string,
-    startDate: string,
-    endDate: string
-  ): Promise<number> {
-    try {
-      let totalRevenue = 0;
-
-      // Get reservations revenue (checked-in or checked-out within date range)
-      const reservationsQuery = query(
-        collection(db, 'reservations'),
-        where('hotelId', '==', hotelId),
-        where('status', 'in', ['checked-in', 'checked-out'])
-      );
-
-      const reservationsSnapshot = await getDocs(reservationsQuery);
-      const reservations = reservationsSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Reservation[];
-
-      // Filter by date range (check-in date within range)
-      reservations.forEach((reservation) => {
-        if (
-          reservation.checkInDate >= startDate &&
-          reservation.checkInDate <= endDate
-        ) {
-          totalRevenue += reservation.totalPrice;
-        }
-      });
-
-      // Get service orders revenue
-      const serviceOrdersQuery = query(
-        collection(db, 'serviceOrders'),
-        where('hotelId', '==', hotelId),
-        where('status', '==', 'completed')
-      );
-
-      const serviceOrdersSnapshot = await getDocs(serviceOrdersQuery);
-      const serviceOrders = serviceOrdersSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as ServiceOrder[];
-
-      // Filter by date range (ordered date within range)
-      serviceOrders.forEach((order) => {
-        const orderDate = order.orderedAt.toDate().toISOString().split('T')[0];
-        if (orderDate >= startDate && orderDate <= endDate) {
-          totalRevenue += order.totalPrice;
-        }
-      });
-
-      return totalRevenue;
-    } catch (error) {
-      console.error('Error calculating revenue:', error);
-      return 0;
+  private getCachedData(cacheKey: string): DashboardMetrics | null {
+    if (this.isCacheValid(cacheKey)) {
+      return this.cache.get(cacheKey)!.data;
     }
+    return null;
   }
 
   /**
-   * Get all dashboard metrics for a hotel
+   * Cache data
+   */
+  private setCachedData(cacheKey: string, data: DashboardMetrics): void {
+    this.cache.set(cacheKey, {
+      data,
+      timestamp: Date.now(),
+    });
+  }
+
+  /**
+   * Calculate simple occupancy based on current room status
+   */
+  // private calculateSimpleOccupancy(rooms: Room[]): number {
+  //   if (rooms.length === 0) return 0;
+  //   const occupiedRooms = rooms.filter(room => room.status === 'occupied').length;
+  //   return (occupiedRooms / rooms.length) * 100;
+  // }
+
+  /**
+   * Get all dashboard metrics for a hotel (optimized version)
    */
   async getDashboardMetrics(hotelId: string): Promise<DashboardMetrics> {
+    const cacheKey = `dashboard_${hotelId}`;
+    
+    // Check cache first
+    const cachedData = this.getCachedData(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
+
     try {
       const today = this.getTodayDate();
       const weekStart = this.getWeekStartDate();
       const monthStart = this.getMonthStartDate();
 
-      // Get all rooms for the hotel
-      const roomsQuery = query(
-        collection(db, 'rooms'),
-        where('hotelId', '==', hotelId)
-      );
-      const roomsSnapshot = await getDocs(roomsQuery);
+      // Execute all queries in parallel for better performance
+      const [roomsSnapshot, reservationsSnapshot, serviceOrdersSnapshot] = await Promise.all([
+        // Get all rooms
+        getDocs(query(
+          collection(db, 'rooms'),
+          where('hotelId', '==', hotelId)
+        )),
+        
+        // Get reservations (get all for this hotel, filter in memory to avoid index issues)
+        getDocs(query(
+          collection(db, 'reservations'),
+          where('hotelId', '==', hotelId)
+        )),
+        
+        // Get service orders for this hotel (simplified query to avoid index requirement)
+        getDocs(query(
+          collection(db, 'serviceOrders'),
+          where('hotelId', '==', hotelId),
+          where('status', '==', 'completed')
+        ))
+      ]);
+
+      // Process rooms data
       const rooms = roomsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -209,34 +159,83 @@ export class DashboardService {
       const maintenanceRoomsCount = rooms.filter((room) => room.status === 'maintenance').length;
       const availableRooms = rooms.filter((room) => room.status === 'vacant').length;
 
-      // Calculate occupancy
-      const occupancyToday = await this.calculateOccupancy(hotelId, today, today, totalRooms);
-      const occupancyThisWeek = await this.calculateOccupancy(hotelId, weekStart, today, totalRooms);
-
-      // Calculate revenue
-      const revenueToday = await this.calculateRevenue(hotelId, today, today);
-      const revenueThisMonth = await this.calculateRevenue(hotelId, monthStart, today);
-
-      // Get check-ins and check-outs for today
-      const reservationsQuery = query(
-        collection(db, 'reservations'),
-        where('hotelId', '==', hotelId)
-      );
-      const reservationsSnapshot = await getDocs(reservationsQuery);
-      const reservations = reservationsSnapshot.docs.map((doc) => ({
+      // Process reservations data (filter to recent ones for performance)
+      const allReservations = reservationsSnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Reservation[];
 
-      const checkInsToday = reservations.filter(
-        (r) => r.checkInDate === today && (r.status === 'confirmed' || r.status === 'pending')
-      ).length;
+      // Filter reservations to only recent ones for performance
+      const reservations = allReservations.filter(reservation => 
+        reservation.checkInDate >= monthStart || 
+        reservation.checkOutDate >= monthStart ||
+        reservation.status === 'checked-in'
+      );
 
-      const checkOutsToday = reservations.filter(
-        (r) => r.checkOutDate === today && r.status === 'checked-in'
-      ).length;
+      // Calculate metrics from reservations
+      let revenueToday = 0;
+      let revenueThisMonth = 0;
+      let checkInsToday = 0;
+      let checkOutsToday = 0;
+      let occupiedRoomsToday = 0;
+      let occupiedRoomsThisWeek = 0;
 
-      return {
+      reservations.forEach((reservation) => {
+        // Revenue calculations
+        if (reservation.status === 'checked-in' || reservation.status === 'checked-out') {
+          if (reservation.checkInDate === today) {
+            revenueToday += reservation.totalPrice;
+          }
+          if (reservation.checkInDate >= monthStart) {
+            revenueThisMonth += reservation.totalPrice;
+          }
+        }
+
+        // Check-ins and check-outs for today
+        if (reservation.checkInDate === today && 
+            (reservation.status === 'confirmed' || reservation.status === 'pending')) {
+          checkInsToday++;
+        }
+        
+        if (reservation.checkOutDate === today && reservation.status === 'checked-in') {
+          checkOutsToday++;
+        }
+
+        // Simple occupancy calculation based on active reservations
+        if (reservation.status === 'checked-in') {
+          if (reservation.checkInDate <= today && reservation.checkOutDate > today) {
+            occupiedRoomsToday++;
+          }
+          if (reservation.checkInDate <= today && reservation.checkOutDate >= weekStart) {
+            occupiedRoomsThisWeek++;
+          }
+        }
+      });
+
+      // Add service orders revenue (filter by date in JavaScript to avoid index requirement)
+      const serviceOrders = serviceOrdersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as ServiceOrder[];
+
+      serviceOrders.forEach((order) => {
+        const orderDate = order.orderedAt.toDate().toISOString().split('T')[0];
+        // Only include orders from this month or later for performance
+        if (orderDate >= monthStart) {
+          if (orderDate === today) {
+            revenueToday += order.totalPrice;
+          }
+          if (orderDate >= monthStart) {
+            revenueThisMonth += order.totalPrice;
+          }
+        }
+      });
+
+      // Calculate occupancy percentages (simplified)
+      const occupancyToday = totalRooms > 0 ? (occupiedRoomsToday / totalRooms) * 100 : 0;
+      const occupancyThisWeek = totalRooms > 0 ? (occupiedRoomsThisWeek / totalRooms) * 100 : 0;
+
+      const metrics: DashboardMetrics = {
         occupancyToday,
         occupancyThisWeek,
         revenueToday,
@@ -249,10 +248,30 @@ export class DashboardService {
         occupiedRooms,
         availableRooms,
       };
+
+      // Cache the results
+      this.setCachedData(cacheKey, metrics);
+
+      return metrics;
     } catch (error) {
       console.error('Error getting dashboard metrics:', error);
       throw new Error('Failed to fetch dashboard metrics');
     }
+  }
+
+  /**
+   * Clear cache for a specific hotel
+   */
+  clearCache(hotelId: string): void {
+    const cacheKey = `dashboard_${hotelId}`;
+    this.cache.delete(cacheKey);
+  }
+
+  /**
+   * Clear all cache
+   */
+  clearAllCache(): void {
+    this.cache.clear();
   }
 }
 

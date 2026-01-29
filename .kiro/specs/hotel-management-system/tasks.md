@@ -516,7 +516,7 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 12.1, 12.2**
 
 - [ ] 19. System Settings Feature
-  - [-] 19.1 Implement hotel users and permissions management
+  - [x] 19.1 Implement hotel users and permissions management
     - Display users with access to current hotel
     - Allow adding users with permission levels
     - Allow changing user permissions
@@ -553,7 +553,7 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 13.3, 14.8**
 
 - [ ] 20. Super Admin Feature
-  - [ ] 20.1 Implement admin dashboard
+  - [x] 20.1 Implement admin dashboard
     - Display list of all users
     - Show user details (name, email, role, status)
     - _Requirements: 3.1, 3.2_

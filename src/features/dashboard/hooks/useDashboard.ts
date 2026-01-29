@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { dashboardService, DashboardMetrics } from '../../../services/dashboardService';
 import { useHotel } from '../../../contexts/HotelContext';
 
@@ -11,14 +11,16 @@ export function useDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchMetrics = async () => {
+  const fetchMetrics = useCallback(async (showLoading = true) => {
     if (!currentHotel) {
       setLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       const data = await dashboardService.getDashboardMetrics(currentHotel.id);
       setMetrics(data);
@@ -28,16 +30,24 @@ export function useDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentHotel]);
 
   useEffect(() => {
     fetchMetrics();
-  }, [currentHotel?.id]);
+  }, [fetchMetrics]);
+
+  const refresh = useCallback(async () => {
+    if (currentHotel) {
+      // Clear cache before refreshing
+      dashboardService.clearCache(currentHotel.id);
+      await fetchMetrics(false); // Don't show loading spinner for refresh
+    }
+  }, [currentHotel, fetchMetrics]);
 
   return {
     metrics,
     loading,
     error,
-    refresh: fetchMetrics,
+    refresh,
   };
 }

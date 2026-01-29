@@ -15,5 +15,7 @@
   "todayActivity": "Today's Activity",
   "loading": "Loading dashboard metrics...",
   "error": "Failed to load dashboard metrics",
-  "noData": "No data available"
+  "noData": "No data available",
+  "refresh": "Refresh",
+  "retry": "Retry"
 }

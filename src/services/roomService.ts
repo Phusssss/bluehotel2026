@@ -57,10 +57,12 @@ export class RoomService {
       q = query(q, orderBy('roomNumber', 'asc'));
 
       const snapshot = await getDocs(q);
-      return snapshot.docs.map((doc) => ({
+      const rooms = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Room[];
+      
+      return rooms;
     } catch (error) {
       console.error('Error getting rooms:', error);
       throw new Error('Failed to fetch rooms');
