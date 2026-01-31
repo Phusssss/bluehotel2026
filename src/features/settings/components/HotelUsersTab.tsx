@@ -5,7 +5,6 @@ import {
   Space,
   Tag,
   Popconfirm,
-  message,
   Alert,
   Tooltip,
   Modal,
@@ -26,6 +25,7 @@ import {
 } from '@ant-design/icons';
 import { useHotelUsers, HotelUserWithDetails } from '../hooks/useHotelUsers';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useNotifications } from '../../../hooks/useNotifications';
 import { AddUserModal } from './AddUserModal';
 import { EditUserPermissionModal } from './EditUserPermissionModal';
 import { HotelUser } from '../../../types';
@@ -49,6 +49,7 @@ const permissionColors = {
 export function HotelUsersTab() {
   const { t } = useTranslation('settings');
   const { user: currentUser } = useAuth();
+  const notifications = useNotifications();
   const {
     hotelUsers,
     loading,
@@ -81,10 +82,10 @@ export function HotelUsersTab() {
   const handleAddUser = async (userEmail: string, permission: HotelUser['permission']) => {
     try {
       await addUser(userEmail, permission);
-      message.success(t('users.addSuccess'));
+      notifications.notifySuccess('users.addSuccess');
       setAddModalVisible(false);
     } catch (error) {
-      message.error(error instanceof Error ? error.message : t('users.addError'));
+      notifications.error(error instanceof Error ? error : new Error(t('users.addError')));
     }
   };
 
@@ -112,20 +113,20 @@ export function HotelUsersTab() {
 
     try {
       await updateUserPermission(selectedUser.userId, permission);
-      message.success(t('users.updateSuccess'));
+      notifications.notifySuccess('users.updateSuccess');
       setEditModalVisible(false);
       setSelectedUser(null);
     } catch (error) {
-      message.error(error instanceof Error ? error.message : t('users.updateError'));
+      notifications.error(error instanceof Error ? error : new Error(t('users.updateError')));
     }
   };
 
   const handleRemoveUser = async (userId: string) => {
     try {
       await removeUser(userId);
-      message.success(t('users.removeSuccess'));
+      notifications.notifySuccess('users.removeSuccess');
     } catch (error) {
-      message.error(error instanceof Error ? error.message : t('users.removeError'));
+      notifications.error(error instanceof Error ? error : new Error(t('users.removeError')));
     }
   };
 

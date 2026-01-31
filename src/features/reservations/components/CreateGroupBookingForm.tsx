@@ -96,6 +96,8 @@ export function CreateGroupBookingForm({
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
+  const [loadingRoomTypes, setLoadingRoomTypes] = useState(true);
   const [roomTypeSelections, setRoomTypeSelections] = useState<
     RoomTypeSelection[]
   >([{ roomTypeId: '', quantity: 1 }]);
@@ -128,21 +130,27 @@ export function CreateGroupBookingForm({
 
   const loadCustomers = async () => {
     try {
+      setLoadingCustomers(true);
       const data = await customerService.getCustomers(currentHotel!.id);
       setCustomers(data);
     } catch (error) {
       console.error('Error loading customers:', error);
       message.error(t('form.loadCustomersError'));
+    } finally {
+      setLoadingCustomers(false);
     }
   };
 
   const loadRoomTypes = async () => {
     try {
+      setLoadingRoomTypes(true);
       const data = await roomTypeService.getRoomTypes(currentHotel!.id);
       setRoomTypes(data);
     } catch (error) {
       console.error('Error loading room types:', error);
       message.error(t('form.loadRoomTypesError'));
+    } finally {
+      setLoadingRoomTypes(false);
     }
   };
 
@@ -393,6 +401,7 @@ export function CreateGroupBookingForm({
             <Select
               showSearch
               placeholder={t('form.customerPlaceholder')}
+              loading={loadingCustomers}
               optionFilterProp="children"
               filterOption={(input, option) =>
                 (option?.label ?? '')
@@ -478,6 +487,7 @@ export function CreateGroupBookingForm({
           <Col xs={24} md={12}>
             <Select
               placeholder={t('form.roomTypePlaceholder')}
+              loading={loadingRoomTypes}
               value={selection.roomTypeId || undefined}
               onChange={(value) =>
                 updateRoomTypeSelection(index, 'roomTypeId', value)

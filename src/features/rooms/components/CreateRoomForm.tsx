@@ -5,7 +5,6 @@ import {
   Select,
   InputNumber,
   Button,
-  message,
   Modal,
   Row,
   Col,
@@ -15,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useHotel } from '../../../contexts/HotelContext';
 import { roomService } from '../../../services/roomService';
 import { useValidationRules } from '../../../utils/validation';
+import { useNotifications } from '../../../hooks/useNotifications';
 import type { CreateRoomInput, RoomType } from '../../../types';
 
 const { Option } = Select;
@@ -44,11 +44,12 @@ export function CreateRoomForm({
   const { t } = useTranslation('rooms');
   const { currentHotel } = useHotel();
   const validation = useValidationRules(t);
+  const notifications = useNotifications();
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (values: RoomFormValues) => {
     if (!currentHotel) {
-      message.error(t('crud.errors.noHotel'));
+      notifications.hotel.noSelection();
       return;
     }
 
@@ -64,19 +65,19 @@ export function CreateRoomForm({
       };
 
       await roomService.createRoom(roomData);
-      message.success(t('crud.messages.createSuccess'));
+      notifications.crud.createSuccess(t('entities.room'));
       form.resetFields();
       onSuccess();
     } catch (error) {
       console.error('Error creating room:', error);
       if (error instanceof Error) {
         if (error.message === 'Room number already exists') {
-          message.error(t('crud.errors.roomNumberExists'));
+          notifications.notifyError('crud.errors.roomNumberExists');
         } else {
-          message.error(t('crud.messages.createError'));
+          notifications.crud.createError(t('entities.room'));
         }
       } else {
-        message.error(t('crud.messages.createError'));
+        notifications.crud.createError(t('entities.room'));
       }
     } finally {
       setLoading(false);

@@ -56,6 +56,22 @@
     "yes": "Yes",
     "no": "No"
   },
+  "entities": {
+    "room": "room",
+    "reservation": "reservation",
+    "customer": "customer",
+    "service": "service",
+    "roomType": "room type",
+    "user": "user",
+    "hotel": "hotel",
+    "company": "company",
+    "housekeepingTask": "housekeeping task",
+    "maintenanceTicket": "maintenance ticket"
+  },
+  "offline": {
+    "title": "You are offline",
+    "description": "Changes will be synced when connection is restored"
+  },
   "filters": {
     "reset": "Reset Filters"
   },
@@ -98,6 +114,37 @@
     "addFirstHotel": "Add Your First Hotel",
     "addAnother": "Add Another Hotel",
     "select": "Select"
+  },
+  "messages": {
+    "createSuccess": "{{entity}} created successfully",
+    "createError": "Failed to create {{entity}}",
+    "updateSuccess": "{{entity}} updated successfully",
+    "updateError": "Failed to update {{entity}}",
+    "deleteSuccess": "{{entity}} deleted successfully",
+    "deleteError": "Failed to delete {{entity}}",
+    "loadError": "Failed to load {{entity}}",
+    "saveSuccess": "Changes saved successfully",
+    "saveError": "Failed to save changes",
+    "operationSuccess": "Operation completed successfully",
+    "operationError": "Operation failed",
+    "validationError": "Please check the form for errors",
+    "submitSuccess": "Form submitted successfully",
+    "submitError": "Failed to submit form",
+    "resetSuccess": "Form reset successfully",
+    "loginSuccess": "Welcome back!",
+    "loginError": "Login failed",
+    "logoutSuccess": "You have been logged out",
+    "sessionExpired": "Your session has expired. Please log in again",
+    "accessDenied": "Access denied. You don't have permission to perform this action",
+    "hotelSelected": "{{hotel}} selected",
+    "hotelSwitched": "Switched to {{hotel}}",
+    "noHotelSelected": "Please select a hotel to continue",
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "saving": "Saving...",
+    "deleting": "Deleting...",
+    "uploading": "Uploading...",
+    "downloading": "Downloading..."
   },
   "errors": {
     "USER_NOT_FOUND": "User account not found",

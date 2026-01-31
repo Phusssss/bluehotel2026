@@ -53,6 +53,8 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
   const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
   const [loadingRooms, setLoadingRooms] = useState(false);
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
+  const [loadingRoomTypes, setLoadingRoomTypes] = useState(true);
   const [selectedRoomType, setSelectedRoomType] = useState<RoomType | null>(null);
   const [priceBreakdown, setPriceBreakdown] = useState<{
     nights: number;
@@ -72,21 +74,27 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
 
   const loadCustomers = async () => {
     try {
+      setLoadingCustomers(true);
       const data = await customerService.getCustomers(currentHotel!.id);
       setCustomers(data);
     } catch (error) {
       console.error('Error loading customers:', error);
       message.error(t('form.loadCustomersError'));
+    } finally {
+      setLoadingCustomers(false);
     }
   };
 
   const loadRoomTypes = async () => {
     try {
+      setLoadingRoomTypes(true);
       const data = await roomTypeService.getRoomTypes(currentHotel!.id);
       setRoomTypes(data);
     } catch (error) {
       console.error('Error loading room types:', error);
       message.error(t('form.loadRoomTypesError'));
+    } finally {
+      setLoadingRoomTypes(false);
     }
   };
 
@@ -244,6 +252,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
             <Select
               showSearch
               placeholder={t('form.customerPlaceholder')}
+              loading={loadingCustomers}
               optionFilterProp="children"
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -264,6 +273,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
           >
             <Select
               placeholder={t('form.roomTypePlaceholder')}
+              loading={loadingRoomTypes}
               onChange={handleRoomTypeChange}
               options={roomTypes.map((roomType) => ({
                 label: `${roomType.name} - ${roomType.basePrice.toLocaleString()} ${currentHotel?.currency}`,

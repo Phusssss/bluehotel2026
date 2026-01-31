@@ -56,6 +56,22 @@
     "yes": "Có",
     "no": "Không"
   },
+  "entities": {
+    "room": "phòng",
+    "reservation": "đặt phòng",
+    "customer": "khách hàng",
+    "service": "dịch vụ",
+    "roomType": "loại phòng",
+    "user": "người dùng",
+    "hotel": "khách sạn",
+    "company": "công ty",
+    "housekeepingTask": "nhiệm vụ dọn phòng",
+    "maintenanceTicket": "phiếu bảo trì"
+  },
+  "offline": {
+    "title": "Bạn đang ngoại tuyến",
+    "description": "Các thay đổi sẽ được đồng bộ khi kết nối được khôi phục"
+  },
   "filters": {
     "reset": "Đặt lại bộ lọc"
   },
@@ -98,6 +114,37 @@
     "addFirstHotel": "Thêm Khách Sạn Đầu Tiên",
     "addAnother": "Thêm Khách Sạn Khác",
     "select": "Chọn"
+  },
+  "messages": {
+    "createSuccess": "Tạo {{entity}} thành công",
+    "createError": "Tạo {{entity}} thất bại",
+    "updateSuccess": "Cập nhật {{entity}} thành công",
+    "updateError": "Cập nhật {{entity}} thất bại",
+    "deleteSuccess": "Xóa {{entity}} thành công",
+    "deleteError": "Xóa {{entity}} thất bại",
+    "loadError": "Tải {{entity}} thất bại",
+    "saveSuccess": "Lưu thay đổi thành công",
+    "saveError": "Lưu thay đổi thất bại",
+    "operationSuccess": "Thao tác hoàn thành thành công",
+    "operationError": "Thao tác thất bại",
+    "validationError": "Vui lòng kiểm tra lỗi trong biểu mẫu",
+    "submitSuccess": "Gửi biểu mẫu thành công",
+    "submitError": "Gửi biểu mẫu thất bại",
+    "resetSuccess": "Đặt lại biểu mẫu thành công",
+    "loginSuccess": "Chào mừng trở lại!",
+    "loginError": "Đăng nhập thất bại",
+    "logoutSuccess": "Bạn đã đăng xuất",
+    "sessionExpired": "Phiên của bạn đã hết hạn. Vui lòng đăng nhập lại",
+    "accessDenied": "Truy cập bị từ chối. Bạn không có quyền thực hiện hành động này",
+    "hotelSelected": "Đã chọn {{hotel}}",
+    "hotelSwitched": "Đã chuyển sang {{hotel}}",
+    "noHotelSelected": "Vui lòng chọn khách sạn để tiếp tục",
+    "loading": "Đang tải...",
+    "processing": "Đang xử lý...",
+    "saving": "Đang lưu...",
+    "deleting": "Đang xóa...",
+    "uploading": "Đang tải lên...",
+    "downloading": "Đang tải xuống..."
   },
   "errors": {
     "USER_NOT_FOUND": "Không tìm thấy tài khoản người dùng",

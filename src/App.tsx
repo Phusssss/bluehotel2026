@@ -4,9 +4,12 @@ import { ConfigProvider } from 'antd';
 import { AuthProvider } from './contexts/AuthContext';
 import { HotelProvider } from './contexts/HotelContext';
 import { ThemeProvider, useTheme, themeColors } from './contexts/ThemeContext';
+import { OfflineProvider } from './contexts/OfflineContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HotelProtectedRoute } from './components/HotelProtectedRoute';
 import { MainLayout } from './components/MainLayout';
+import { OfflineIndicator } from './components/OfflineIndicator';
+import { RouteTranslationLoader } from './components/RouteTranslationLoader';
 import ErrorBoundary from './components/ErrorBoundary';
 import { LoginPage } from './pages/LoginPage';
 import { LandingPage } from './pages/LandingPage';
@@ -47,52 +50,57 @@ function AppContent() {
         },
       }}
     >
-      <BrowserRouter>
-        <AuthProvider>
-          <HotelProvider>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <OfflineProvider>
+        <OfflineIndicator />
+        <BrowserRouter>
+          <RouteTranslationLoader>
+            <AuthProvider>
+              <HotelProvider>
+                <Routes>
+                  {/* Public routes */}
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-              {/* Protected routes - require authentication */}
-              <Route element={<ProtectedRoute roles={['regular']} />}>
-                <Route path="/user-info" element={<UserInfoPage />} />
-                <Route path="/add-hotel" element={<AddHotelPage />} />
-                <Route path="/select-hotel" element={<SelectHotelPage />} />
-                <Route path="/seed-data" element={<SeedDataPage />} />
-                
-                {/* Hotel-specific routes - require hotel selection */}
-                <Route element={<HotelProtectedRoute />}>
-                  <Route element={<MainLayout />}>
-                    <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/reservations" element={<ReservationsPage />} />
-                    <Route path="/front-desk" element={<FrontDeskPage />} />
-                    <Route path="/rooms" element={<RoomsPage />} />
-                    <Route path="/housekeeping" element={<HousekeepingBoard />} />
-                    <Route path="/pricing" element={<PricingPage />} />
-                    <Route path="/services" element={<ServicesPage />} />
-                    <Route path="/service-orders" element={<ServiceOrdersPage />} />
-                    <Route path="/customers" element={<CustomersPage />} />
-                    <Route path="/companies" element={<CompaniesPage />} />
-                    <Route path="/reports" element={<ReportsPage />} />
-                    <Route path="/settings" element={<SettingsPage />} />
+                  {/* Protected routes - require authentication */}
+                  <Route element={<ProtectedRoute roles={['regular']} />}>
+                    <Route path="/user-info" element={<UserInfoPage />} />
+                    <Route path="/add-hotel" element={<AddHotelPage />} />
+                    <Route path="/select-hotel" element={<SelectHotelPage />} />
+                    <Route path="/seed-data" element={<SeedDataPage />} />
+                    
+                    {/* Hotel-specific routes - require hotel selection */}
+                    <Route element={<HotelProtectedRoute />}>
+                      <Route element={<MainLayout />}>
+                        <Route path="/dashboard" element={<DashboardPage />} />
+                        <Route path="/reservations" element={<ReservationsPage />} />
+                        <Route path="/front-desk" element={<FrontDeskPage />} />
+                        <Route path="/rooms" element={<RoomsPage />} />
+                        <Route path="/housekeeping" element={<HousekeepingBoard />} />
+                        <Route path="/pricing" element={<PricingPage />} />
+                        <Route path="/services" element={<ServicesPage />} />
+                        <Route path="/service-orders" element={<ServiceOrdersPage />} />
+                        <Route path="/customers" element={<CustomersPage />} />
+                        <Route path="/companies" element={<CompaniesPage />} />
+                        <Route path="/reports" element={<ReportsPage />} />
+                        <Route path="/settings" element={<SettingsPage />} />
+                      </Route>
+                    </Route>
                   </Route>
-                </Route>
-              </Route>
 
-              {/* Super admin routes */}
-              <Route element={<ProtectedRoute roles={['super_admin']} />}>
-                <Route path="/admin" element={<AdminDashboard />} />
-              </Route>
+                  {/* Super admin routes */}
+                  <Route element={<ProtectedRoute roles={['super_admin']} />}>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                  </Route>
 
-              {/* Default redirect */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </HotelProvider>
-        </AuthProvider>
-      </BrowserRouter>
+                  {/* Default redirect */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </HotelProvider>
+            </AuthProvider>
+          </RouteTranslationLoader>
+        </BrowserRouter>
+      </OfflineProvider>
     </ConfigProvider>
   );
 }

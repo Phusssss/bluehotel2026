@@ -41,6 +41,7 @@ export function FrontDeskPage() {
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('arrivals');
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   /**
    * Open reservation details modal
@@ -54,14 +55,24 @@ export function FrontDeskPage() {
    * Check in a guest
    */
   const handleCheckIn = async (id: string) => {
-    await checkIn(id);
+    setActionLoading(`checkin-${id}`);
+    try {
+      await checkIn(id);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   /**
    * Check out a guest
    */
   const handleCheckOut = async (id: string) => {
-    await checkOut(id);
+    setActionLoading(`checkout-${id}`);
+    try {
+      await checkOut(id);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   /**
@@ -96,14 +107,24 @@ export function FrontDeskPage() {
    * Check in a group booking
    */
   const handleCheckInGroup = async (groupId: string) => {
-    await checkInGroup(groupId);
+    setActionLoading(`checkin-group-${groupId}`);
+    try {
+      await checkInGroup(groupId);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   /**
    * Check out a group booking
    */
   const handleCheckOutGroup = async (groupId: string) => {
-    await checkOutGroup(groupId);
+    setActionLoading(`checkout-group-${groupId}`);
+    try {
+      await checkOutGroup(groupId);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   /**
@@ -183,6 +204,7 @@ export function FrontDeskPage() {
                 type="primary"
                 size="small"
                 icon={<LoginOutlined />}
+                loading={actionLoading === `checkin-group-${record.groupId}`}
                 onClick={() => handleCheckInGroup(record.groupId!)}
               >
                 {t('actions.checkInGroup')}
@@ -192,6 +214,7 @@ export function FrontDeskPage() {
                 type="primary"
                 size="small"
                 icon={<LoginOutlined />}
+                loading={actionLoading === `checkin-${record.id}`}
                 onClick={() => handleCheckIn(record.id)}
               >
                 {t('actions.checkIn')}
@@ -348,6 +371,7 @@ export function FrontDeskPage() {
                 size="small"
                 danger
                 icon={<LogoutOutlined />}
+                loading={actionLoading === `checkout-group-${record.groupId}`}
                 onClick={() => handleCheckOutGroup(record.groupId!)}
               >
                 {t('actions.checkOutGroup')}
@@ -358,6 +382,7 @@ export function FrontDeskPage() {
                 size="small"
                 danger
                 icon={<LogoutOutlined />}
+                loading={actionLoading === `checkout-${record.id}`}
                 onClick={() => handleCheckOut(record.id)}
               >
                 {t('actions.checkOut')}

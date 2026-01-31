@@ -16,6 +16,7 @@ import {
   Input,
   Card,
   Drawer,
+  Spin,
 } from 'antd';
 import {
   PlusOutlined,
@@ -30,9 +31,10 @@ import {
   SearchOutlined,
   FilterOutlined,
 } from '@ant-design/icons';
-import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { Dayjs } from 'dayjs';
+import { useTranslation } from 'react-i18next';
+import { useTranslationLoader } from '../../../hooks/useTranslationLoader';
 import { useReservations } from '../hooks/useReservations';
 import { ReservationDetailsModal } from '../components/ReservationDetailsModal';
 import { TapeChart } from '../components/TapeChart';
@@ -77,6 +79,7 @@ const getStatusColor = (status: Reservation['status']) => {
  * Supports responsive design for mobile, tablet, and desktop
  */
 export function ReservationsPage() {
+  const { loading: translationLoading } = useTranslationLoader('reservations');
   const { t } = useTranslation('reservations');
   const [filters, setFilters] = useState<ReservationFilters>({});
   const [localFilters, setLocalFilters] = useState<FilterState>({
@@ -93,6 +96,7 @@ export function ReservationsPage() {
   const [activeView, setActiveView] = useState<'table' | 'calendar'>('table');
   const [showFilters, setShowFilters] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   // Check if mobile on mount and window resize
   useEffect(() => {
@@ -355,21 +359,36 @@ export function ReservationsPage() {
    * Cancel a reservation
    */
   const handleCancelReservation = async (id: string) => {
-    await cancelReservation(id);
+    setActionLoading(`cancel-${id}`);
+    try {
+      await cancelReservation(id);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   /**
    * Check in a guest
    */
   const handleCheckIn = async (id: string) => {
-    await checkIn(id);
+    setActionLoading(`checkin-${id}`);
+    try {
+      await checkIn(id);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   /**
    * Check out a guest
    */
   const handleCheckOut = async (id: string) => {
-    await checkOut(id);
+    setActionLoading(`checkout-${id}`);
+    try {
+      await checkOut(id);
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   /**
@@ -492,6 +511,7 @@ export function ReservationsPage() {
               type="link"
               size="small"
               icon={<LoginOutlined />}
+              loading={actionLoading === `checkin-${record.id}`}
               onClick={() => handleCheckIn(record.id)}
               style={{ padding: 0 }}
             >
@@ -504,6 +524,7 @@ export function ReservationsPage() {
               type="link"
               size="small"
               icon={<LogoutOutlined />}
+              loading={actionLoading === `checkout-${record.id}`}
               onClick={() => handleCheckOut(record.id)}
               style={{ padding: 0 }}
             >
@@ -524,6 +545,7 @@ export function ReservationsPage() {
                 size="small"
                 danger
                 icon={<CloseOutlined />}
+                loading={actionLoading === `cancel-${record.id}`}
                 style={{ padding: 0 }}
               >
                 {t('actions.cancel')}
@@ -537,16 +559,22 @@ export function ReservationsPage() {
 
   return (
     <div style={{ padding: '1px' }}>
-      {/* Page Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '24px',
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <Title level={2} style={{ margin: 0, fontSize: '24px' }}>{t('title')}</Title>
+      {translationLoading ? (
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" tip="Loading translations..." />
+        </div>
+      ) : (
+        <>
+          {/* Page Header */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '24px',
+            flexWrap: 'wrap',
+            gap: '12px'
+          }}>
+            <Title level={2} style={{ margin: 0, fontSize: '24px' }}>{t('title')}</Title>
         <Space wrap size="small">
           <Button
             icon={<FilterOutlined />}
@@ -809,6 +837,8 @@ export function ReservationsPage() {
           />
         )}
       </Modal>
+        </>
+      )}
     </div>
   );
 }

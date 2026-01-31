@@ -41,24 +41,26 @@ import {
   AreaChart,
   Area
 } from 'recharts';
+import { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo } from 'react';
+import { useTranslationLoader } from '../hooks/useTranslationLoader';
 import { useDashboard } from '../features/dashboard/hooks/useDashboard';
 
 const { Title } = Typography;
 
 export function DashboardPage() {
+  const { loading: translationLoading } = useTranslationLoader('dashboard');
   const { t } = useTranslation('dashboard');
   const { metrics, loading, error, refresh } = useDashboard();
   const [isSimpleView, setIsSimpleView] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   // Listen for window resize
-  useState(() => {
+  useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  });
+  }, []);
 
   // Format currency
   const formatCurrency = (value: number) => {
@@ -596,39 +598,47 @@ export function DashboardPage() {
 
   return (
     <div style={{ padding: isMobile ? '8px' : '24px' }}>
-      {/* Header */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        marginBottom: 24,
-        flexWrap: 'wrap',
-        gap: '12px'
-      }}>
-        <Title level={2} style={{ margin: 0 }} data-tour="dashboard-title">{t('title')}</Title>
-        <Space wrap>
-          <Space data-tour="view-toggle">
-            <span>{t('simpleView')}</span>
-            <Switch
-              checked={!isSimpleView}
-              onChange={(checked) => setIsSimpleView(!checked)}
-              checkedChildren={<BarChartOutlined />}
-              unCheckedChildren={<AppstoreOutlined />}
-            />
-            <span>{t('chartView')}</span>
-          </Space>
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={refresh}
-            type="default"
-          >
-            {t('refresh')}
-          </Button>
-        </Space>
-      </div>
+      {translationLoading ? (
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Spin size="large" tip="Loading translations..." />
+        </div>
+      ) : (
+        <>
+          {/* Header */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            marginBottom: 24,
+            flexWrap: 'wrap',
+            gap: '12px'
+          }}>
+            <Title level={2} style={{ margin: 0 }} data-tour="dashboard-title">{t('title')}</Title>
+            <Space wrap>
+              <Space data-tour="view-toggle">
+                <span>{t('simpleView')}</span>
+                <Switch
+                  checked={!isSimpleView}
+                  onChange={(checked) => setIsSimpleView(!checked)}
+                  checkedChildren={<BarChartOutlined />}
+                  unCheckedChildren={<AppstoreOutlined />}
+                />
+                <span>{t('chartView')}</span>
+              </Space>
+              <Button 
+                icon={<ReloadOutlined />} 
+                onClick={refresh}
+                type="default"
+              >
+                {t('refresh')}
+              </Button>
+            </Space>
+          </div>
 
-      {/* Content */}
-      {isSimpleView ? <SimpleView /> : <ChartView />}
+          {/* Content */}
+          {isSimpleView ? <SimpleView /> : <ChartView />}
+        </>
+      )}
     </div>
   );
 }
