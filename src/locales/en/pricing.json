@@ -1,11 +1,24 @@
 {
   "title": "Pricing & Room Types",
+  "filters": {
+    "title": "Filters",
+    "toggle": "Filters",
+    "searchPlaceholder": "Search room types by name, description, or amenities...",
+    "capacity": "Capacity Range",
+    "priceRange": "Price Range",
+    "amenities": "Required Amenities",
+    "amenitiesPlaceholder": "Select amenities",
+    "clear": "Clear",
+    "apply": "Apply Filters",
+    "resultsCount": "Showing {{count}} of {{total}} room types"
+  },
   "roomTypes": {
     "title": "Room Types",
     "create": "Create Room Type",
     "edit": "Edit Room Type",
     "delete": "Delete Room Type",
     "details": "Room Type Details",
+    "viewDetails": "View Details",
     "deleteConfirm": "Are you sure you want to delete this room type?",
     "deleteError": "Cannot delete room type that is assigned to rooms",
     "name": "Room Type Name",
@@ -63,7 +76,8 @@
     "basePrice": "Base Price",
     "capacity": "Capacity",
     "amenities": "Amenities",
-    "actions": "Actions"
+    "actions": "Actions",
+    "tapToView": "Tap to view details"
   },
   "details": {
     "name": "Room Type Name",
@@ -105,6 +119,18 @@
     "taxable": "Taxable",
     "active": "Active",
     "totalItems": "Total {{count}} services",
+    "filters": {
+      "searchPlaceholder": "Search services by name or description...",
+      "category": "Category",
+      "categoryPlaceholder": "Select category",
+      "categoryAll": "All Categories",
+      "status": "Status",
+      "statusPlaceholder": "Select status",
+      "statusAll": "All Status",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "resultsCount": "Showing {{count}} of {{total}} services"
+    },
     "categories": {
       "laundry": "Laundry",
       "food": "Food & Beverage",

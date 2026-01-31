@@ -1,0 +1,17 @@
+{
+  "startTour": "Bắt đầu hướng dẫn",
+  "sidebar": {
+    "mobileInstruction": "Trên mobile, menu được ẩn trong drawer. Chúng ta sẽ mở menu để bắt đầu hướng dẫn.",
+    "dashboard": "Trang Tổng quan - xem thống kê tổng thể của khách sạn: công suất phòng, doanh thu, biểu đồ...",
+    "reservations": "Quản lý Đặt phòng - tạo, chỉnh sửa và theo dõi tất cả các đặt phòng của khách hàng.",
+    "frontDesk": "Front Desk - thực hiện check-in, check-out khách hàng và quản lý các hoạt động hàng ngày.",
+    "rooms": "Quản lý Phòng - tạo phòng, xem trạng thái phòng, quản lý dọn dẹp và bảo trì.",
+    "pricing": "Quản lý Giá - thiết lập loại phòng, giá cả và các tiện nghi cho từng loại phòng.",
+    "services": "Quản lý Dịch vụ - tạo các dịch vụ bổ sung như spa, nhà hàng, giặt ủi để tăng doanh thu.",
+    "customers": "Quản lý Khách hàng - lưu trữ thông tin khách hàng, lịch sử đặt phòng và thông tin liên hệ.",
+    "reports": "Báo cáo - xem các báo cáo doanh thu, công suất phòng và phân tích hiệu quả kinh doanh.",
+    "settings": "Cài đặt - quản lý người dùng, phân quyền và cấu hình hệ thống.",
+    "theme": "Chuyển đổi giao diện sáng/tối theo sở thích của bạn.",
+    "language": "Chuyển đổi ngôn ngữ giữa Tiếng Việt và English."
+  }
+}

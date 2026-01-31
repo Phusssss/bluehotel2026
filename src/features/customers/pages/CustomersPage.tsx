@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   Table,
@@ -7,11 +7,13 @@ import {
   Space,
   Typography,
   message,
-  Spin,
   Tag,
   Modal,
   Drawer,
   Dropdown,
+  Select,
+  Row,
+  Col,
 } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -22,6 +24,7 @@ import {
   DeleteOutlined,
   HistoryOutlined,
   MoreOutlined,
+  FilterOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useCustomers } from '../hooks/useCustomers';
@@ -30,12 +33,19 @@ import { CustomerBookingHistory } from '../components/CustomerBookingHistory';
 import type { Customer } from '../../../types';
 import type { ColumnsType } from 'antd/es/table';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Search } = Input;
+const { Option } = Select;
+
+interface FilterState {
+  searchText: string;
+  nationality: string;
+  hasCompany: string; // 'all' | 'yes' | 'no'
+}
 
 /**
  * Customers list page component
- * Displays all customers with search functionality
+ * Displays all customers with search and filter functionality
  * Supports responsive design for mobile, tablet, and desktop
  */
 export function CustomersPage() {
@@ -43,40 +53,140 @@ export function CustomersPage() {
   const { 
     customers, 
     loading, 
-    searchCustomers, 
     fetchCustomers,
     createCustomer,
     updateCustomer,
     deleteCustomer,
   } = useCustomers();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [searching, setSearching] = useState(false);
+  
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isHistoryDrawerOpen, setIsHistoryDrawerOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [formLoading, setFormLoading] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Filter state
+  const [filters, setFilters] = useState<FilterState>({
+    searchText: '',
+    nationality: '',
+    hasCompany: 'all',
+  });
+
+  // Check if mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  /**
+   * Get all unique nationalities from customers for filter options
+   */
+  const allNationalities = useMemo(() => {
+    const nationalitiesSet = new Set<string>();
+    customers.forEach(customer => {
+      if (customer.nationality) {
+        nationalitiesSet.add(customer.nationality);
+      }
+    });
+    return Array.from(nationalitiesSet).sort();
+  }, [customers]);
+
+  /**
+   * Filter customers based on current filter state
+   */
+  const filteredCustomers = useMemo(() => {
+    return customers.filter(customer => {
+      // Search text filter
+      if (filters.searchText) {
+        const searchLower = filters.searchText.toLowerCase();
+        const nameMatch = customer.name.toLowerCase().includes(searchLower);
+        const emailMatch = customer.email.toLowerCase().includes(searchLower);
+        const phoneMatch = customer.phone.toLowerCase().includes(searchLower);
+        const addressMatch = customer.address?.toLowerCase().includes(searchLower);
+        
+        if (!nameMatch && !emailMatch && !phoneMatch && !addressMatch) {
+          return false;
+        }
+      }
+
+      // Nationality filter
+      if (filters.nationality && customer.nationality !== filters.nationality) {
+        return false;
+      }
+
+      // Company filter
+      if (filters.hasCompany !== 'all') {
+        const hasCompany = !!customer.companyId;
+        if (filters.hasCompany === 'yes' && !hasCompany) {
+          return false;
+        }
+        if (filters.hasCompany === 'no' && hasCompany) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [customers, filters]);
 
   /**
    * Handle search input change
    */
-  const handleSearch = async (value: string) => {
-    setSearchTerm(value);
-    setSearching(true);
+  const handleSearch = (value: string) => {
+    setFilters(prev => ({ ...prev, searchText: value }));
+  };
 
-    try {
-      await searchCustomers(value);
-    } catch (error) {
-      message.error(t('messages.loadError'));
-    } finally {
-      setSearching(false);
-    }
+  /**
+   * Handle nationality filter change
+   */
+  const handleNationalityChange = (value: string) => {
+    setFilters(prev => ({ ...prev, nationality: value }));
+  };
+
+  /**
+   * Handle company filter change
+   */
+  const handleCompanyFilterChange = (value: string) => {
+    setFilters(prev => ({ ...prev, hasCompany: value }));
+  };
+
+  /**
+   * Clear all filters
+   */
+  const clearFilters = () => {
+    setFilters({
+      searchText: '',
+      nationality: '',
+      hasCompany: 'all',
+    });
+  };
+
+  /**
+   * Toggle filters visibility
+   */
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  /**
+   * Close filters (for mobile drawer)
+   */
+  const closeFilters = () => {
+    setShowFilters(false);
   };
 
   /**
    * Handle refresh button click
    */
   const handleRefresh = async () => {
-    setSearchTerm('');
+    clearFilters();
     try {
       await fetchCustomers();
       message.success(t('common:common.refresh'));
@@ -85,6 +195,89 @@ export function CustomersPage() {
     }
   };
 
+  /**
+   * Render filter content
+   */
+  const renderFilterContent = () => (
+    <div style={{ padding: isMobile ? '0' : '16px' }}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={8}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              {t('filters.nationality')}
+            </label>
+            <Select
+              placeholder={t('filters.nationalityPlaceholder')}
+              value={filters.nationality}
+              onChange={handleNationalityChange}
+              style={{ width: '100%' }}
+              allowClear
+            >
+              {allNationalities.map(nationality => (
+                <Option key={nationality} value={nationality}>
+                  {nationality}
+                </Option>
+              ))}
+            </Select>
+          </div>
+        </Col>
+        
+        <Col xs={24} sm={12} md={8}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              {t('filters.company')}
+            </label>
+            <Select
+              placeholder={t('filters.companyPlaceholder')}
+              value={filters.hasCompany}
+              onChange={handleCompanyFilterChange}
+              style={{ width: '100%' }}
+            >
+              <Option value="all">{t('filters.companyAll')}</Option>
+              <Option value="yes">{t('filters.companyYes')}</Option>
+              <Option value="no">{t('filters.companyNo')}</Option>
+            </Select>
+          </div>
+        </Col>
+        
+        <Col xs={24} sm={12} md={8}>
+          <div style={{ display: 'flex', alignItems: 'end', height: '100%' }}>
+            <Button 
+              onClick={clearFilters}
+              style={{ width: '100%' }}
+            >
+              {t('filters.clear')}
+            </Button>
+          </div>
+        </Col>
+      </Row>
+      
+      {/* Mobile: Apply and Close buttons */}
+      {isMobile && (
+        <div style={{ 
+          marginTop: '24px', 
+          paddingTop: '16px', 
+          borderTop: '1px solid #f0f0f0',
+          display: 'flex',
+          gap: '12px'
+        }}>
+          <Button 
+            type="primary" 
+            onClick={closeFilters}
+            style={{ flex: 1 }}
+          >
+            {t('filters.apply')}
+          </Button>
+          <Button 
+            onClick={closeFilters}
+            style={{ flex: 1 }}
+          >
+            {t('common:buttons.close')}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
   /**
    * Open form modal for creating new customer
    */
@@ -271,84 +464,137 @@ export function CustomersPage() {
 
   return (
     <div style={{ padding: '1px' }}>
-      <Card>
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '24px',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          <Title level={2} style={{ margin: 0, fontSize: '24px' }}>
-            {t('title')}
-          </Title>
-          <Space wrap size="small">
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={handleRefresh}
-              loading={loading}
-              size="middle"
-            />
-            <Button
-              type="primary"
-              icon={<UserAddOutlined />}
-              onClick={handleAddCustomer}
-              size="middle"
-            >
-              {t('addCustomer')}
-            </Button>
-          </Space>
-        </div>
-
-        {/* Search Bar */}
-        <div style={{ marginBottom: '16px' }}>
-          <Search
-            placeholder={t('searchPlaceholder')}
-            allowClear
-            enterButton={<SearchOutlined />}
-            size="large"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onSearch={handleSearch}
-            loading={searching}
-            style={{ maxWidth: '600px' }}
-          />
-        </div>
-
-        {/* Statistics */}
-        <div style={{ marginBottom: '16px' }}>
-          <Tag color="blue" style={{ fontSize: '14px', padding: '4px 12px' }}>
-            {t('totalCustomers')}: {customers.length}
-          </Tag>
-        </div>
-
-        {/* Table */}
-        <Spin spinning={loading && !searching}>
-          <Table
-            columns={columns}
-            dataSource={customers}
-            rowKey="id"
-            scroll={{ x: 600 }}
-            pagination={{
-              pageSize: 20,
-              showSizeChanger: true,
-              showQuickJumper: false,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} / ${total}`,
-              responsive: true,
-              size: 'default',
-            }}
-            locale={{
-              emptyText: t('noCustomers'),
-            }}
+      {/* Page Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <Title level={2} style={{ margin: 0, fontSize: '24px' }} data-tour="customers-title">{t('title')}</Title>
+        <Space wrap size="small">
+          <Button
+            icon={<FilterOutlined />}
+            onClick={toggleFilters}
+            type={showFilters ? 'primary' : 'default'}
+            size="middle"
+          >
+            {t('filters.toggle')}
+          </Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={handleRefresh}
+            loading={loading}
             size="middle"
           />
-        </Spin>
-      </Card>
+          <Button
+            type="primary"
+            icon={<UserAddOutlined />}
+            onClick={handleAddCustomer}
+            size="middle"
+            data-tour="create-customer"
+          >
+            {t('addCustomer')}
+          </Button>
+        </Space>
+      </div>
+
+      {/* Search and Filters */}
+      <div style={{ 
+        marginBottom: '16px',
+        position: isMobile ? 'sticky' : 'static',
+        top: isMobile ? '0' : 'auto',
+        zIndex: isMobile ? 10 : 'auto',
+        backgroundColor: '#fff',
+        paddingTop: isMobile ? '8px' : '0',
+        paddingBottom: isMobile ? '8px' : '0'
+      }}>
+        <Search
+          placeholder={t('searchPlaceholder')}
+          allowClear
+          enterButton={<SearchOutlined />}
+          size={isMobile ? 'middle' : 'large'}
+          value={filters.searchText}
+          onChange={(e) => handleSearch(e.target.value)}
+          onSearch={handleSearch}
+          style={{ marginBottom: showFilters && !isMobile ? '16px' : '0' }}
+        />
+        
+        {/* Desktop: Inline filters */}
+        {showFilters && !isMobile && (
+          <Card size="small" style={{ marginTop: '16px' }}>
+            {renderFilterContent()}
+          </Card>
+        )}
+      </div>
+
+      {/* Mobile: Bottom drawer for filters */}
+      <Drawer
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FilterOutlined />
+            {t('filters.title')}
+          </div>
+        }
+        placement="bottom"
+        onClose={closeFilters}
+        open={showFilters && isMobile}
+        height="75vh"
+        styles={{
+          body: { padding: '16px' },
+          header: { 
+            borderBottom: '1px solid #f0f0f0',
+            paddingBottom: '12px'
+          }
+        }}
+        destroyOnClose={false}
+      >
+        {renderFilterContent()}
+      </Drawer>
+
+      {/* Results Summary */}
+      {(filters.searchText || filters.nationality || filters.hasCompany !== 'all') && (
+        <div style={{ marginBottom: '16px', padding: '8px 12px', background: '#f0f2f5', borderRadius: '6px' }}>
+          <Text type="secondary">
+            {t('filters.resultsCount', { 
+              count: filteredCustomers.length, 
+              total: customers.length 
+            })}
+          </Text>
+        </div>
+      )}
+
+      {/* Customers Table */}
+      <div style={{ 
+        background: '#fff', 
+        borderRadius: '8px',
+        overflow: 'hidden',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+      }}>
+        <Table
+          data-tour="customers-table"
+          columns={columns}
+          dataSource={filteredCustomers}
+          rowKey="id"
+          loading={loading}
+          scroll={{ x: 600 }}
+          pagination={{
+            pageSize: isMobile ? 5 : 10,
+            showSizeChanger: !isMobile,
+            showQuickJumper: false,
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} / ${total}`,
+            responsive: true,
+            size: isMobile ? 'small' : 'default',
+          }}
+          locale={{
+            emptyText: t('noCustomers'),
+          }}
+          size={isMobile ? 'small' : 'middle'}
+        />
+      </div>
 
       {/* Customer Form Modal */}
       <Modal

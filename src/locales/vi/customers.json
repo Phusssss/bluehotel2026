@@ -1,6 +1,20 @@
 {
   "title": "Khách Hàng",
-  "searchPlaceholder": "Tìm kiếm theo tên, email hoặc số điện thoại...",
+  "filters": {
+    "title": "Bộ Lọc",
+    "toggle": "Bộ Lọc",
+    "nationality": "Quốc Tịch",
+    "nationalityPlaceholder": "Chọn quốc tịch",
+    "company": "Trạng Thái Công Ty",
+    "companyPlaceholder": "Chọn trạng thái công ty",
+    "companyAll": "Tất Cả Khách Hàng",
+    "companyYes": "Khách Hàng Doanh Nghiệp",
+    "companyNo": "Khách Hàng Cá Nhân",
+    "clear": "Xóa Bộ Lọc",
+    "apply": "Áp Dụng Bộ Lọc",
+    "resultsCount": "Hiển thị {{count}} trong tổng số {{total}} khách hàng"
+  },
+  "searchPlaceholder": "Tìm kiếm theo tên, email, số điện thoại hoặc địa chỉ...",
   "addCustomer": "Thêm Khách Hàng",
   "noCustomers": "Không tìm thấy khách hàng",
   "totalCustomers": "Tổng Số Khách Hàng",
@@ -52,6 +66,14 @@
   "viewBookingHistory": "Xem Lịch Sử Đặt Phòng",
   "bookingHistory": "Lịch Sử Đặt Phòng",
   "noBookingHistory": "Không tìm thấy lịch sử đặt phòng cho khách hàng này",
+  "companyFilters": {
+    "discount": "Trạng Thái Giảm Giá",
+    "discountPlaceholder": "Chọn trạng thái giảm giá",
+    "discountAll": "Tất Cả Công Ty",
+    "discountYes": "Có Giảm Giá",
+    "discountNo": "Không Giảm Giá",
+    "resultsCount": "Hiển thị {{count}} trong tổng số {{total}} công ty"
+  },
   "companiesTitle": "Công Ty & Đối Tác",
   "addCompany": "Thêm Công Ty",
   "editCompany": "Chỉnh Sửa Công Ty",

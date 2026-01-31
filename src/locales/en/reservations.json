@@ -5,11 +5,14 @@
   "editButton": "Edit Reservation",
   "singleReservations": "Individual Reservations",
   "filters": {
+    "title": "Filters",
+    "toggle": "Filters",
     "dateRange": "Date Range",
     "status": "Status",
     "source": "Source",
     "clearFilters": "Clear Filters",
-    "apply": "Apply"
+    "apply": "Apply",
+    "searchPlaceholder": "Search reservations..."
   },
   "status": {
     "all": "All",

@@ -12,6 +12,7 @@ import {
   Space,
 } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useValidationRules } from '../../../utils/validation';
 import type { Service } from '../../../types';
 import type { CreateServiceInput } from '../../../services/serviceService';
 
@@ -45,6 +46,7 @@ export function ServiceForm({
   const [form] = Form.useForm<FormValues>();
   const { t } = useTranslation('pricing');
   const { t: tCommon } = useTranslation('common');
+  const validation = useValidationRules(t);
 
   const isEditing = !!service;
 
@@ -105,7 +107,9 @@ export function ServiceForm({
               name="name"
               label={t('services.name')}
               rules={[
-                { required: true, message: t('services.validation.nameRequired') },
+                validation.requiredTrim(),
+                validation.minLength(2),
+                validation.maxLength(100),
               ]}
             >
               <Input placeholder={t('services.namePlaceholder')} />
@@ -116,15 +120,14 @@ export function ServiceForm({
               name="price"
               label={t('services.price')}
               rules={[
-                { required: true, message: t('services.validation.priceRequired') },
-                { type: 'number', min: 0, message: t('services.validation.priceMin') },
+                validation.required(),
+                validation.nonNegativeNumber(),
               ]}
             >
               <InputNumber
                 style={{ width: '100%' }}
                 placeholder={t('services.pricePlaceholder')}
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
               />
             </Form.Item>
           </Col>
@@ -132,9 +135,7 @@ export function ServiceForm({
             <Form.Item
               name="category"
               label={t('services.category')}
-              rules={[
-                { required: true, message: t('services.validation.categoryRequired') },
-              ]}
+              rules={[validation.required()]}
             >
               <Select placeholder={t('services.categoryPlaceholder')}>
                 <Select.Option value="laundry">{t('services.categories.laundry')}</Select.Option>
@@ -152,10 +153,13 @@ export function ServiceForm({
             <Form.Item
               name={['description', 'en']}
               label={`${t('services.description')} (English)`}
+              rules={[validation.maxLength(500)]}
             >
               <TextArea
                 rows={3}
                 placeholder={t('services.descriptionPlaceholder')}
+                maxLength={500}
+                showCount
               />
             </Form.Item>
           </Col>
@@ -163,10 +167,13 @@ export function ServiceForm({
             <Form.Item
               name={['description', 'vi']}
               label={`${t('services.description')} (Tiếng Việt)`}
+              rules={[validation.maxLength(500)]}
             >
               <TextArea
                 rows={3}
                 placeholder={t('services.descriptionPlaceholder')}
+                maxLength={500}
+                showCount
               />
             </Form.Item>
           </Col>

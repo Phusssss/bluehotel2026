@@ -5,6 +5,8 @@
     "floor": "Floor Map View"
   },
   "filters": {
+    "title": "Filters",
+    "toggle": "Filters",
     "status": "Status",
     "statusAll": "All Statuses",
     "roomType": "Room Type",
@@ -12,7 +14,8 @@
     "floor": "Floor",
     "floorAll": "All Floors",
     "search": "Search by room number",
-    "reset": "Reset Filters"
+    "reset": "Reset Filters",
+    "apply": "Apply Filters"
   },
   "status": {
     "vacant": "Vacant",
@@ -27,7 +30,8 @@
     "floor": "Floor",
     "status": "Status",
     "notes": "Notes",
-    "actions": "Actions"
+    "actions": "Actions",
+    "tapToView": "Tap to view details"
   },
   "floorMap": {
     "floor": "Floor",
@@ -38,6 +42,7 @@
   "crud": {
     "actions": {
       "create": "Add Room",
+      "view": "View Details",
       "edit": "Edit",
       "delete": "Delete"
     },
@@ -84,6 +89,17 @@
       "roomNumberExists": "A room with this number already exists",
       "hasActiveReservations": "Cannot delete room with active reservations"
     }
+  },
+  "details": {
+    "title": "Room Details",
+    "basicInfo": "Basic Information",
+    "roomNumber": "Room Number",
+    "roomType": "Room Type",
+    "floor": "Floor",
+    "status": "Status",
+    "notes": "Notes",
+    "createdAt": "Created At",
+    "updatedAt": "Last Updated"
   },
   "housekeeping": {
     "title": "Housekeeping Board",

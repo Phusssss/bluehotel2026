@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal, Form, Input, Select, message } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useValidationRules } from '../../../utils/validation';
 import { HotelUser } from '../../../types';
 
 interface AddUserModalProps {
@@ -17,6 +18,7 @@ interface FormValues {
 export function AddUserModal({ visible, onCancel, onSubmit }: AddUserModalProps) {
   const { t } = useTranslation('settings');
   const [form] = Form.useForm<FormValues>();
+  const validation = useValidationRules(t);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -77,8 +79,9 @@ export function AddUserModal({ visible, onCancel, onSubmit }: AddUserModalProps)
           name="email"
           label={t('users.form.email')}
           rules={[
-            { required: true, message: t('users.form.emailRequired') },
-            { type: 'email', message: t('users.form.emailInvalid') },
+            validation.requiredTrim(),
+            validation.email(),
+            validation.maxLength(100),
           ]}
         >
           <Input
@@ -90,7 +93,7 @@ export function AddUserModal({ visible, onCancel, onSubmit }: AddUserModalProps)
         <Form.Item
           name="permission"
           label={t('users.form.permission')}
-          rules={[{ required: true, message: t('users.form.permissionRequired') }]}
+          rules={[validation.required()]}
         >
           <Select
             placeholder={t('users.form.permissionPlaceholder')}

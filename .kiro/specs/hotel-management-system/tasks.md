@@ -183,12 +183,12 @@ This implementation plan breaks down the hotel management system into incrementa
     - Display alerts and notifications
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9_
   
-  - [ ] 11.2 Write property tests for dashboard calculations
+  - [x] 11.2 Write property tests for dashboard calculations
     - **Property 13: Dashboard Occupancy Calculation**
     - **Property 14: Dashboard Revenue Calculation**
     - **Validates: Requirements 5.1, 5.2, 5.3, 5.4**
   
-  - [ ] 11.3 Write unit tests for dashboard edge cases
+  - [x] 11.3 Write unit tests for dashboard edge cases
     - Test with no reservations
     - Test with no rooms
     - _Requirements: 5.1-5.9_
@@ -216,7 +216,7 @@ This implementation plan breaks down the hotel management system into incrementa
     - Implement reservation cancellation with status update
     - _Requirements: 6.7, 6.8_
   
-  - [ ] 12.5 Write property tests for reservation operations
+  - [x] 12.5 Write property tests for reservation operations
     - **Property 15: Reservation Filtering Accuracy**
     - **Property 16: Reservation Creation with Correct Status**
     - **Property 17: Room Availability Validation**
@@ -558,7 +558,7 @@ This implementation plan breaks down the hotel management system into incrementa
     - Show user details (name, email, role, status)
     - _Requirements: 3.1, 3.2_
   
-  - [ ] 20.2 Implement user management operations
+  - [x] 20.2 Implement user management operations
     - Implement lock/unlock user functionality
     - Implement reset permissions functionality
     - Display user's hotels
@@ -572,13 +572,13 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 3.2, 3.3, 3.4, 3.6**
 
 - [ ] 21. Error Handling and Validation
-  - [ ] 21.1 Implement global error boundary
+  - [x] 21.1 Implement global error boundary
     - Create ErrorBoundary component
     - Display user-friendly error messages
     - Log errors to console (or error tracking service)
     - _Requirements: 19.6_
   
-  - [ ] 21.2 Implement service layer error handling
+  - [x] 21.2 Implement service layer error handling
     - Create AppError class
     - Handle Firestore errors with user-friendly messages
     - Translate error codes to localized messages
@@ -595,7 +595,7 @@ This implementation plan breaks down the hotel management system into incrementa
     - **Validates: Requirements 19.1, 19.2, 19.3**
 
 - [ ] 22. Firestore Security Rules
-  - [ ] 22.1 Implement comprehensive security rules
+  - [x] 22.1 Implement comprehensive security rules
     - Enforce multi-tenancy (hotelId filtering)
     - Enforce permission-based access
     - Prevent unauthorized data access

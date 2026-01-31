@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useState } from 'react';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { useValidationRules } from '../utils/validation';
 
 const { Option } = Select;
 
@@ -21,6 +22,7 @@ export function UserInfoPage() {
   const { updateUserProfile, user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const validation = useValidationRules(t);
 
   const handleSubmit = async (values: UserInfoFormValues) => {
     setLoading(true);
@@ -67,7 +69,11 @@ export function UserInfoPage() {
           <Form.Item
             name="displayName"
             label={t('userInfo.fullName')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[
+              validation.requiredTrim(),
+              validation.minLength(2),
+              validation.maxLength(100),
+            ]}
           >
             <Input placeholder={t('userInfo.fullNamePlaceholder')} />
           </Form.Item>
@@ -76,8 +82,10 @@ export function UserInfoPage() {
             name="phone"
             label={t('userInfo.phone')}
             rules={[
-              { required: true, message: t('validation.required') },
-              { pattern: /^[0-9+\-\s()]+$/, message: t('validation.phone') },
+              validation.requiredTrim(),
+              validation.phone(),
+              validation.minLength(10),
+              validation.maxLength(20),
             ]}
           >
             <Input placeholder={t('userInfo.phonePlaceholder')} />
@@ -86,7 +94,11 @@ export function UserInfoPage() {
           <Form.Item
             name="address"
             label={t('userInfo.address')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[
+              validation.requiredTrim(),
+              validation.minLength(10),
+              validation.maxLength(500),
+            ]}
           >
             <Input.TextArea rows={3} placeholder={t('userInfo.addressPlaceholder')} />
           </Form.Item>
@@ -94,7 +106,7 @@ export function UserInfoPage() {
           <Form.Item
             name="language"
             label={t('userInfo.language')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[validation.required()]}
           >
             <Select>
               <Option value="en">English</Option>
@@ -105,7 +117,7 @@ export function UserInfoPage() {
           <Form.Item
             name="timezone"
             label={t('userInfo.timezone')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[validation.required()]}
           >
             <Select>
               <Option value="Asia/Ho_Chi_Minh">Asia/Ho Chi Minh (GMT+7)</Option>

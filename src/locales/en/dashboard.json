@@ -4,6 +4,8 @@
   "occupancyThisWeek": "Occupancy This Week",
   "revenueToday": "Revenue Today",
   "revenueThisMonth": "Revenue This Month",
+  "revenueComparison": "Revenue Comparison",
+  "weeklyTrend": "Weekly Occupancy Trend",
   "checkInsToday": "Check-ins Today",
   "checkOutsToday": "Check-outs Today",
   "dirtyRooms": "Dirty Rooms",
@@ -17,5 +19,7 @@
   "error": "Failed to load dashboard metrics",
   "noData": "No data available",
   "refresh": "Refresh",
-  "retry": "Retry"
+  "retry": "Retry",
+  "simpleView": "Simple View",
+  "chartView": "Chart View"
 }

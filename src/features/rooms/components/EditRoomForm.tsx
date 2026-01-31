@@ -13,6 +13,7 @@ import {
 } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { roomService } from '../../../services/roomService';
+import { useValidationRules } from '../../../utils/validation';
 import type { Room, RoomType } from '../../../types';
 
 const { Option } = Select;
@@ -42,6 +43,7 @@ export function EditRoomForm({
 }: EditRoomFormProps) {
   const [form] = Form.useForm<RoomFormValues>();
   const { t } = useTranslation('rooms');
+  const validation = useValidationRules(t);
   const [loading, setLoading] = useState(false);
 
   // Populate form when room changes
@@ -118,12 +120,9 @@ export function EditRoomForm({
               name="roomNumber"
               label={t('crud.form.roomNumber')}
               rules={[
-                { required: true, message: t('crud.form.roomNumberRequired') },
-                { max: 20, message: t('crud.form.roomNumberMaxLength') },
-                {
-                  pattern: /^[A-Za-z0-9-]+$/,
-                  message: t('crud.form.roomNumberPattern'),
-                },
+                validation.requiredTrim(),
+                validation.maxLength(20),
+                validation.roomNumber(),
               ]}
             >
               <Input
@@ -137,7 +136,7 @@ export function EditRoomForm({
             <Form.Item
               name="roomTypeId"
               label={t('crud.form.roomType')}
-              rules={[{ required: true, message: t('crud.form.roomTypeRequired') }]}
+              rules={[validation.required()]}
             >
               <Select placeholder={t('crud.form.roomTypePlaceholder')}>
                 {roomTypes.map((roomType) => (
@@ -156,8 +155,8 @@ export function EditRoomForm({
               name="floor"
               label={t('crud.form.floor')}
               rules={[
-                { required: true, message: t('crud.form.floorRequired') },
-                { type: 'number', min: -5, max: 100, message: t('crud.form.floorRange') },
+                validation.required(),
+                validation.numberRange(-5, 100),
               ]}
             >
               <InputNumber
@@ -173,7 +172,7 @@ export function EditRoomForm({
         <Form.Item
           name="notes"
           label={t('crud.form.notes')}
-          rules={[{ max: 500, message: t('crud.form.notesMaxLength') }]}
+          rules={[validation.maxLength(500)]}
         >
           <TextArea
             placeholder={t('crud.form.notesPlaceholder')}

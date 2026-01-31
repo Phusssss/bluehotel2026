@@ -1,10 +1,24 @@
 {
   "title": "Giá & Loại Phòng",
+  "filters": {
+    "title": "Bộ Lọc",
+    "toggle": "Bộ Lọc",
+    "searchPlaceholder": "Tìm kiếm loại phòng theo tên, mô tả hoặc tiện nghi...",
+    "capacity": "Khoảng Sức Chứa",
+    "priceRange": "Khoảng Giá",
+    "amenities": "Tiện Nghi Yêu Cầu",
+    "amenitiesPlaceholder": "Chọn tiện nghi",
+    "clear": "Xóa Bộ Lọc",
+    "apply": "Áp Dụng Bộ Lọc",
+    "resultsCount": "Hiển thị {{count}} trong tổng số {{total}} loại phòng"
+  },
   "roomTypes": {
     "title": "Loại Phòng",
     "create": "Tạo Loại Phòng",
     "edit": "Sửa Loại Phòng",
     "delete": "Xóa Loại Phòng",
+    "details": "Chi Tiết Loại Phòng",
+    "viewDetails": "Xem Chi Tiết",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa loại phòng này?",
     "deleteError": "Không thể xóa loại phòng đang được gán cho phòng",
     "name": "Tên Loại Phòng",
@@ -62,7 +76,8 @@
     "basePrice": "Giá Cơ Bản",
     "capacity": "Sức Chứa",
     "amenities": "Tiện Nghi",
-    "actions": "Thao Tác"
+    "actions": "Thao Tác",
+    "tapToView": "Chạm để xem chi tiết"
   },
   "details": {
     "name": "Tên Loại Phòng",
@@ -104,6 +119,18 @@
     "taxable": "Chịu Thuế",
     "active": "Hoạt Động",
     "totalItems": "Tổng {{count}} dịch vụ",
+    "filters": {
+      "searchPlaceholder": "Tìm kiếm dịch vụ theo tên hoặc mô tả...",
+      "category": "Danh Mục",
+      "categoryPlaceholder": "Chọn danh mục",
+      "categoryAll": "Tất Cả Danh Mục",
+      "status": "Trạng Thái",
+      "statusPlaceholder": "Chọn trạng thái",
+      "statusAll": "Tất Cả Trạng Thái",
+      "statusActive": "Hoạt Động",
+      "statusInactive": "Không Hoạt Động",
+      "resultsCount": "Hiển thị {{count}} trong tổng số {{total}} dịch vụ"
+    },
     "categories": {
       "laundry": "Giặt Ủi",
       "food": "Ăn Uống",

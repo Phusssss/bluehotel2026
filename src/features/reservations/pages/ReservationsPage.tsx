@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   Button,
@@ -13,6 +13,9 @@ import {
   Modal,
   Typography,
   Divider,
+  Input,
+  Card,
+  Drawer,
 } from 'antd';
 import {
   PlusOutlined,
@@ -24,6 +27,8 @@ import {
   ReloadOutlined,
   TableOutlined,
   CalendarOutlined,
+  SearchOutlined,
+  FilterOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import type { ColumnsType } from 'antd/es/table';
@@ -39,12 +44,21 @@ import type { Reservation, ReservationFilters } from '../../../types';
 
 const { RangePicker } = DatePicker;
 const { Title } = Typography;
+const { Search } = Input;
 
-/**
- * Get color for reservation status tag
- * @param status - Reservation status
- * @returns Color string for Ant Design Tag
- */
+interface FilterState {
+  searchText: string;
+  dateRange: [Dayjs | null, Dayjs | null] | null;
+  status: string;
+  source: string;
+}
+
+interface FilterState {
+  searchText: string;
+  dateRange: [Dayjs | null, Dayjs | null] | null;
+  status: string;
+  source: string;
+}
 const getStatusColor = (status: Reservation['status']) => {
   const colors: Record<Reservation['status'], string> = {
     pending: 'orange',
@@ -65,15 +79,32 @@ const getStatusColor = (status: Reservation['status']) => {
 export function ReservationsPage() {
   const { t } = useTranslation('reservations');
   const [filters, setFilters] = useState<ReservationFilters>({});
-  const [dateRange, setDateRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [sourceFilter, setSourceFilter] = useState<string>('all');
+  const [localFilters, setLocalFilters] = useState<FilterState>({
+    searchText: '',
+    dateRange: null,
+    status: 'all',
+    source: 'all',
+  });
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createGroupModalOpen, setCreateGroupModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [activeView, setActiveView] = useState<'table' | 'calendar'>('table');
+  const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const { reservations, loading, refresh, cancelReservation, checkIn, checkOut } = useReservations(filters);
 
@@ -109,35 +140,200 @@ export function ReservationsPage() {
   /**
    * Apply filters to reservation list
    */
-
   const handleApplyFilters = () => {
     const newFilters: ReservationFilters = {};
 
-    if (dateRange && dateRange[0] && dateRange[1]) {
-      newFilters.startDate = dateRange[0].format('YYYY-MM-DD');
-      newFilters.endDate = dateRange[1].format('YYYY-MM-DD');
+    if (localFilters.dateRange && localFilters.dateRange[0] && localFilters.dateRange[1]) {
+      newFilters.startDate = localFilters.dateRange[0].format('YYYY-MM-DD');
+      newFilters.endDate = localFilters.dateRange[1].format('YYYY-MM-DD');
     }
 
-    if (statusFilter !== 'all') {
-      newFilters.status = statusFilter as Reservation['status'];
+    if (localFilters.status !== 'all') {
+      newFilters.status = localFilters.status as Reservation['status'];
     }
 
-    if (sourceFilter !== 'all') {
-      newFilters.source = sourceFilter as Reservation['source'];
+    if (localFilters.source !== 'all') {
+      newFilters.source = localFilters.source as Reservation['source'];
     }
 
     setFilters(newFilters);
   };
 
   /**
+   * Handle search input change
+   */
+  const handleSearch = (value: string) => {
+    setLocalFilters(prev => ({ ...prev, searchText: value }));
+  };
+
+  /**
+   * Handle date range change
+   */
+  const handleDateRangeChange = (dates: [Dayjs | null, Dayjs | null] | null) => {
+    setLocalFilters(prev => ({ ...prev, dateRange: dates }));
+  };
+
+  /**
+   * Handle status filter change
+   */
+  const handleStatusFilterChange = (value: string) => {
+    setLocalFilters(prev => ({ ...prev, status: value }));
+  };
+
+  /**
+   * Handle source filter change
+   */
+  const handleSourceFilterChange = (value: string) => {
+    setLocalFilters(prev => ({ ...prev, source: value }));
+  };
+
+  /**
    * Clear all filters
    */
   const handleClearFilters = () => {
-    setDateRange(null);
-    setStatusFilter('all');
-    setSourceFilter('all');
+    setLocalFilters({
+      searchText: '',
+      dateRange: null,
+      status: 'all',
+      source: 'all',
+    });
     setFilters({});
   };
+
+  /**
+   * Toggle filters visibility
+   */
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  /**
+   * Close filters (for mobile drawer)
+   */
+  const closeFilters = () => {
+    setShowFilters(false);
+  };
+
+  /**
+   * Render filter content
+   */
+  const renderFilterContent = () => (
+    <div style={{ padding: isMobile ? '0' : '16px' }}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={8}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              {t('filters.dateRange')}
+            </label>
+            <RangePicker
+              style={{ width: '100%' }}
+              size="middle"
+              value={localFilters.dateRange}
+              onChange={handleDateRangeChange}
+              format="YYYY-MM-DD"
+            />
+          </div>
+        </Col>
+
+        <Col xs={24} sm={12} md={8}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              {t('filters.status')}
+            </label>
+            <Select
+              style={{ width: '100%' }}
+              size="middle"
+              value={localFilters.status}
+              onChange={handleStatusFilterChange}
+              options={[
+                { label: t('status.all'), value: 'all' },
+                { label: t('status.pending'), value: 'pending' },
+                { label: t('status.confirmed'), value: 'confirmed' },
+                { label: t('status.checked-in'), value: 'checked-in' },
+                { label: t('status.checked-out'), value: 'checked-out' },
+                { label: t('status.cancelled'), value: 'cancelled' },
+                { label: t('status.no-show'), value: 'no-show' },
+              ]}
+            />
+          </div>
+        </Col>
+
+        <Col xs={24} sm={12} md={8}>
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+              {t('filters.source')}
+            </label>
+            <Select
+              style={{ width: '100%' }}
+              size="middle"
+              value={localFilters.source}
+              onChange={handleSourceFilterChange}
+              options={[
+                { label: t('source.all'), value: 'all' },
+                { label: t('source.direct'), value: 'direct' },
+                { label: t('source.booking.com'), value: 'booking.com' },
+                { label: t('source.airbnb'), value: 'airbnb' },
+                { label: t('source.phone'), value: 'phone' },
+                { label: t('source.walk-in'), value: 'walk-in' },
+                { label: t('source.other'), value: 'other' },
+              ]}
+            />
+          </div>
+        </Col>
+      </Row>
+      
+      <Row style={{ marginTop: 16 }}>
+        <Col span={24}>
+          <Space>
+            <Button 
+              type="primary" 
+              onClick={() => {
+                handleApplyFilters();
+                if (isMobile) closeFilters();
+              }}
+              size="middle"
+            >
+              {t('filters.apply')}
+            </Button>
+            <Button 
+              onClick={handleClearFilters}
+              size="middle"
+            >
+              {t('filters.clearFilters')}
+            </Button>
+          </Space>
+        </Col>
+      </Row>
+      
+      {/* Mobile: Apply and Close buttons */}
+      {isMobile && (
+        <div style={{ 
+          marginTop: '24px', 
+          paddingTop: '16px', 
+          borderTop: '1px solid #f0f0f0',
+          display: 'flex',
+          gap: '12px'
+        }}>
+          <Button 
+            type="primary" 
+            onClick={() => {
+              handleApplyFilters();
+              closeFilters();
+            }}
+            style={{ flex: 1 }}
+          >
+            {t('filters.apply')}
+          </Button>
+          <Button 
+            onClick={closeFilters}
+            style={{ flex: 1 }}
+          >
+            {t('common:buttons.close')}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
 
   /**
    * Open reservation details modal
@@ -353,6 +549,14 @@ export function ReservationsPage() {
         <Title level={2} style={{ margin: 0, fontSize: '24px' }}>{t('title')}</Title>
         <Space wrap size="small">
           <Button
+            icon={<FilterOutlined />}
+            onClick={toggleFilters}
+            type={showFilters ? 'primary' : 'default'}
+            size="middle"
+          >
+            {t('filters.toggle')}
+          </Button>
+          <Button
             icon={<ReloadOutlined />}
             onClick={refresh}
             loading={loading}
@@ -376,6 +580,59 @@ export function ReservationsPage() {
           </Button>
         </Space>
       </div>
+
+      {/* Search and Filters */}
+      <div style={{ 
+        marginBottom: '16px',
+        position: isMobile ? 'sticky' : 'static',
+        top: isMobile ? '0' : 'auto',
+        zIndex: isMobile ? 10 : 'auto',
+        backgroundColor: '#fff',
+        paddingTop: isMobile ? '8px' : '0',
+        paddingBottom: isMobile ? '8px' : '0'
+      }}>
+        <Search
+          placeholder={t('filters.searchPlaceholder')}
+          allowClear
+          enterButton={<SearchOutlined />}
+          size={isMobile ? 'middle' : 'large'}
+          value={localFilters.searchText}
+          onChange={(e) => handleSearch(e.target.value)}
+          onSearch={handleSearch}
+          style={{ marginBottom: showFilters && !isMobile ? '16px' : '0' }}
+        />
+        
+        {/* Desktop: Inline filters */}
+        {showFilters && !isMobile && (
+          <Card size="small" style={{ marginTop: '16px' }}>
+            {renderFilterContent()}
+          </Card>
+        )}
+      </div>
+
+      {/* Mobile: Bottom drawer for filters */}
+      <Drawer
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FilterOutlined />
+            {t('filters.title')}
+          </div>
+        }
+        placement="bottom"
+        onClose={closeFilters}
+        open={showFilters && isMobile}
+        height="75vh"
+        styles={{
+          body: { padding: '16px' },
+          header: { 
+            borderBottom: '1px solid #f0f0f0',
+            paddingBottom: '12px'
+          }
+        }}
+        destroyOnClose={false}
+      >
+        {renderFilterContent()}
+      </Drawer>
 
       {/* View Tabs and Content */}
       <div>
@@ -403,105 +660,17 @@ export function ReservationsPage() {
           ]}
         />
 
-        {/* Filters - Only show for table view */}
-        {activeView === 'table' && (
-          <div style={{ 
-            background: '#fff', 
-            borderRadius: '8px',
-            padding: '16px',
-            marginBottom: '16px',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
-          }}>
-            <Row gutter={[16, 16]}>
-              <Col xs={24} sm={12} md={8}>
-                <div style={{ marginBottom: 8 }}>
-                  <strong>{t('filters.dateRange')}</strong>
-                </div>
-                <RangePicker
-                  style={{ width: '100%' }}
-                  size="middle"
-                  value={dateRange}
-                  onChange={(dates) => setDateRange(dates as [Dayjs | null, Dayjs | null] | null)}
-                  format="YYYY-MM-DD"
-                />
-              </Col>
-
-              <Col xs={24} sm={12} md={8}>
-                <div style={{ marginBottom: 8 }}>
-                  <strong>{t('filters.status')}</strong>
-                </div>
-                <Select
-                  style={{ width: '100%' }}
-                  size="middle"
-                  value={statusFilter}
-                  onChange={setStatusFilter}
-                  options={[
-                    { label: t('status.all'), value: 'all' },
-                    { label: t('status.pending'), value: 'pending' },
-                    { label: t('status.confirmed'), value: 'confirmed' },
-                    { label: t('status.checked-in'), value: 'checked-in' },
-                    { label: t('status.checked-out'), value: 'checked-out' },
-                    { label: t('status.cancelled'), value: 'cancelled' },
-                    { label: t('status.no-show'), value: 'no-show' },
-                  ]}
-                />
-              </Col>
-
-              <Col xs={24} sm={12} md={8}>
-                <div style={{ marginBottom: 8 }}>
-                  <strong>{t('filters.source')}</strong>
-                </div>
-                <Select
-                  style={{ width: '100%' }}
-                  size="middle"
-                  value={sourceFilter}
-                  onChange={setSourceFilter}
-                  options={[
-                    { label: t('source.all'), value: 'all' },
-                    { label: t('source.direct'), value: 'direct' },
-                    { label: t('source.booking.com'), value: 'booking.com' },
-                    { label: t('source.airbnb'), value: 'airbnb' },
-                    { label: t('source.phone'), value: 'phone' },
-                    { label: t('source.walk-in'), value: 'walk-in' },
-                    { label: t('source.other'), value: 'other' },
-                  ]}
-                />
-              </Col>
-            </Row>
-
-            <Row style={{ marginTop: 16 }}>
-              <Col span={24}>
-                <Space>
-                  <Button 
-                    type="primary" 
-                    onClick={handleApplyFilters}
-                    size="middle"
-                  >
-                    {t('filters.apply')}
-                  </Button>
-                  <Button 
-                    onClick={handleClearFilters}
-                    size="middle"
-                  >
-                    {t('filters.clearFilters')}
-                  </Button>
-                </Space>
-              </Col>
-            </Row>
-          </div>
-        )}
-
         {/* Table View */}
         {activeView === 'table' && (
           <div style={{ 
             background: '#fff', 
             borderRadius: '8px',
-            padding: '16px',
+            overflow: 'hidden',
             boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
           }}>
             {/* Group Bookings Section */}
             {groupedReservations.length > 0 && (
-              <>
+              <div style={{ padding: '16px' }}>
                 <Typography.Title level={4} style={{ marginBottom: 16 }}>
                   {t('groupBooking.title')}
                 </Typography.Title>
@@ -516,12 +685,12 @@ export function ReservationsPage() {
                 {singleReservations.length > 0 && (
                   <Divider style={{ margin: '24px 0' }} />
                 )}
-              </>
+              </div>
             )}
 
             {/* Single Reservations Section */}
             {singleReservations.length > 0 && (
-              <>
+              <div style={{ padding: groupedReservations.length > 0 ? '0 16px 16px' : '16px' }}>
                 {groupedReservations.length > 0 && (
                   <Typography.Title level={4} style={{ marginBottom: 16 }}>
                     {t('singleReservations')}
@@ -534,20 +703,20 @@ export function ReservationsPage() {
                   loading={loading}
                   scroll={{ x: 1200 }}
                   pagination={{
-                    pageSize: 10,
-                    showSizeChanger: true,
+                    pageSize: isMobile ? 5 : 10,
+                    showSizeChanger: !isMobile,
                     showQuickJumper: false,
                     showTotal: (total, range) =>
                       `${range[0]}-${range[1]} / ${total}`,
                     responsive: true,
-                    size: 'default',
+                    size: isMobile ? 'small' : 'default',
                   }}
-                  size="middle"
+                  size={isMobile ? 'small' : 'middle'}
                   locale={{
                     emptyText: t('messages.noData'),
                   }}
                 />
-              </>
+              </div>
             )}
 
             {/* No data message */}

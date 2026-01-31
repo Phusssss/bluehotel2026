@@ -145,4 +145,29 @@ export class UserService {
       throw error;
     }
   }
+
+  /**
+   * Delete user account (Super Admin only)
+   * Note: This only deletes the user document from Firestore, not the Firebase Auth account
+   */
+  static async deleteUser(userId: string): Promise<void> {
+    try {
+      // First reset all permissions (remove from all hotels)
+      await this.resetUserPermissions(userId);
+
+      // Then delete the user document
+      const userRef = doc(db, 'users', userId);
+      
+      // Check if the document exists
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        throw new Error('User not found');
+      }
+
+      await deleteDoc(userRef);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
+  }
 }

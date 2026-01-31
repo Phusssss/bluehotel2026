@@ -14,6 +14,7 @@ import {
 } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { useValidationRules } from '../../../utils/validation';
 import type { RoomType, CreateRoomTypeInput, SeasonalPricing } from '../../../types';
 import dayjs from 'dayjs';
 
@@ -61,6 +62,7 @@ export function RoomTypeForm({
   const [form] = Form.useForm<FormValues>();
   const { t } = useTranslation('pricing');
   const { t: tCommon } = useTranslation('common');
+  const validation = useValidationRules(t);
 
   const isEditing = !!roomType;
 
@@ -158,7 +160,9 @@ export function RoomTypeForm({
               name="name"
               label={t('roomTypes.name')}
               rules={[
-                { required: true, message: t('roomTypes.validation.nameRequired') },
+                validation.requiredTrim(),
+                validation.minLength(2),
+                validation.maxLength(100),
               ]}
             >
               <Input placeholder={t('roomTypes.namePlaceholder')} />
@@ -169,15 +173,14 @@ export function RoomTypeForm({
               name="basePrice"
               label={t('roomTypes.basePrice')}
               rules={[
-                { required: true, message: t('roomTypes.validation.basePriceRequired') },
-                { type: 'number', min: 1, message: t('roomTypes.validation.basePriceMin') },
+                validation.required(),
+                validation.positiveNumber(),
               ]}
             >
               <InputNumber
                 style={{ width: '100%' }}
                 placeholder={t('roomTypes.basePricePlaceholder')}
                 formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
               />
             </Form.Item>
           </Col>
@@ -186,14 +189,15 @@ export function RoomTypeForm({
               name="capacity"
               label={t('roomTypes.capacity')}
               rules={[
-                { required: true, message: t('roomTypes.validation.capacityRequired') },
-                { type: 'number', min: 1, message: t('roomTypes.validation.capacityMin') },
+                validation.required(),
+                validation.numberRange(1, 20),
               ]}
             >
               <InputNumber
                 style={{ width: '100%' }}
                 placeholder={t('roomTypes.capacityPlaceholder')}
                 min={1}
+                max={20}
               />
             </Form.Item>
           </Col>
@@ -204,10 +208,13 @@ export function RoomTypeForm({
             <Form.Item
               name={['description', 'en']}
               label={`${t('roomTypes.description')} (English)`}
+              rules={[validation.maxLength(500)]}
             >
               <TextArea
                 rows={3}
                 placeholder={t('roomTypes.descriptionPlaceholder')}
+                maxLength={500}
+                showCount
               />
             </Form.Item>
           </Col>
@@ -215,10 +222,13 @@ export function RoomTypeForm({
             <Form.Item
               name={['description', 'vi']}
               label={`${t('roomTypes.description')} (Tiếng Việt)`}
+              rules={[validation.maxLength(500)]}
             >
               <TextArea
                 rows={3}
                 placeholder={t('roomTypes.descriptionPlaceholder')}
+                maxLength={500}
+                showCount
               />
             </Form.Item>
           </Col>
@@ -227,8 +237,12 @@ export function RoomTypeForm({
         <Form.Item
           name="amenities"
           label={t('roomTypes.amenities')}
+          rules={[validation.maxLength(500)]}
         >
-          <Input placeholder={t('roomTypes.amenitiesPlaceholder')} />
+          <Input 
+            placeholder={t('roomTypes.amenitiesPlaceholder')} 
+            maxLength={500}
+          />
         </Form.Item>
 
         <Divider />
@@ -248,12 +262,13 @@ export function RoomTypeForm({
               <Form.Item
                 name={['weekdayPricing', day]}
                 label={t(`roomTypes.${day}`)}
+                rules={[validation.nonNegativeNumber()]}
               >
                 <InputNumber
                   style={{ width: '100%' }}
                   placeholder="0"
+                  min={0}
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                  parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
                 />
               </Form.Item>
             </Col>
@@ -288,9 +303,7 @@ export function RoomTypeForm({
                         {...restField}
                         name={[name, 'startDate']}
                         label={t('roomTypes.startDate')}
-                        rules={[
-                          { required: true, message: t('roomTypes.validation.startDateRequired') },
-                        ]}
+                        rules={[validation.required()]}
                       >
                         <DatePicker style={{ width: '100%' }} />
                       </Form.Item>
@@ -300,9 +313,7 @@ export function RoomTypeForm({
                         {...restField}
                         name={[name, 'endDate']}
                         label={t('roomTypes.endDate')}
-                        rules={[
-                          { required: true, message: t('roomTypes.validation.endDateRequired') },
-                        ]}
+                        rules={[validation.required()]}
                       >
                         <DatePicker style={{ width: '100%' }} />
                       </Form.Item>
@@ -313,14 +324,13 @@ export function RoomTypeForm({
                         name={[name, 'price']}
                         label={t('roomTypes.price')}
                         rules={[
-                          { required: true, message: t('roomTypes.validation.priceRequired') },
-                          { type: 'number', min: 1, message: t('roomTypes.validation.priceMin') },
+                          validation.required(),
+                          validation.positiveNumber(),
                         ]}
                       >
                         <InputNumber
                           style={{ width: '100%' }}
                           formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                          parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
                         />
                       </Form.Item>
                     </Col>

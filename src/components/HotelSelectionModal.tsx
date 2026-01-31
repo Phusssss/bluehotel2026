@@ -25,7 +25,6 @@ export function HotelSelectionModal({ open, onCancel }: HotelSelectionModalProps
 
   return (
     <Modal
-      title={t('selectHotel.title')}
       open={open}
       onCancel={onCancel}
       footer={null}
@@ -39,6 +38,7 @@ export function HotelSelectionModal({ open, onCancel }: HotelSelectionModalProps
         </div>
       ) : hotels.length === 0 ? (
         <div>
+          <h3 style={{ textAlign: 'center', marginBottom: '16px' }}>{t('selectHotel.title')}</h3>
           <Empty description={t('selectHotel.noHotels')} />
           <Button 
             type="primary" 
@@ -51,6 +51,7 @@ export function HotelSelectionModal({ open, onCancel }: HotelSelectionModalProps
         </div>
       ) : (
         <>
+          <h3 style={{ textAlign: 'center', marginBottom: '16px' }}>{t('selectHotel.title')}</h3>
           <List
             dataSource={hotels}
             renderItem={(hotel) => (

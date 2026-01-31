@@ -1,0 +1,17 @@
+{
+  "startTour": "Start Tour",
+  "sidebar": {
+    "mobileInstruction": "On mobile, the menu is hidden in a drawer. We will open the menu to start the tour.",
+    "dashboard": "Dashboard - view hotel statistics: room occupancy, revenue, charts...",
+    "reservations": "Reservations Management - create, edit and track all customer bookings.",
+    "frontDesk": "Front Desk - perform customer check-in, check-out and manage daily operations.",
+    "rooms": "Room Management - create rooms, view room status, manage cleaning and maintenance.",
+    "pricing": "Pricing Management - set up room types, pricing and amenities for each room type.",
+    "services": "Service Management - create additional services like spa, restaurant, laundry to increase revenue.",
+    "customers": "Customer Management - store customer information, booking history and contact details.",
+    "reports": "Reports - view revenue reports, occupancy rates and business performance analysis.",
+    "settings": "Settings - manage users, permissions and system configuration.",
+    "theme": "Switch between light/dark theme according to your preference.",
+    "language": "Switch language between Vietnamese and English."
+  }
+}

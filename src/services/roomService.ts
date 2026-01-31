@@ -16,6 +16,7 @@ import {
 import { db } from '../config/firebase';
 import type { Room, CreateRoomInput } from '../types';
 import { deepRemoveUndefinedFields } from '../utils/firestore';
+import { AppError, BusinessErrors, safeAsync } from '../utils/errors';
 
 /**
  * Filters for querying rooms
@@ -36,7 +37,7 @@ export class RoomService {
    * Get all rooms for a hotel with optional filters
    */
   async getRooms(hotelId: string, filters?: RoomFilters): Promise<Room[]> {
-    try {
+    return safeAsync(async () => {
       let q: Query<DocumentData> = query(
         collection(db, this.collectionName),
         where('hotelId', '==', hotelId)
@@ -63,17 +64,14 @@ export class RoomService {
       })) as Room[];
       
       return rooms;
-    } catch (error) {
-      console.error('Error getting rooms:', error);
-      throw new Error('Failed to fetch rooms');
-    }
+    }, { operation: 'getRooms', hotelId, filters });
   }
 
   /**
    * Get a single room by ID
    */
   async getRoomById(id: string): Promise<Room | null> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
@@ -85,10 +83,7 @@ export class RoomService {
         id: docSnap.id,
         ...docSnap.data(),
       } as Room;
-    } catch (error) {
-      console.error('Error getting room:', error);
-      throw new Error('Failed to fetch room');
-    }
+    }, { operation: 'getRoomById', roomId: id });
   }
 
   /**
@@ -98,7 +93,7 @@ export class RoomService {
     hotelId: string,
     roomNumber: string
   ): Promise<Room | null> {
-    try {
+    return safeAsync(async () => {
       const q = query(
         collection(db, this.collectionName),
         where('hotelId', '==', hotelId),
@@ -116,17 +111,14 @@ export class RoomService {
         id: doc.id,
         ...doc.data(),
       } as Room;
-    } catch (error) {
-      console.error('Error getting room by number:', error);
-      throw new Error('Failed to fetch room');
-    }
+    }, { operation: 'getRoomByNumber', hotelId, roomNumber });
   }
 
   /**
    * Create a new room
    */
   async createRoom(data: CreateRoomInput): Promise<string> {
-    try {
+    return safeAsync(async () => {
       // Check if room number already exists
       const existingRoom = await this.getRoomByNumber(
         data.hotelId,
@@ -134,7 +126,7 @@ export class RoomService {
       );
 
       if (existingRoom) {
-        throw new Error('Room number already exists');
+        throw BusinessErrors.ROOM_NUMBER_EXISTS(data.roomNumber);
       }
 
       const now = Timestamp.now();
@@ -149,22 +141,19 @@ export class RoomService {
       const docRef = await addDoc(collection(db, this.collectionName), roomData);
 
       return docRef.id;
-    } catch (error) {
-      console.error('Error creating room:', error);
-      throw error;
-    }
+    }, { operation: 'createRoom', hotelId: data.hotelId, roomNumber: data.roomNumber });
   }
 
   /**
    * Update an existing room
    */
   async updateRoom(id: string, data: Partial<Room>): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Room not found');
+        throw new AppError('Room not found', 'ROOM_NOT_FOUND', 404);
       }
 
       // If room number is being changed, check for duplicates
@@ -176,7 +165,7 @@ export class RoomService {
         );
 
         if (existingRoom && existingRoom.id !== id) {
-          throw new Error('Room number already exists');
+          throw BusinessErrors.ROOM_NUMBER_EXISTS(data.roomNumber);
         }
       }
 
@@ -184,22 +173,19 @@ export class RoomService {
         ...data,
         updatedAt: Timestamp.now(),
       }));
-    } catch (error) {
-      console.error('Error updating room:', error);
-      throw error;
-    }
+    }, { operation: 'updateRoom', roomId: id });
   }
 
   /**
    * Delete a room
    */
   async deleteRoom(id: string): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Room not found');
+        throw new AppError('Room not found', 'ROOM_NOT_FOUND', 404);
       }
 
       // Check if room has active reservations
@@ -212,14 +198,11 @@ export class RoomService {
       const reservationsSnapshot = await getDocs(reservationsQuery);
 
       if (!reservationsSnapshot.empty) {
-        throw new Error('Cannot delete room with active reservations');
+        throw BusinessErrors.CANNOT_DELETE_ROOM_WITH_RESERVATIONS();
       }
 
       await deleteDoc(docRef);
-    } catch (error) {
-      console.error('Error deleting room:', error);
-      throw error;
-    }
+    }, { operation: 'deleteRoom', roomId: id });
   }
 
   /**
@@ -229,22 +212,19 @@ export class RoomService {
     id: string,
     status: Room['status']
   ): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Room not found');
+        throw new AppError('Room not found', 'ROOM_NOT_FOUND', 404);
       }
 
       await updateDoc(docRef, {
         status,
         updatedAt: Timestamp.now(),
       });
-    } catch (error) {
-      console.error('Error updating room status:', error);
-      throw error;
-    }
+    }, { operation: 'updateRoomStatus', roomId: id, status });
   }
 
   /**
@@ -289,13 +269,10 @@ export class RoomService {
    * Get total room count for a hotel
    */
   async getTotalRoomCount(hotelId: string): Promise<number> {
-    try {
+    return safeAsync(async () => {
       const rooms = await this.getRooms(hotelId);
       return rooms.length;
-    } catch (error) {
-      console.error('Error getting total room count:', error);
-      throw new Error('Failed to get room count');
-    }
+    }, { operation: 'getTotalRoomCount', hotelId });
   }
 
   /**
@@ -305,13 +282,10 @@ export class RoomService {
     hotelId: string,
     status: Room['status']
   ): Promise<number> {
-    try {
+    return safeAsync(async () => {
       const rooms = await this.getRoomsByStatus(hotelId, status);
       return rooms.length;
-    } catch (error) {
-      console.error('Error getting room count by status:', error);
-      throw new Error('Failed to get room count');
-    }
+    }, { operation: 'getRoomCountByStatus', hotelId, status });
   }
 }
 

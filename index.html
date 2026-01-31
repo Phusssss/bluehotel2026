@@ -1,20 +1,177 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    
+    <!-- Material Symbols Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+    
+    <!-- Additional SEO Meta Tags -->
+    <meta name="theme-color" content="#3b82f6" />
+    <meta name="msapplication-TileColor" content="#3b82f6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BlueHotel" />
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://bluehotel-2024.web.app" />
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b82f6",
+              secondary: "#1e293b",
+              accent: "#e0f2fe",
+              "background-light": "#f8fafc",
+              "background-dark": "#0f172a",
+            },
+            fontFamily: {
+              display: ["Inter", "sans-serif"],
+              body: ["Inter", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+    
+    <!-- SEO Meta Tags -->
+    <title>BlueHotel - Phần Mềm Quản Lý Khách Sạn PMS Việt Nam | Dùng Thử Miễn Phí 30 Ngày</title>
+    <meta name="description" content="BlueHotel - Hệ thống quản lý khách sạn PMS số 1 Việt Nam. Quản lý phòng, lễ tân, dọn phòng, báo cáo doanh thu tự động. Dùng thử miễn phí 30 ngày, không giới hạn phòng. Hỗ trợ 24/7." />
+    <meta name="keywords" content="BlueHotel, phần mềm quản lý khách sạn, PMS Việt Nam, hệ thống quản lý khách sạn, phần mềm khách sạn miễn phí, quản lý phòng khách sạn, front desk software, hotel management system Vietnam, phần mềm lễ tân, báo cáo doanh thu khách sạn, quản lý housekeeping" />
+    <meta name="author" content="BlueHotel" />
+    <meta name="geo.region" content="VN" />
+    <meta name="geo.country" content="Vietnam" />
+    <meta name="language" content="Vietnamese" />
+    
+    <!-- Google Site Verification -->
+    <meta name="google-site-verification" content="wFMJNYumsKAXBHswD_3-xD-7YnbO6F43FkHoLUL_lpo" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bluehotel-2024.web.app/" />
+    <meta property="og:title" content="BlueHotel - Phần Mềm Quản Lý Khách Sạn PMS Việt Nam" />
+    <meta property="og:description" content="Hệ thống quản lý khách sạn PMS số 1 Việt Nam. Dùng thử miễn phí 30 ngày, quản lý phòng, lễ tân, báo cáo tự động. Hỗ trợ 24/7." />
+    <meta property="og:image" content="https://bluehotel-2024.web.app/logo.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="BlueHotel" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://bluehotel-2024.web.app/" />
+    <meta property="twitter:title" content="BlueHotel - Phần Mềm Quản Lý Khách Sạn PMS Việt Nam" />
+    <meta property="twitter:description" content="Hệ thống quản lý khách sạn PMS số 1 Việt Nam. Dùng thử miễn phí 30 ngày, quản lý phòng, lễ tân, báo cáo tự động." />
+    <meta property="twitter:image" content="https://bluehotel-2024.web.app/logo.png" />
+    <meta property="twitter:creator" content="@BlueHotel" />
+    
+    <!-- Additional SEO -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://bluehotel-2024.web.app/" />
+    
+    <!-- Hreflang for Vietnamese -->
+    <link rel="alternate" hreflang="vi" href="https://bluehotel-2024.web.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://bluehotel-2024.web.app/" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "BlueHotel",
+      "alternateName": ["BlueHotel PMS", "Phần mềm quản lý khách sạn BlueHotel"],
+      "description": "BlueHotel là hệ thống quản lý khách sạn (PMS) số 1 Việt Nam, giúp số hóa toàn bộ quy trình vận hành nội bộ từ sơ đồ phòng, lễ tân đến bộ phận dọn phòng và báo cáo tài chính",
+      "url": "https://bluehotel-2024.web.app",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Hotel Management System",
+      "operatingSystem": "Web Browser",
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "softwareVersion": "2024.1",
+      "releaseNotes": "Phiên bản mới với tính năng quản lý phòng nâng cao và báo cáo thông minh",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "VND",
+        "description": "Dùng thử miễn phí 30 ngày",
+        "availability": "https://schema.org/InStock",
+        "validFrom": "2024-01-01"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "BlueHotel",
+        "url": "https://bluehotel-2024.web.app",
+        "logo": "https://bluehotel-2024.web.app/logo.png",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+84-395-752-407",
+          "email": "support.bluehotel@gmail.com",
+          "contactType": "customer service",
+          "availableLanguage": ["Vietnamese", "English"],
+          "hoursAvailable": {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "08:00",
+            "closes": "22:00"
+          }
+        },
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "VN",
+          "addressRegion": "Vietnam"
+        }
+      },
+      "featureList": [
+        "Quản lý phòng khách sạn",
+        "Hệ thống lễ tân (Front Desk)",
+        "Quản lý housekeeping",
+        "Báo cáo doanh thu tự động",
+        "Quản lý khách hàng",
+        "Theo dõi tình trạng phòng real-time",
+        "Hệ thống phân quyền nhân viên"
+      ],
+      "screenshot": "https://bluehotel-2024.web.app/device.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "150",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }
+    </script>
+    
+    <!-- Custom Styles -->
+    <style type="text/tailwindcss">
+      @layer base {
+        body {
+          @apply bg-[#f8fafc] font-body;
+        }
+      }
+      .glass-nav {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+    </style>
+    
     <!-- Copyright Protection -->
-    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
-    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex" />
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="expires" content="0" />
     
-    <title>Hotel Management System</title>
-    
-    <!-- Disable text selection and context menu -->
+    <!-- Disable text selection and context menu for protection -->
     <style>
       body {
         -webkit-user-select: none;
@@ -40,7 +197,7 @@
       // Console warning
       console.log('%c⚠️ CẢNH BÁO BẢN QUYỀN ⚠️', 'color: red; font-size: 20px; font-weight: bold;');
       console.log('%cBạn không có quyền sử dụng mã nguồn này!', 'color: red; font-size: 16px;');
-      console.log('%c© 2024 Hotel Management System', 'color: blue; font-size: 14px;');
+      console.log('%c© 2024 BlueHotel', 'color: blue; font-size: 14px;');
     </script>
   </body>
 </html>

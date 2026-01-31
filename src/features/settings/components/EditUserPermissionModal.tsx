@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Modal, Form, Select, Avatar, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useValidationRules } from '../../../utils/validation';
 import { HotelUser } from '../../../types';
 import { HotelUserWithDetails } from '../hooks/useHotelUsers';
 
@@ -23,6 +24,7 @@ export function EditUserPermissionModal({
 }: EditUserPermissionModalProps) {
   const { t } = useTranslation('settings');
   const [form] = Form.useForm<FormValues>();
+  const validation = useValidationRules(t);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -99,7 +101,7 @@ export function EditUserPermissionModal({
         <Form.Item
           name="permission"
           label={t('users.form.permission')}
-          rules={[{ required: true, message: t('users.form.permissionRequired') }]}
+          rules={[validation.required()]}
         >
           <Select
             placeholder={t('users.form.permissionPlaceholder')}

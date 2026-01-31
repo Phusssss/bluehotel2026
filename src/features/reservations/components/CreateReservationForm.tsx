@@ -22,6 +22,7 @@ import { customerService } from '../../../services/customerService';
 import { roomTypeService } from '../../../services/roomTypeService';
 import { reservationService } from '../../../services/reservationService';
 import { calculateReservationPrice } from '../../../utils/pricingCalculator';
+import { useValidationRules } from '../../../utils/validation';
 import type { Customer, RoomType, Room } from '../../../types';
 
 const { TextArea } = Input;
@@ -46,6 +47,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
   const [form] = Form.useForm<ReservationFormValues>();
   const { t } = useTranslation('reservations');
   const { currentHotel } = useHotel();
+  const validation = useValidationRules(t);
   const [loading, setLoading] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [roomTypes, setRoomTypes] = useState<RoomType[]>([]);
@@ -237,7 +239,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
           <Form.Item
             name="customerId"
             label={t('form.customer')}
-            rules={[{ required: true, message: t('form.customerRequired') }]}
+            rules={[validation.required()]}
           >
             <Select
               showSearch
@@ -258,7 +260,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
           <Form.Item
             name="roomTypeId"
             label={t('form.roomType')}
-            rules={[{ required: true, message: t('form.roomTypeRequired') }]}
+            rules={[validation.required()]}
           >
             <Select
               placeholder={t('form.roomTypePlaceholder')}
@@ -277,7 +279,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
           <Form.Item
             name="checkInDate"
             label={t('form.checkInDate')}
-            rules={[{ required: true, message: t('form.checkInRequired') }]}
+            rules={[validation.required()]}
           >
             <DatePicker
               style={{ width: '100%' }}
@@ -293,16 +295,16 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
             name="checkOutDate"
             label={t('form.checkOutDate')}
             rules={[
-              { required: true, message: t('form.checkOutRequired') },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  const checkIn = getFieldValue('checkInDate');
+              validation.required(),
+              {
+                validator: (_, value) => {
+                  const checkIn = form.getFieldValue('checkInDate');
                   if (!value || !checkIn || value.isAfter(checkIn)) {
                     return Promise.resolve();
                   }
                   return Promise.reject(new Error(t('form.checkOutAfterCheckIn')));
                 },
-              }),
+              },
             ]}
           >
             <DatePicker
@@ -320,7 +322,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
           <Form.Item
             name="roomId"
             label={t('form.room')}
-            rules={[{ required: true, message: t('form.roomRequired') }]}
+            rules={[validation.required()]}
           >
             <Select
               placeholder={t('form.roomPlaceholder')}
@@ -342,29 +344,12 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
             name="numberOfGuests"
             label={t('form.numberOfGuests')}
             rules={[
-              { required: true, message: t('form.numberOfGuestsRequired') },
-              {
-                type: 'number',
-                min: 1,
-                message: t('form.numberOfGuestsMin'),
-              },
-              () => ({
-                validator(_, value) {
-                  if (!selectedRoomType || !value) {
-                    return Promise.resolve();
-                  }
-                  if (value <= selectedRoomType.capacity) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(
-                    new Error(
-                      t('form.numberOfGuestsMax', {
-                        max: selectedRoomType.capacity,
-                      })
-                    )
-                  );
-                },
-              }),
+              validation.required(),
+              validation.minNumber(1),
+              validation.capacityValidation(
+                () => selectedRoomType,
+                t('form.numberOfGuestsMax', { max: selectedRoomType?.capacity || 0 })
+              ),
             ]}
           >
             <InputNumber
@@ -382,7 +367,7 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
           <Form.Item
             name="source"
             label={t('form.source')}
-            rules={[{ required: true, message: t('form.sourceRequired') }]}
+            rules={[validation.required()]}
           >
             <Select
               placeholder={t('form.sourcePlaceholder')}
@@ -399,7 +384,11 @@ export function CreateReservationForm({ onSuccess, onCancel }: CreateReservation
         </Col>
       </Row>
 
-      <Form.Item name="notes" label={t('form.notes')}>
+      <Form.Item 
+        name="notes" 
+        label={t('form.notes')}
+        rules={[validation.maxLength(500)]}
+      >
         <TextArea
           rows={3}
           placeholder={t('form.notesPlaceholder')}

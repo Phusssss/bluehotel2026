@@ -5,6 +5,7 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
+import { useValidationRules } from '../utils/validation';
 
 interface HotelFormValues {
   name: string;
@@ -23,6 +24,7 @@ export function AddHotelPage() {
   const { addHotel } = useHotel();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const validation = useValidationRules(t);
 
   const handleSubmit = async (values: HotelFormValues) => {
     setLoading(true);
@@ -80,7 +82,11 @@ export function AddHotelPage() {
           <Form.Item
             name="name"
             label={t('addHotel.hotelName')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[
+              validation.requiredTrim(),
+              validation.minLength(2),
+              validation.maxLength(100),
+            ]}
           >
             <Input placeholder={t('addHotel.hotelNamePlaceholder')} />
           </Form.Item>
@@ -88,7 +94,11 @@ export function AddHotelPage() {
           <Form.Item
             name="address"
             label={t('addHotel.address')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[
+              validation.requiredTrim(),
+              validation.minLength(10),
+              validation.maxLength(500),
+            ]}
           >
             <Input.TextArea rows={2} placeholder={t('addHotel.addressPlaceholder')} />
           </Form.Item>
@@ -97,8 +107,10 @@ export function AddHotelPage() {
             name="phone"
             label={t('addHotel.phone')}
             rules={[
-              { required: true, message: t('validation.required') },
-              { pattern: /^[0-9+\-\s()]+$/, message: t('validation.phone') },
+              validation.requiredTrim(),
+              validation.phone(),
+              validation.minLength(10),
+              validation.maxLength(20),
             ]}
           >
             <Input placeholder={t('userInfo.phonePlaceholder')} />
@@ -108,8 +120,9 @@ export function AddHotelPage() {
             name="email"
             label={t('addHotel.email')}
             rules={[
-              { required: true, message: t('validation.required') },
-              { type: 'email', message: t('validation.email') },
+              validation.requiredTrim(),
+              validation.email(),
+              validation.maxLength(100),
             ]}
           >
             <Input placeholder={t('addHotel.emailPlaceholder')} />
@@ -118,7 +131,7 @@ export function AddHotelPage() {
           <Form.Item
             name="checkInTime"
             label={t('addHotel.checkInTime')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[validation.required()]}
           >
             <TimePicker format="HH:mm" style={{ width: '100%' }} />
           </Form.Item>
@@ -126,7 +139,7 @@ export function AddHotelPage() {
           <Form.Item
             name="checkOutTime"
             label={t('addHotel.checkOutTime')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[validation.required()]}
           >
             <TimePicker format="HH:mm" style={{ width: '100%' }} />
           </Form.Item>
@@ -134,7 +147,10 @@ export function AddHotelPage() {
           <Form.Item
             name="taxRate"
             label={t('addHotel.taxRate')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[
+              validation.required(),
+              validation.percentage(),
+            ]}
           >
             <InputNumber
               min={0}
@@ -147,7 +163,10 @@ export function AddHotelPage() {
           <Form.Item
             name="currency"
             label={t('addHotel.currency')}
-            rules={[{ required: true, message: t('validation.required') }]}
+            rules={[
+              validation.requiredTrim(),
+              validation.currencyCode(),
+            ]}
           >
             <Input placeholder={t('addHotel.currencyPlaceholder')} />
           </Form.Item>

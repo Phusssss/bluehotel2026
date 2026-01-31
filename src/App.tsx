@@ -7,7 +7,9 @@ import { ThemeProvider, useTheme, themeColors } from './contexts/ThemeContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { HotelProtectedRoute } from './components/HotelProtectedRoute';
 import { MainLayout } from './components/MainLayout';
+import ErrorBoundary from './components/ErrorBoundary';
 import { LoginPage } from './pages/LoginPage';
+import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { SelectHotelPage } from './pages/SelectHotelPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
@@ -50,6 +52,7 @@ function AppContent() {
           <HotelProvider>
             <Routes>
               {/* Public routes */}
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
@@ -85,8 +88,7 @@ function AppContent() {
               </Route>
 
               {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </HotelProvider>
         </AuthProvider>
@@ -103,9 +105,11 @@ function App() {
   }, []);
 
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

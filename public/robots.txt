@@ -1,0 +1,50 @@
+User-agent: *
+Allow: /
+Allow: /login
+
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /settings
+Disallow: /reports
+Disallow: /reservations
+Disallow: /rooms
+Disallow: /pricing
+Disallow: /customers
+Disallow: /front-desk
+Disallow: /housekeeping
+Disallow: /services
+Disallow: /service-orders
+Disallow: /companies
+
+# Sitemap
+Sitemap: https://bluehotel-2024.web.app/sitemap.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 1
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+Allow: /login
+
+User-agent: Bingbot
+Allow: /
+Allow: /login
+
+User-agent: Slurp
+Allow: /
+Allow: /login
+
+User-agent: DuckDuckBot
+Allow: /
+Allow: /login
+
+# Block unnecessary crawlers to save bandwidth
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /

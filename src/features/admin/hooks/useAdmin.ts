@@ -11,6 +11,7 @@ interface UseAdminResult {
   lockUser: (userId: string) => Promise<void>;
   unlockUser: (userId: string) => Promise<void>;
   resetUserPermissions: (userId: string) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
   getUserHotels: (userId: string) => Promise<Hotel[]>;
 }
 
@@ -83,6 +84,19 @@ export function useAdmin(): UseAdminResult {
     await refreshUsers();
   };
 
+  const deleteUser = async (userId: string) => {
+    if (!currentUser || currentUser.role !== 'super_admin') {
+      throw new Error('Unauthorized: Super admin access required');
+    }
+
+    if (userId === currentUser.uid) {
+      throw new Error('Cannot delete your own account');
+    }
+
+    await UserService.deleteUser(userId);
+    await refreshUsers();
+  };
+
   const getUserHotels = async (userId: string): Promise<Hotel[]> => {
     if (!currentUser || currentUser.role !== 'super_admin') {
       throw new Error('Unauthorized: Super admin access required');
@@ -99,6 +113,7 @@ export function useAdmin(): UseAdminResult {
     lockUser,
     unlockUser,
     resetUserPermissions,
+    deleteUser,
     getUserHotels,
   };
 }

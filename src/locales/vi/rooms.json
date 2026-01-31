@@ -5,6 +5,8 @@
     "floor": "Xem sơ đồ tầng"
   },
   "filters": {
+    "title": "Bộ Lọc",
+    "toggle": "Bộ Lọc",
     "status": "Trạng thái",
     "statusAll": "Tất cả trạng thái",
     "roomType": "Loại phòng",
@@ -12,7 +14,8 @@
     "floor": "Tầng",
     "floorAll": "Tất cả tầng",
     "search": "Tìm theo số phòng",
-    "reset": "Đặt lại bộ lọc"
+    "reset": "Đặt lại bộ lọc",
+    "apply": "Áp Dụng Bộ Lọc"
   },
   "status": {
     "vacant": "Trống",
@@ -27,7 +30,8 @@
     "floor": "Tầng",
     "status": "Trạng thái",
     "notes": "Ghi chú",
-    "actions": "Thao tác"
+    "actions": "Thao tác",
+    "tapToView": "Chạm để xem chi tiết"
   },
   "floorMap": {
     "floor": "Tầng",
@@ -38,6 +42,7 @@
   "crud": {
     "actions": {
       "create": "Thêm Phòng",
+      "view": "Xem Chi Tiết",
       "edit": "Sửa",
       "delete": "Xóa"
     },
@@ -84,6 +89,17 @@
       "roomNumberExists": "Đã tồn tại phòng với số này",
       "hasActiveReservations": "Không thể xóa phòng có đặt phòng đang hoạt động"
     }
+  },
+  "details": {
+    "title": "Chi Tiết Phòng",
+    "basicInfo": "Thông Tin Cơ Bản",
+    "roomNumber": "Số Phòng",
+    "roomType": "Loại Phòng",
+    "floor": "Tầng",
+    "status": "Trạng Thái",
+    "notes": "Ghi Chú",
+    "createdAt": "Ngày Tạo",
+    "updatedAt": "Cập Nhật Lần Cuối"
   },
   "housekeeping": {
     "title": "Bảng Dọn Phòng",

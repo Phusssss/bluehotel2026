@@ -1,35 +1,40 @@
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
-  Table,
   Button,
   Space,
   Modal,
   Typography,
-  Tag,
-  Dropdown,
+  Input,
 } from 'antd';
 import {
   PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
   ReloadOutlined,
-  MoreOutlined,
   ExclamationCircleOutlined,
-  EyeOutlined,
+  FilterOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useRoomTypes } from '../hooks/useRoomTypes';
 import { RoomTypeForm } from '../components/RoomTypeForm';
-import { RoomTypeDetailModal } from '../components/RoomTypeDetailModal';
+import { RoomTypeFilters } from '../components/RoomTypeFilters';
+import { RoomTypeTable } from '../components/RoomTypeTable';
+import { RoomTypeDetailsModal } from '../components/RoomTypeDetailsModal';
 import type { RoomType, CreateRoomTypeInput } from '../../../types';
-import type { ColumnsType } from 'antd/es/table';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { Search } = Input;
+
+interface FilterState {
+  searchText: string;
+  capacityRange: [number, number];
+  priceRange: [number, number];
+  amenityFilter: string[];
+}
 
 /**
  * PricingPage component - manages room types and pricing
  * Displays a table of room types with create, edit, delete, and view details functionality
+ * Includes filtering and search capabilities
  * Supports responsive design for mobile, tablet, and desktop
  */
 export function PricingPage() {
@@ -38,12 +43,128 @@ export function PricingPage() {
   const [formLoading, setFormLoading] = useState(false);
   const [detailModalVisible, setDetailModalVisible] = useState(false);
   const [selectedRoomType, setSelectedRoomType] = useState<RoomType | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Filter state
+  const [filters, setFilters] = useState<FilterState>({
+    searchText: '',
+    capacityRange: [1, 10],
+    priceRange: [0, 10000000],
+    amenityFilter: [],
+  });
 
   const { roomTypes, loading, createRoomType, updateRoomType, deleteRoomType, refresh } =
     useRoomTypes();
   const { t } = useTranslation('pricing');
   const { t: tCommon } = useTranslation('common');
 
+  // Check if mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  /**
+   * Get all unique amenities from room types for filter options
+   */
+  const allAmenities = useMemo(() => {
+    const amenitiesSet = new Set<string>();
+    roomTypes.forEach(roomType => {
+      roomType.amenities.forEach(amenity => amenitiesSet.add(amenity));
+    });
+    return Array.from(amenitiesSet).sort();
+  }, [roomTypes]);
+
+  /**
+   * Get price range from all room types
+   */
+  const priceRange = useMemo(() => {
+    if (roomTypes.length === 0) return [0, 10000000];
+    const prices = roomTypes.map(rt => rt.basePrice);
+    return [Math.min(...prices), Math.max(...prices)];
+  }, [roomTypes]);
+
+  /**
+   * Filter room types based on current filter state
+   */
+  const filteredRoomTypes = useMemo(() => {
+    return roomTypes.filter(roomType => {
+      // Search text filter
+      if (filters.searchText) {
+        const searchLower = filters.searchText.toLowerCase();
+        const nameMatch = roomType.name.toLowerCase().includes(searchLower);
+        const descriptionMatch = 
+          (roomType.description?.en?.toLowerCase().includes(searchLower)) ||
+          (roomType.description?.vi?.toLowerCase().includes(searchLower));
+        const amenityMatch = roomType.amenities.some(amenity => 
+          amenity.toLowerCase().includes(searchLower)
+        );
+        
+        if (!nameMatch && !descriptionMatch && !amenityMatch) {
+          return false;
+        }
+      }
+
+      // Capacity range filter
+      if (roomType.capacity < filters.capacityRange[0] || 
+          roomType.capacity > filters.capacityRange[1]) {
+        return false;
+      }
+
+      // Price range filter
+      if (roomType.basePrice < filters.priceRange[0] || 
+          roomType.basePrice > filters.priceRange[1]) {
+        return false;
+      }
+
+      // Amenity filter
+      if (filters.amenityFilter.length > 0) {
+        const hasRequiredAmenities = filters.amenityFilter.every(amenity =>
+          roomType.amenities.includes(amenity)
+        );
+        if (!hasRequiredAmenities) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [roomTypes, filters]);
+
+  /**
+   * Handle search input change
+   */
+  const handleFiltersChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
+
+  /**
+   * Handle search input change
+   */
+  const handleSearch = (value: string) => {
+    setFilters(prev => ({ ...prev, searchText: value }));
+  };
+
+  /**
+   * Toggle filters visibility
+   */
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
+  };
+
+  /**
+   * Close filters (for mobile drawer)
+   */
+  const closeFilters = () => {
+    setShowFilters(false);
+  };
   /**
    * Handle create room type button click
    */
@@ -66,6 +187,15 @@ export function PricingPage() {
   const handleViewDetails = (roomType: RoomType) => {
     setSelectedRoomType(roomType);
     setDetailModalVisible(true);
+  };
+
+  /**
+   * Handle row click to view room type details on mobile
+   */
+  const handleRowClick = (record: RoomType) => {
+    if (isMobile) {
+      handleViewDetails(record);
+    }
   };
 
   /**
@@ -129,117 +259,22 @@ export function PricingPage() {
     return new Intl.NumberFormat('vi-VN').format(price);
   };
 
-  /**
-   * Get action menu items for dropdown
-   */
-  const getActionMenu = (record: RoomType): MenuProps['items'] => [
-    {
-      key: 'view',
-      icon: <EyeOutlined />,
-      label: t('roomTypes.details'),
-      onClick: () => handleViewDetails(record),
-    },
-    {
-      key: 'edit',
-      icon: <EditOutlined />,
-      label: tCommon('buttons.edit'),
-      onClick: () => handleEdit(record),
-    },
-    {
-      key: 'delete',
-      icon: <DeleteOutlined />,
-      label: tCommon('buttons.delete'),
-      danger: true,
-      onClick: () => showDeleteConfirm(record),
-    },
-  ];
-
-  /**
-   * Table columns configuration with responsive breakpoints
-   */
-  const columns: ColumnsType<RoomType> = [
-    {
-      title: t('columns.name'),
-      dataIndex: 'name',
-      key: 'name',
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      width: 150,
-      ellipsis: true,
-      render: (name, record) => (
-        <Button
-          type="link"
-          onClick={() => handleViewDetails(record)}
-          style={{ padding: 0, height: 'auto' }}
-        >
-          {name}
-        </Button>
-      ),
-    },
-    {
-      title: t('columns.basePrice'),
-      dataIndex: 'basePrice',
-      key: 'basePrice',
-      render: (price) => formatPrice(price),
-      sorter: (a, b) => a.basePrice - b.basePrice,
-      width: 120,
-    },
-    {
-      title: t('columns.capacity'),
-      dataIndex: 'capacity',
-      key: 'capacity',
-      render: (capacity) => `${capacity}`,
-      sorter: (a, b) => a.capacity - b.capacity,
-      width: 80,
-      responsive: ['sm'],
-    },
-    {
-      title: t('columns.amenities'),
-      dataIndex: 'amenities',
-      key: 'amenities',
-      render: (amenities: string[]) => (
-        <Space wrap>
-          {amenities.slice(0, 2).map((amenity, index) => (
-            <Tag key={index}>{amenity}</Tag>
-          ))}
-          {amenities.length > 2 && <Tag>+{amenities.length - 2}</Tag>}
-        </Space>
-      ),
-      responsive: ['md'],
-      ellipsis: true,
-    },
-    {
-      title: t('columns.description'),
-      dataIndex: 'description',
-      key: 'description',
-      render: (description) => {
-        const text = description?.en || description?.vi || '';
-        return text.length > 40 ? `${text.substring(0, 40)}...` : text;
-      },
-      responsive: ['lg'],
-      ellipsis: true,
-    },
-    {
-      title: '',
-      key: 'actions',
-      width: 50,
-      render: (_, record) => (
-        <Dropdown
-          menu={{ items: getActionMenu(record) }}
-          trigger={['click']}
-          placement="bottomRight"
-        >
-          <Button
-            type="text"
-            icon={<MoreOutlined />}
-            size="small"
-          />
-        </Dropdown>
-      ),
-    },
-  ];
-
   return (
     <div style={{ padding: '1px' }}>
+      {/* Mobile row hover styles */}
+      {isMobile && (
+        <style>
+          {`
+            .mobile-clickable-row:hover {
+              background-color: #f5f5f5 !important;
+            }
+            .mobile-clickable-row:active {
+              background-color: #e6f7ff !important;
+            }
+          `}
+        </style>
+      )}
+
       {/* Page Header */}
       <div style={{ 
         display: 'flex', 
@@ -249,8 +284,23 @@ export function PricingPage() {
         flexWrap: 'wrap',
         gap: '12px'
       }}>
-        <Title level={2} style={{ margin: 0, fontSize: '24px' }}>{t('title')}</Title>
+        <div>
+          <Title level={2} style={{ margin: 0, fontSize: '24px' }} data-tour="pricing-title">{t('title')}</Title>
+          {isMobile && (
+            <Text type="secondary" style={{ fontSize: '14px' }}>
+              {t('columns.tapToView')}
+            </Text>
+          )}
+        </div>
         <Space wrap size="small">
+          <Button
+            icon={<FilterOutlined />}
+            onClick={toggleFilters}
+            type={showFilters ? 'primary' : 'default'}
+            size="middle"
+          >
+            {t('filters.toggle')}
+          </Button>
           <Button
             icon={<ReloadOutlined />}
             onClick={refresh}
@@ -262,35 +312,71 @@ export function PricingPage() {
             icon={<PlusOutlined />}
             onClick={handleCreate}
             size="middle"
+            data-tour="create-room-type"
           >
             {t('roomTypes.create')}
           </Button>
         </Space>
       </div>
 
-      {/* Room Types Table */}
+      {/* Search Bar */}
       <div style={{ 
-        background: '#fff', 
-        borderRadius: '8px',
-        overflow: 'hidden',
-        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+        marginBottom: '16px',
+        position: isMobile ? 'sticky' : 'static',
+        top: isMobile ? '0' : 'auto',
+        zIndex: isMobile ? 10 : 'auto',
+        backgroundColor: '#fff',
+        paddingTop: isMobile ? '8px' : '0',
+        paddingBottom: isMobile ? '8px' : '0'
       }}>
-        <Table
-          columns={columns}
-          dataSource={roomTypes}
-          rowKey="id"
+        <Search
+          placeholder={t('filters.searchPlaceholder')}
+          allowClear
+          enterButton={<SearchOutlined />}
+          size={isMobile ? 'middle' : 'large'}
+          value={filters.searchText}
+          onChange={(e) => handleSearch(e.target.value)}
+          onSearch={handleSearch}
+        />
+      </div>
+
+      {/* Filters */}
+      <RoomTypeFilters
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        allAmenities={allAmenities}
+        priceRange={priceRange as [number, number]}
+        showFilters={showFilters}
+        onCloseFilters={closeFilters}
+        isMobile={isMobile}
+        formatPrice={formatPrice}
+      />
+
+      {/* Results Summary */}
+      {(filters.searchText || filters.amenityFilter.length > 0 || 
+        filters.capacityRange[0] > 1 || filters.capacityRange[1] < 10 ||
+        filters.priceRange[0] > priceRange[0] || filters.priceRange[1] < priceRange[1]) && (
+        <div style={{ marginBottom: '16px', padding: '8px 12px', background: '#f0f2f5', borderRadius: '6px' }}>
+          <Text type="secondary">
+            {t('filters.resultsCount', { 
+              count: filteredRoomTypes.length, 
+              total: roomTypes.length 
+            })}
+          </Text>
+        </div>
+      )}
+
+      {/* Room Types Table */}
+      <div data-tour="pricing-table">
+        <RoomTypeTable
+          roomTypes={filteredRoomTypes}
           loading={loading}
-          scroll={{ x: 600 }}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: false,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} / ${total}`,
-            responsive: true,
-            size: 'default',
-          }}
-          size="middle"
+          isMobile={isMobile}
+          onViewDetails={handleViewDetails}
+          onEdit={handleEdit}
+          onDelete={showDeleteConfirm}
+          onRowClick={handleRowClick}
+          formatPrice={formatPrice}
         />
       </div>
 
@@ -311,14 +397,18 @@ export function PricingPage() {
         />
       </Modal>
 
-      {/* Room Type Detail Modal */}
-      <RoomTypeDetailModal
+      {/* Room Type Details Modal */}
+      <RoomTypeDetailsModal
         roomType={selectedRoomType}
         visible={detailModalVisible}
         onClose={() => {
           setDetailModalVisible(false);
           setSelectedRoomType(null);
         }}
+        onEdit={handleEdit}
+        onDelete={showDeleteConfirm}
+        isMobile={isMobile}
+        formatPrice={formatPrice}
       />
     </div>
   );

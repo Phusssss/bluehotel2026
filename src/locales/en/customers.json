@@ -1,6 +1,20 @@
 {
   "title": "Customers",
-  "searchPlaceholder": "Search by name, email, or phone...",
+  "filters": {
+    "title": "Filters",
+    "toggle": "Filters",
+    "nationality": "Nationality",
+    "nationalityPlaceholder": "Select nationality",
+    "company": "Company Status",
+    "companyPlaceholder": "Select company status",
+    "companyAll": "All Customers",
+    "companyYes": "Corporate Customers",
+    "companyNo": "Individual Customers",
+    "clear": "Clear",
+    "apply": "Apply Filters",
+    "resultsCount": "Showing {{count}} of {{total}} customers"
+  },
+  "searchPlaceholder": "Search by name, email, phone, or address...",
   "addCustomer": "Add Customer",
   "noCustomers": "No customers found",
   "totalCustomers": "Total Customers",
@@ -52,6 +66,14 @@
   "viewBookingHistory": "View Booking History",
   "bookingHistory": "Booking History",
   "noBookingHistory": "No booking history found for this customer",
+  "companyFilters": {
+    "discount": "Discount Status",
+    "discountPlaceholder": "Select discount status",
+    "discountAll": "All Companies",
+    "discountYes": "With Discount",
+    "discountNo": "No Discount",
+    "resultsCount": "Showing {{count}} of {{total}} companies"
+  },
   "companiesTitle": "Companies & Partners",
   "addCompany": "Add Company",
   "editCompany": "Edit Company",

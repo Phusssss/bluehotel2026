@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { useHotel } from '../../../contexts/HotelContext';
 import { serviceService } from '../../../services/serviceService';
 import { reservationService } from '../../../services/reservationService';
+import { useValidationRules } from '../../../utils/validation';
 import type { Service, Reservation } from '../../../types';
 
 const { TextArea } = Input;
@@ -48,6 +49,7 @@ export function ServiceOrderForm({
   const [form] = Form.useForm<FormValues>();
   const { t } = useTranslation('pricing');
   const { currentHotel } = useHotel();
+  const validation = useValidationRules(t);
   const [services, setServices] = useState<Service[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -126,9 +128,7 @@ export function ServiceOrderForm({
             <Form.Item
               name="reservationId"
               label={t('serviceOrders.reservation')}
-              rules={[
-                { required: true, message: t('serviceOrders.validation.reservationRequired') },
-              ]}
+              rules={[validation.required()]}
             >
               <Select
                 placeholder={t('serviceOrders.reservationPlaceholder')}
@@ -152,9 +152,7 @@ export function ServiceOrderForm({
             <Form.Item
               name="serviceId"
               label={t('serviceOrders.service')}
-              rules={[
-                { required: true, message: t('serviceOrders.validation.serviceRequired') },
-              ]}
+              rules={[validation.required()]}
             >
               <Select
                 placeholder={t('serviceOrders.servicePlaceholder')}
@@ -178,13 +176,15 @@ export function ServiceOrderForm({
               name="quantity"
               label={t('serviceOrders.quantity')}
               rules={[
-                { required: true, message: t('serviceOrders.validation.quantityRequired') },
-                { type: 'number', min: 1, message: t('serviceOrders.validation.quantityMin') },
+                validation.required(),
+                validation.minNumber(1),
+                validation.maxNumber(100),
               ]}
             >
               <InputNumber
                 style={{ width: '100%' }}
                 min={1}
+                max={100}
                 placeholder={t('serviceOrders.quantityPlaceholder')}
               />
             </Form.Item>
@@ -230,7 +230,11 @@ export function ServiceOrderForm({
 
         <Divider />
 
-        <Form.Item name="notes" label={t('serviceOrders.notes')}>
+        <Form.Item 
+          name="notes" 
+          label={t('serviceOrders.notes')}
+          rules={[validation.maxLength(200)]}
+        >
           <TextArea
             rows={2}
             placeholder={t('serviceOrders.notesPlaceholder')}

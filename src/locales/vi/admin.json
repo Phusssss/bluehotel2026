@@ -3,6 +3,7 @@
   "subtitle": "Quản lý tất cả người dùng và cài đặt hệ thống",
   "users": {
     "title": "Tất Cả Người Dùng",
+    "tapToView": "Chạm để xem chi tiết",
     "columns": {
       "name": "Tên",
       "email": "Email",
@@ -23,17 +24,21 @@
       "viewDetails": "Xem Chi Tiết",
       "lockUser": "Khóa Người Dùng",
       "unlockUser": "Mở Khóa Người Dùng",
-      "resetPermissions": "Đặt Lại Quyền"
+      "resetPermissions": "Đặt Lại Quyền",
+      "deleteUser": "Xóa Người Dùng"
     },
     "confirmations": {
       "lockUser": "Bạn có chắc chắn muốn khóa người dùng này? Họ sẽ không thể đăng nhập.",
       "unlockUser": "Bạn có chắc chắn muốn mở khóa người dùng này?",
-      "resetPermissions": "Bạn có chắc chắn muốn đặt lại quyền của người dùng này? Họ sẽ bị xóa khỏi tất cả khách sạn."
+      "resetPermissions": "Bạn có chắc chắn muốn đặt lại quyền của người dùng này? Họ sẽ bị xóa khỏi tất cả khách sạn.",
+      "deleteUser": "Bạn có chắc chắn muốn xóa người dùng này? Hành động này không thể hoàn tác. Người dùng sẽ bị xóa khỏi tất cả khách sạn và tài khoản của họ sẽ bị xóa."
     },
     "messages": {
       "userLocked": "Người dùng đã được khóa thành công",
       "userUnlocked": "Người dùng đã được mở khóa thành công",
       "permissionsReset": "Quyền người dùng đã được đặt lại thành công",
+      "userDeleted": "Người dùng đã được xóa thành công",
+      "cannotDeleteSelf": "Bạn không thể xóa tài khoản của chính mình",
       "loadError": "Không thể tải danh sách người dùng",
       "actionError": "Không thể thực hiện hành động"
     },

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   Form,
@@ -14,7 +14,7 @@ import {
   Divider,
   Tabs,
 } from 'antd';
-import { BarChartOutlined, DownloadOutlined, DollarOutlined, CalendarOutlined } from '@ant-design/icons';
+import { BarChartOutlined, DownloadOutlined, DollarOutlined, CalendarOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import dayjs, { type Dayjs } from 'dayjs';
 import { useReports } from '../hooks/useReports';
@@ -24,10 +24,11 @@ import type { OccupancyReportData, RevenueReportData, ReservationReportData } fr
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
-const { TabPane } = Tabs;
 
 /**
- * Reports page component with occupancy and revenue reports
+ * ReportsPage component - manages hotel reports and analytics
+ * Displays occupancy, revenue, and reservation reports with export functionality
+ * Supports responsive design for mobile, tablet, and desktop
  */
 export function ReportsPage() {
   const { t } = useTranslation('reports');
@@ -46,6 +47,31 @@ export function ReportsPage() {
     totalDays: number;
   } | null>(null);
   const [currentDateRange, setCurrentDateRange] = useState<{ startDate: string; endDate: string } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  /**
+   * Refresh all reports data
+   */
+  const refreshReports = () => {
+    // Clear all data to force refresh
+    setReportData([]);
+    setRevenueData(null);
+    setReservationData(null);
+    setSummary(null);
+    setCurrentDateRange(null);
+  };
 
   /**
    * Handle form submission to generate occupancy report
@@ -483,339 +509,413 @@ export function ReportsPage() {
   ];
 
   return (
-    <div>
-      <Title level={2}>
-        <BarChartOutlined /> {t('title')}
-      </Title>
+    <div style={{ padding: '1px' }}>
+      {/* Page Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '24px',
+        flexWrap: 'wrap',
+        gap: '12px'
+      }}>
+        <Title level={2} style={{ margin: 0, fontSize: '24px' }}>
+          <BarChartOutlined style={{ marginRight: '8px' }} />
+          {t('title')}
+        </Title>
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={refreshReports}
+          loading={loading}
+          size="middle"
+        >
+          {t('refresh', { ns: 'common' })}
+        </Button>
+      </div>
 
-      <Tabs defaultActiveKey="occupancy">
-        <TabPane tab={t('occupancy.title')} key="occupancy">
-          {/* Occupancy Report Section */}
-          <Card title={t('occupancy.title')} style={{ marginBottom: 24 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-              {t('occupancy.description')}
-            </Text>
+      {/* Reports Tabs */}
+      <div style={{ 
+        background: '#fff', 
+        borderRadius: '8px',
+        overflow: 'hidden',
+        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px 0 rgba(0, 0, 0, 0.02)'
+      }}>
+        <Tabs 
+          defaultActiveKey="occupancy"
+          size={isMobile ? 'small' : 'middle'}
+          items={[
+            {
+              key: 'occupancy',
+              label: t('occupancy.title'),
+              children: (
+                <div style={{ padding: '24px' }}>
+                  <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                    {t('occupancy.description')}
+                  </Text>
 
-            {/* Filters Form */}
-            <Form
-              form={occupancyForm}
-              layout="inline"
-              onFinish={handleGenerateOccupancyReport}
-              style={{ marginBottom: 24 }}
-            >
-              <Form.Item
-                name="dateRange"
-                label={t('occupancy.filters.startDate')}
-                rules={[{ required: true, message: 'Please select date range' }]}
-              >
-                <RangePicker
-                  format="YYYY-MM-DD"
-                  placeholder={[t('occupancy.filters.startDate'), t('occupancy.filters.endDate')]}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  {t('occupancy.filters.generate')}
-                </Button>
-              </Form.Item>
-            </Form>
+                  {/* Filters Form */}
+                  <Form
+                    form={occupancyForm}
+                    layout={isMobile ? 'vertical' : 'inline'}
+                    onFinish={handleGenerateOccupancyReport}
+                    style={{ marginBottom: 24 }}
+                  >
+                    <Form.Item
+                      name="dateRange"
+                      label={t('occupancy.filters.startDate')}
+                      rules={[{ required: true, message: 'Please select date range' }]}
+                    >
+                      <RangePicker
+                        format="YYYY-MM-DD"
+                        placeholder={[t('occupancy.filters.startDate'), t('occupancy.filters.endDate')]}
+                        style={{ width: isMobile ? '100%' : 'auto' }}
+                      />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={loading}
+                        style={{ width: isMobile ? '100%' : 'auto' }}
+                      >
+                        {t('occupancy.filters.generate')}
+                      </Button>
+                    </Form.Item>
+                  </Form>
 
-            {/* Summary Statistics */}
-            {summary && (
-              <>
-                <Title level={4}>{t('occupancy.summary.title')}</Title>
-                <Row gutter={16} style={{ marginBottom: 24 }}>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('occupancy.summary.averageOccupancy')}
-                      value={summary.averageOccupancy}
-                      suffix="%"
-                      precision={2}
-                    />
-                  </Col>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('occupancy.summary.maxOccupancy')}
-                      value={summary.maxOccupancy}
-                      suffix="%"
-                      precision={2}
-                    />
-                  </Col>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('occupancy.summary.minOccupancy')}
-                      value={summary.minOccupancy}
-                      suffix="%"
-                      precision={2}
-                    />
-                  </Col>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('occupancy.summary.totalDays')}
-                      value={summary.totalDays}
-                    />
-                  </Col>
-                </Row>
-                <Divider />
-              </>
-            )}
+                  {/* Summary Statistics */}
+                  {summary && (
+                    <>
+                      <Title level={4}>{t('occupancy.summary.title')}</Title>
+                      <Row gutter={16} style={{ marginBottom: 24 }}>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('occupancy.summary.averageOccupancy')}
+                            value={summary.averageOccupancy}
+                            suffix="%"
+                            precision={2}
+                          />
+                        </Col>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('occupancy.summary.maxOccupancy')}
+                            value={summary.maxOccupancy}
+                            suffix="%"
+                            precision={2}
+                          />
+                        </Col>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('occupancy.summary.minOccupancy')}
+                            value={summary.minOccupancy}
+                            suffix="%"
+                            precision={2}
+                          />
+                        </Col>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('occupancy.summary.totalDays')}
+                            value={summary.totalDays}
+                          />
+                        </Col>
+                      </Row>
+                      <Divider />
+                    </>
+                  )}
 
-            {/* Export Actions */}
-            {reportData.length > 0 && (
-              <Space style={{ marginBottom: 16 }}>
-                <Button icon={<DownloadOutlined />} onClick={exportOccupancyToCSV}>
-                  {t('export.csv')}
-                </Button>
-                <Button icon={<DownloadOutlined />} onClick={exportOccupancyToPDF}>
-                  {t('export.pdf')}
-                </Button>
-              </Space>
-            )}
+                  {/* Export Actions */}
+                  {reportData.length > 0 && (
+                    <Space style={{ marginBottom: 16 }} wrap>
+                      <Button icon={<DownloadOutlined />} onClick={exportOccupancyToCSV}>
+                        {t('export.csv')}
+                      </Button>
+                      <Button icon={<DownloadOutlined />} onClick={exportOccupancyToPDF}>
+                        {t('export.pdf')}
+                      </Button>
+                    </Space>
+                  )}
 
-            {/* Report Table */}
-            <Table
-              columns={occupancyColumns}
-              dataSource={reportData}
-              rowKey="date"
-              loading={loading}
-              locale={{
-                emptyText: t('occupancy.noData'),
-              }}
-              pagination={{
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} of ${total} days`,
-              }}
-            />
-          </Card>
-        </TabPane>
+                  {/* Report Table */}
+                  <Table
+                    columns={occupancyColumns}
+                    dataSource={reportData}
+                    rowKey="date"
+                    loading={loading}
+                    scroll={{ x: 600 }}
+                    locale={{
+                      emptyText: t('occupancy.noData'),
+                    }}
+                    pagination={{
+                      pageSize: isMobile ? 5 : 10,
+                      showSizeChanger: !isMobile,
+                      showQuickJumper: !isMobile,
+                      showTotal: (total, range) =>
+                        `${range[0]}-${range[1]} / ${total}`,
+                      responsive: true,
+                      size: isMobile ? 'small' : 'default',
+                    }}
+                    size={isMobile ? 'small' : 'middle'}
+                  />
+                </div>
+              ),
+            },
+            {
+              key: 'revenue',
+              label: t('revenue.title'),
+              children: (
+                <div style={{ padding: '24px' }}>
+                  <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                    {t('revenue.description')}
+                  </Text>
 
-        <TabPane tab={t('revenue.title')} key="revenue">
-          {/* Revenue Report Section */}
-          <Card title={t('revenue.title')} style={{ marginBottom: 24 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-              {t('revenue.description')}
-            </Text>
+                  {/* Filters Form */}
+                  <Form
+                    form={revenueForm}
+                    layout={isMobile ? 'vertical' : 'inline'}
+                    onFinish={handleGenerateRevenueReport}
+                    style={{ marginBottom: 24 }}
+                  >
+                    <Form.Item
+                      name="dateRange"
+                      label={t('revenue.filters.startDate')}
+                      rules={[{ required: true, message: 'Please select date range' }]}
+                    >
+                      <RangePicker
+                        format="YYYY-MM-DD"
+                        placeholder={[t('revenue.filters.startDate'), t('revenue.filters.endDate')]}
+                        style={{ width: isMobile ? '100%' : 'auto' }}
+                      />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={loading} 
+                        icon={<DollarOutlined />}
+                        style={{ width: isMobile ? '100%' : 'auto' }}
+                      >
+                        {t('revenue.filters.generate')}
+                      </Button>
+                    </Form.Item>
+                  </Form>
 
-            {/* Filters Form */}
-            <Form
-              form={revenueForm}
-              layout="inline"
-              onFinish={handleGenerateRevenueReport}
-              style={{ marginBottom: 24 }}
-            >
-              <Form.Item
-                name="dateRange"
-                label={t('revenue.filters.startDate')}
-                rules={[{ required: true, message: 'Please select date range' }]}
-              >
-                <RangePicker
-                  format="YYYY-MM-DD"
-                  placeholder={[t('revenue.filters.startDate'), t('revenue.filters.endDate')]}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading} icon={<DollarOutlined />}>
-                  {t('revenue.filters.generate')}
-                </Button>
-              </Form.Item>
-            </Form>
+                  {/* Revenue Summary */}
+                  {revenueData && (
+                    <>
+                      <Title level={4}>{t('revenue.summary.title')}</Title>
+                      <Row gutter={16} style={{ marginBottom: 24 }}>
+                        <Col xs={24} sm={8}>
+                          <Statistic
+                            title={t('revenue.summary.totalRevenue')}
+                            value={revenueData.totalRevenue}
+                            prefix="$"
+                            precision={2}
+                          />
+                        </Col>
+                        <Col xs={12} sm={8}>
+                          <Statistic
+                            title={t('revenue.summary.roomRevenue')}
+                            value={revenueData.roomRevenue}
+                            prefix="$"
+                            precision={2}
+                          />
+                        </Col>
+                        <Col xs={12} sm={8}>
+                          <Statistic
+                            title={t('revenue.summary.serviceRevenue')}
+                            value={revenueData.serviceRevenue}
+                            prefix="$"
+                            precision={2}
+                          />
+                        </Col>
+                      </Row>
+                      <Divider />
 
-            {/* Revenue Summary */}
-            {revenueData && (
-              <>
-                <Title level={4}>{t('revenue.summary.title')}</Title>
-                <Row gutter={16} style={{ marginBottom: 24 }}>
-                  <Col span={8}>
-                    <Statistic
-                      title={t('revenue.summary.totalRevenue')}
-                      value={revenueData.totalRevenue}
-                      prefix="$"
-                      precision={2}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title={t('revenue.summary.roomRevenue')}
-                      value={revenueData.roomRevenue}
-                      prefix="$"
-                      precision={2}
-                    />
-                  </Col>
-                  <Col span={8}>
-                    <Statistic
-                      title={t('revenue.summary.serviceRevenue')}
-                      value={revenueData.serviceRevenue}
-                      prefix="$"
-                      precision={2}
-                    />
-                  </Col>
-                </Row>
-                <Divider />
+                      {/* Export Actions */}
+                      <Space style={{ marginBottom: 16 }} wrap>
+                        <Button icon={<DownloadOutlined />} onClick={exportRevenueToCSV}>
+                          {t('export.csv')}
+                        </Button>
+                        <Button icon={<DownloadOutlined />} onClick={exportRevenueToPDF}>
+                          {t('export.pdf')}
+                        </Button>
+                      </Space>
 
-                {/* Export Actions */}
-                <Space style={{ marginBottom: 16 }}>
-                  <Button icon={<DownloadOutlined />} onClick={exportRevenueToCSV}>
-                    {t('export.csv')}
-                  </Button>
-                  <Button icon={<DownloadOutlined />} onClick={exportRevenueToPDF}>
-                    {t('export.pdf')}
-                  </Button>
-                </Space>
+                      {/* Revenue by Room Type */}
+                      <Title level={4}>{t('revenue.roomTypes.title')}</Title>
+                      <Table
+                        columns={roomTypeRevenueColumns}
+                        dataSource={revenueData.revenueByRoomType}
+                        rowKey="roomTypeId"
+                        loading={loading}
+                        scroll={{ x: 400 }}
+                        locale={{
+                          emptyText: t('revenue.noData'),
+                        }}
+                        pagination={false}
+                        style={{ marginBottom: 24 }}
+                        size={isMobile ? 'small' : 'middle'}
+                      />
 
-                {/* Revenue by Room Type */}
-                <Title level={4}>{t('revenue.roomTypes.title')}</Title>
-                <Table
-                  columns={roomTypeRevenueColumns}
-                  dataSource={revenueData.revenueByRoomType}
-                  rowKey="roomTypeId"
-                  loading={loading}
-                  locale={{
-                    emptyText: t('revenue.noData'),
-                  }}
-                  pagination={false}
-                  style={{ marginBottom: 24 }}
-                />
+                      {/* Revenue by Service */}
+                      <Title level={4}>{t('revenue.services.title')}</Title>
+                      <Table
+                        columns={serviceRevenueColumns}
+                        dataSource={revenueData.revenueByService}
+                        rowKey="serviceId"
+                        loading={loading}
+                        scroll={{ x: 400 }}
+                        locale={{
+                          emptyText: t('revenue.noData'),
+                        }}
+                        pagination={false}
+                        size={isMobile ? 'small' : 'middle'}
+                      />
+                    </>
+                  )}
+                </div>
+              ),
+            },
+            {
+              key: 'reservation',
+              label: t('reservation.title'),
+              children: (
+                <div style={{ padding: '24px' }}>
+                  <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                    {t('reservation.description')}
+                  </Text>
 
-                {/* Revenue by Service */}
-                <Title level={4}>{t('revenue.services.title')}</Title>
-                <Table
-                  columns={serviceRevenueColumns}
-                  dataSource={revenueData.revenueByService}
-                  rowKey="serviceId"
-                  loading={loading}
-                  locale={{
-                    emptyText: t('revenue.noData'),
-                  }}
-                  pagination={false}
-                />
-              </>
-            )}
-          </Card>
-        </TabPane>
+                  {/* Filters Form */}
+                  <Form
+                    form={reservationForm}
+                    layout={isMobile ? 'vertical' : 'inline'}
+                    onFinish={handleGenerateReservationReport}
+                    style={{ marginBottom: 24 }}
+                  >
+                    <Form.Item
+                      name="dateRange"
+                      label={t('reservation.filters.startDate')}
+                      rules={[{ required: true, message: 'Please select date range' }]}
+                    >
+                      <RangePicker
+                        format="YYYY-MM-DD"
+                        placeholder={[t('reservation.filters.startDate'), t('reservation.filters.endDate')]}
+                        style={{ width: isMobile ? '100%' : 'auto' }}
+                      />
+                    </Form.Item>
+                    <Form.Item>
+                      <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        loading={loading} 
+                        icon={<CalendarOutlined />}
+                        style={{ width: isMobile ? '100%' : 'auto' }}
+                      >
+                        {t('reservation.filters.generate')}
+                      </Button>
+                    </Form.Item>
+                  </Form>
 
-        <TabPane tab={t('reservation.title')} key="reservation">
-          {/* Reservation Report Section */}
-          <Card title={t('reservation.title')} style={{ marginBottom: 24 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-              {t('reservation.description')}
-            </Text>
+                  {/* Reservation Summary */}
+                  {reservationData && (
+                    <>
+                      <Title level={4}>{t('reservation.summary.title')}</Title>
+                      <Row gutter={16} style={{ marginBottom: 24 }}>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('reservation.summary.totalBookings')}
+                            value={reservationData.summary.totalBookings}
+                          />
+                        </Col>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('reservation.summary.totalCancellations')}
+                            value={reservationData.summary.totalCancellations}
+                          />
+                        </Col>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('reservation.summary.totalNoShows')}
+                            value={reservationData.summary.totalNoShows}
+                          />
+                        </Col>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('reservation.summary.cancellationRate')}
+                            value={reservationData.summary.cancellationRate}
+                            suffix="%"
+                            precision={2}
+                          />
+                        </Col>
+                      </Row>
+                      <Row gutter={16} style={{ marginBottom: 24 }}>
+                        <Col xs={12} sm={6}>
+                          <Statistic
+                            title={t('reservation.summary.noShowRate')}
+                            value={reservationData.summary.noShowRate}
+                            suffix="%"
+                            precision={2}
+                          />
+                        </Col>
+                      </Row>
+                      <Divider />
 
-            {/* Filters Form */}
-            <Form
-              form={reservationForm}
-              layout="inline"
-              onFinish={handleGenerateReservationReport}
-              style={{ marginBottom: 24 }}
-            >
-              <Form.Item
-                name="dateRange"
-                label={t('reservation.filters.startDate')}
-                rules={[{ required: true, message: 'Please select date range' }]}
-              >
-                <RangePicker
-                  format="YYYY-MM-DD"
-                  placeholder={[t('reservation.filters.startDate'), t('reservation.filters.endDate')]}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading} icon={<CalendarOutlined />}>
-                  {t('reservation.filters.generate')}
-                </Button>
-              </Form.Item>
-            </Form>
+                      {/* Export Actions */}
+                      <Space style={{ marginBottom: 16 }} wrap>
+                        <Button icon={<DownloadOutlined />} onClick={exportReservationToCSV}>
+                          {t('export.csv')}
+                        </Button>
+                        <Button icon={<DownloadOutlined />} onClick={exportReservationToPDF}>
+                          {t('export.pdf')}
+                        </Button>
+                      </Space>
 
-            {/* Reservation Summary */}
-            {reservationData && (
-              <>
-                <Title level={4}>{t('reservation.summary.title')}</Title>
-                <Row gutter={16} style={{ marginBottom: 24 }}>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('reservation.summary.totalBookings')}
-                      value={reservationData.summary.totalBookings}
-                    />
-                  </Col>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('reservation.summary.totalCancellations')}
-                      value={reservationData.summary.totalCancellations}
-                    />
-                  </Col>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('reservation.summary.totalNoShows')}
-                      value={reservationData.summary.totalNoShows}
-                    />
-                  </Col>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('reservation.summary.cancellationRate')}
-                      value={reservationData.summary.cancellationRate}
-                      suffix="%"
-                      precision={2}
-                    />
-                  </Col>
-                </Row>
-                <Row gutter={16} style={{ marginBottom: 24 }}>
-                  <Col span={6}>
-                    <Statistic
-                      title={t('reservation.summary.noShowRate')}
-                      value={reservationData.summary.noShowRate}
-                      suffix="%"
-                      precision={2}
-                    />
-                  </Col>
-                </Row>
-                <Divider />
+                      {/* Bookings by Source */}
+                      <Title level={4}>{t('reservation.bookingsBySource.title')}</Title>
+                      <Table
+                        columns={bookingsBySourceColumns}
+                        dataSource={reservationData.bookingsBySource}
+                        rowKey="source"
+                        loading={loading}
+                        scroll={{ x: 400 }}
+                        locale={{
+                          emptyText: t('reservation.noData'),
+                        }}
+                        pagination={false}
+                        style={{ marginBottom: 24 }}
+                        size={isMobile ? 'small' : 'middle'}
+                      />
 
-                {/* Export Actions */}
-                <Space style={{ marginBottom: 16 }}>
-                  <Button icon={<DownloadOutlined />} onClick={exportReservationToCSV}>
-                    {t('export.csv')}
-                  </Button>
-                  <Button icon={<DownloadOutlined />} onClick={exportReservationToPDF}>
-                    {t('export.pdf')}
-                  </Button>
-                </Space>
-
-                {/* Bookings by Source */}
-                <Title level={4}>{t('reservation.bookingsBySource.title')}</Title>
-                <Table
-                  columns={bookingsBySourceColumns}
-                  dataSource={reservationData.bookingsBySource}
-                  rowKey="source"
-                  loading={loading}
-                  locale={{
-                    emptyText: t('reservation.noData'),
-                  }}
-                  pagination={false}
-                  style={{ marginBottom: 24 }}
-                />
-
-                {/* Cancellations and No-Shows */}
-                <Title level={4}>{t('reservation.cancellationsAndNoShows.title')}</Title>
-                <Table
-                  columns={cancellationsAndNoShowsColumns}
-                  dataSource={reservationData.cancellationsAndNoShows}
-                  rowKey="date"
-                  loading={loading}
-                  locale={{
-                    emptyText: t('reservation.noData'),
-                  }}
-                  pagination={{
-                    showSizeChanger: true,
-                    showQuickJumper: true,
-                    showTotal: (total, range) =>
-                      `${range[0]}-${range[1]} of ${total} days`,
-                  }}
-                />
-              </>
-            )}
-          </Card>
-        </TabPane>
-      </Tabs>
+                      {/* Cancellations and No-Shows */}
+                      <Title level={4}>{t('reservation.cancellationsAndNoShows.title')}</Title>
+                      <Table
+                        columns={cancellationsAndNoShowsColumns}
+                        dataSource={reservationData.cancellationsAndNoShows}
+                        rowKey="date"
+                        loading={loading}
+                        scroll={{ x: 500 }}
+                        locale={{
+                          emptyText: t('reservation.noData'),
+                        }}
+                        pagination={{
+                          pageSize: isMobile ? 5 : 10,
+                          showSizeChanger: !isMobile,
+                          showQuickJumper: !isMobile,
+                          showTotal: (total, range) =>
+                            `${range[0]}-${range[1]} / ${total}`,
+                          responsive: true,
+                          size: isMobile ? 'small' : 'default',
+                        }}
+                        size={isMobile ? 'small' : 'middle'}
+                      />
+                    </>
+                  )}
+                </div>
+              ),
+            },
+          ]}
+        />
+      </div>
     </div>
   );
 }

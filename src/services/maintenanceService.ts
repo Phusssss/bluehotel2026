@@ -16,6 +16,7 @@ import { db } from '../config/firebase';
 import type { MaintenanceTicket } from '../types';
 import { deepRemoveUndefinedFields } from '../utils/firestore';
 import { roomService } from './roomService';
+import { AppError, safeAsync } from '../utils/errors';
 
 /**
  * Filters for querying maintenance tickets
@@ -49,7 +50,7 @@ export class MaintenanceService {
     hotelId: string,
     filters?: MaintenanceTicketFilters
   ): Promise<MaintenanceTicket[]> {
-    try {
+    return safeAsync(async () => {
       let q: Query<DocumentData> = query(
         collection(db, this.collectionName),
         where('hotelId', '==', hotelId)
@@ -80,17 +81,14 @@ export class MaintenanceService {
         id: doc.id,
         ...doc.data(),
       })) as MaintenanceTicket[];
-    } catch (error) {
-      console.error('Error getting maintenance tickets:', error);
-      throw new Error('Failed to fetch maintenance tickets');
-    }
+    }, { operation: 'getTickets', hotelId, filters });
   }
 
   /**
    * Get a single maintenance ticket by ID
    */
   async getTicketById(id: string): Promise<MaintenanceTicket | null> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
@@ -102,17 +100,14 @@ export class MaintenanceService {
         id: docSnap.id,
         ...docSnap.data(),
       } as MaintenanceTicket;
-    } catch (error) {
-      console.error('Error getting maintenance ticket:', error);
-      throw new Error('Failed to fetch maintenance ticket');
-    }
+    }, { operation: 'getTicketById', ticketId: id });
   }
 
   /**
    * Create a new maintenance ticket and mark room as under maintenance
    */
   async createTicket(data: CreateMaintenanceTicketInput): Promise<string> {
-    try {
+    return safeAsync(async () => {
       const now = Timestamp.now();
 
       const ticketData = deepRemoveUndefinedFields({
@@ -131,10 +126,7 @@ export class MaintenanceService {
       await roomService.updateRoomStatus(data.roomId, 'maintenance');
 
       return docRef.id;
-    } catch (error) {
-      console.error('Error creating maintenance ticket:', error);
-      throw error;
-    }
+    }, { operation: 'createTicket', hotelId: data.hotelId, roomId: data.roomId });
   }
 
   /**
@@ -144,53 +136,47 @@ export class MaintenanceService {
     id: string,
     data: Partial<MaintenanceTicket>
   ): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Maintenance ticket not found');
+        throw new AppError('Maintenance ticket not found', 'MAINTENANCE_TICKET_NOT_FOUND', 404);
       }
 
       await updateDoc(docRef, deepRemoveUndefinedFields(data));
-    } catch (error) {
-      console.error('Error updating maintenance ticket:', error);
-      throw error;
-    }
+    }, { operation: 'updateTicket', ticketId: id });
   }
 
   /**
    * Assign a ticket to a staff member or contractor
    */
   async assignTicket(id: string, assignedTo: string): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Maintenance ticket not found');
+        throw new AppError('Maintenance ticket not found', 'MAINTENANCE_TICKET_NOT_FOUND', 404);
       }
 
       await updateDoc(docRef, {
         assignedTo,
         status: 'in-progress',
       });
-    } catch (error) {
-      console.error('Error assigning maintenance ticket:', error);
-      throw error;
-    }
+    }, { operation: 'assignTicket', ticketId: id, assignedTo });
   }
 
   /**
    * Resolve a maintenance ticket and update room status to clean
    */
   async resolveTicket(id: string): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Maintenance ticket not found');
+        throw new AppError('Maintenance ticket not found', 'MAINTENANCE_TICKET_NOT_FOUND', 404);
       }
 
       const ticket = docSnap.data() as MaintenanceTicket;
@@ -203,31 +189,25 @@ export class MaintenanceService {
 
       // Update room status to clean when ticket is resolved (Requirement 8.8)
       await roomService.updateRoomStatus(ticket.roomId, 'vacant');
-    } catch (error) {
-      console.error('Error resolving maintenance ticket:', error);
-      throw error;
-    }
+    }, { operation: 'resolveTicket', ticketId: id });
   }
 
   /**
    * Close a maintenance ticket
    */
   async closeTicket(id: string): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Maintenance ticket not found');
+        throw new AppError('Maintenance ticket not found', 'MAINTENANCE_TICKET_NOT_FOUND', 404);
       }
 
       await updateDoc(docRef, {
         status: 'closed',
       });
-    } catch (error) {
-      console.error('Error closing maintenance ticket:', error);
-      throw error;
-    }
+    }, { operation: 'closeTicket', ticketId: id });
   }
 
   /**

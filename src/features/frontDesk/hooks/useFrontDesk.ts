@@ -7,6 +7,7 @@ import { roomService } from '../../../services/roomService';
 import { roomTypeService } from '../../../services/roomTypeService';
 import { useHotel } from '../../../contexts/HotelContext';
 import type { Reservation, Customer, Room, RoomType } from '../../../types';
+import { AppError, logError } from '../../../utils/errors';
 import dayjs from 'dayjs';
 
 /**
@@ -52,7 +53,7 @@ export function useFrontDesk(): UseFrontDeskResult {
   const [searchResults, setSearchResults] = useState<ReservationWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<AppError | null>(null);
   const { currentHotel } = useHotel();
   const { t } = useTranslation('frontDesk');
 
@@ -166,9 +167,19 @@ export function useFrontDesk(): UseFrontDeskResult {
       setInHouse(enrichedInHouse);
       setDepartures(enrichedDepartures);
     } catch (err) {
-      const error = err as Error;
-      setError(error);
-      message.error(t('messages.loadError'));
+      const appError = err instanceof AppError ? err : new AppError(
+        'Failed to load front desk data',
+        'FRONT_DESK_LOAD_ERROR',
+        500,
+        true,
+        { operation: 'fetchData', hotelId: currentHotel?.id }
+      );
+      
+      setError(appError);
+      logError(appError, { operation: 'fetchData', hotelId: currentHotel?.id });
+      
+      // Show localized error message
+      message.error(appError.getLocalizedMessage());
     } finally {
       setLoading(false);
     }
@@ -198,8 +209,17 @@ export function useFrontDesk(): UseFrontDeskResult {
         message.success(t('messages.checkInSuccess'));
         await refresh();
       } catch (err) {
-        message.error(t('messages.checkInError'));
-        throw err;
+        const appError = err instanceof AppError ? err : new AppError(
+          'Failed to check in guest',
+          'CHECK_IN_ERROR',
+          500,
+          true,
+          { operation: 'checkIn', reservationId: id }
+        );
+        
+        logError(appError, { operation: 'checkIn', reservationId: id });
+        message.error(appError.getLocalizedMessage());
+        throw appError;
       }
     },
     [refresh, t]
@@ -219,8 +239,17 @@ export function useFrontDesk(): UseFrontDeskResult {
         message.success(t('messages.checkOutSuccess'));
         await refresh();
       } catch (err) {
-        message.error(t('messages.checkOutError'));
-        throw err;
+        const appError = err instanceof AppError ? err : new AppError(
+          'Failed to check out guest',
+          'CHECK_OUT_ERROR',
+          500,
+          true,
+          { operation: 'checkOut', reservationId: id }
+        );
+        
+        logError(appError, { operation: 'checkOut', reservationId: id });
+        message.error(appError.getLocalizedMessage());
+        throw appError;
       }
     },
     [refresh, t]
@@ -295,9 +324,17 @@ export function useFrontDesk(): UseFrontDeskResult {
 
         setSearchResults(enrichedResults);
       } catch (err) {
-        const error = err as Error;
-        setError(error);
-        message.error(t('messages.searchError'));
+        const appError = err instanceof AppError ? err : new AppError(
+          'Failed to search reservations',
+          'SEARCH_ERROR',
+          500,
+          true,
+          { operation: 'search', query: query }
+        );
+        
+        setError(appError);
+        logError(appError, { operation: 'search', query: query });
+        message.error(appError.getLocalizedMessage());
       } finally {
         setSearching(false);
       }
@@ -327,8 +364,17 @@ export function useFrontDesk(): UseFrontDeskResult {
         message.success(t('messages.groupCheckInSuccess'));
         await refresh();
       } catch (err) {
-        message.error(t('messages.groupCheckInError'));
-        throw err;
+        const appError = err instanceof AppError ? err : new AppError(
+          'Failed to check in group',
+          'GROUP_CHECK_IN_ERROR',
+          500,
+          true,
+          { operation: 'checkInGroup', groupId }
+        );
+        
+        logError(appError, { operation: 'checkInGroup', groupId });
+        message.error(appError.getLocalizedMessage());
+        throw appError;
       }
     },
     [currentHotel, refresh, t]
@@ -349,8 +395,17 @@ export function useFrontDesk(): UseFrontDeskResult {
         message.success(t('messages.groupCheckOutSuccess'));
         await refresh();
       } catch (err) {
-        message.error(t('messages.groupCheckOutError'));
-        throw err;
+        const appError = err instanceof AppError ? err : new AppError(
+          'Failed to check out group',
+          'GROUP_CHECK_OUT_ERROR',
+          500,
+          true,
+          { operation: 'checkOutGroup', groupId }
+        );
+        
+        logError(appError, { operation: 'checkOutGroup', groupId });
+        message.error(appError.getLocalizedMessage());
+        throw appError;
       }
     },
     [currentHotel, refresh, t]

@@ -26,6 +26,7 @@ import type {
   CreateGroupBookingInput,
 } from '../types';
 import { deepRemoveUndefinedFields } from '../utils/firestore';
+import { AppError, BusinessErrors, safeAsync } from '../utils/errors';
 
 /**
  * Service class for managing reservations in Firestore
@@ -49,7 +50,7 @@ export class ReservationService {
     hotelId: string,
     filters?: ReservationFilters
   ): Promise<Reservation[]> {
-    try {
+    return safeAsync(async () => {
       let q: Query<DocumentData> = query(
         collection(db, this.collectionName),
         where('hotelId', '==', hotelId)
@@ -80,17 +81,14 @@ export class ReservationService {
         id: doc.id,
         ...doc.data(),
       })) as Reservation[];
-    } catch (error) {
-      console.error('Error getting reservations:', error);
-      throw new Error('Failed to fetch reservations');
-    }
+    }, { operation: 'getReservations', hotelId, filters });
   }
 
   /**
    * Get a single reservation by ID
    */
   async getReservationById(id: string): Promise<Reservation | null> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
@@ -102,20 +100,17 @@ export class ReservationService {
         id: docSnap.id,
         ...docSnap.data(),
       } as Reservation;
-    } catch (error) {
-      console.error('Error getting reservation:', error);
-      throw new Error('Failed to fetch reservation');
-    }
+    }, { operation: 'getReservationById', reservationId: id });
   }
 
   /**
    * Create a new reservation
    */
   async createReservation(data: CreateReservationInput): Promise<string> {
-    try {
+    return safeAsync(async () => {
       // Validate dates
       if (data.checkOutDate <= data.checkInDate) {
-        throw new Error('Check-out date must be after check-in date');
+        throw BusinessErrors.INVALID_DATE_RANGE();
       }
 
       // Check room availability
@@ -127,7 +122,10 @@ export class ReservationService {
       );
 
       if (!isAvailable) {
-        throw new Error('Room is not available for the selected dates');
+        throw BusinessErrors.ROOM_NOT_AVAILABLE({
+          checkIn: data.checkInDate,
+          checkOut: data.checkOutDate,
+        });
       }
 
       const now = Timestamp.now();
@@ -147,10 +145,7 @@ export class ReservationService {
       );
 
       return docRef.id;
-    } catch (error) {
-      console.error('Error creating reservation:', error);
-      throw error;
-    }
+    }, { operation: 'createReservation', hotelId: data.hotelId, roomId: data.roomId });
   }
 
   /**
@@ -160,12 +155,12 @@ export class ReservationService {
     id: string,
     data: Partial<Reservation>
   ): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Reservation not found');
+        throw new AppError('Reservation not found', 'RESERVATION_NOT_FOUND', 404);
       }
 
       const reservation = docSnap.data() as Reservation;
@@ -175,9 +170,7 @@ export class ReservationService {
         reservation.status !== 'pending' &&
         reservation.status !== 'confirmed'
       ) {
-        throw new Error(
-          'Cannot edit reservation that is checked-in, checked-out, or cancelled'
-        );
+        throw BusinessErrors.RESERVATION_NOT_EDITABLE(reservation.status);
       }
 
       // If dates are being changed, check availability
@@ -187,7 +180,7 @@ export class ReservationService {
         const roomId = data.roomId || reservation.roomId;
 
         if (checkOutDate <= checkInDate) {
-          throw new Error('Check-out date must be after check-in date');
+          throw BusinessErrors.INVALID_DATE_RANGE();
         }
 
         const isAvailable = await this.checkRoomAvailability(
@@ -199,7 +192,10 @@ export class ReservationService {
         );
 
         if (!isAvailable) {
-          throw new Error('Room is not available for the selected dates');
+          throw BusinessErrors.ROOM_NOT_AVAILABLE({
+            checkIn: checkInDate,
+            checkOut: checkOutDate,
+          });
         }
       }
 
@@ -207,32 +203,26 @@ export class ReservationService {
         ...data,
         updatedAt: Timestamp.now(),
       }));
-    } catch (error) {
-      console.error('Error updating reservation:', error);
-      throw error;
-    }
+    }, { operation: 'updateReservation', reservationId: id });
   }
 
   /**
    * Cancel a reservation
    */
   async cancelReservation(id: string): Promise<void> {
-    try {
+    return safeAsync(async () => {
       const docRef = doc(db, this.collectionName, id);
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
-        throw new Error('Reservation not found');
+        throw new AppError('Reservation not found', 'RESERVATION_NOT_FOUND', 404);
       }
 
       await updateDoc(docRef, {
         status: 'cancelled',
         updatedAt: Timestamp.now(),
       });
-    } catch (error) {
-      console.error('Error canceling reservation:', error);
-      throw error;
-    }
+    }, { operation: 'cancelReservation', reservationId: id });
   }
 
   /**

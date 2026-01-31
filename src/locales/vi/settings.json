@@ -9,6 +9,7 @@
     "title": "Người Dùng & Quyền Hạn Khách Sạn",
     "addUser": "Thêm Người Dùng",
     "editPermission": "Sửa Quyền Hạn",
+    "tapToView": "Chạm để xem chi tiết",
     "error": "Lỗi khi tải danh sách người dùng",
     "noPermission": "Không Đủ Quyền Hạn",
     "noPermissionDescription": "Bạn cần quyền quản lý hoặc chủ sở hữu để quản lý người dùng.",
@@ -42,6 +43,7 @@
       "locked": "Bị Khóa"
     },
     "actions": {
+      "viewDetails": "Xem Chi Tiết",
       "editPermission": "Sửa Quyền Hạn",
       "remove": "Xóa Người Dùng",
       "removeConfirm": "Xóa người dùng này?",
@@ -59,6 +61,14 @@
       "noteDescription": "Người dùng phải đã có tài khoản trong hệ thống. Họ sẽ nhận được quyền truy cập vào khách sạn này với cấp độ quyền hạn đã chọn.",
       "warning": "Cảnh Báo",
       "warningDescription": "Thay đổi quyền hạn sẽ ngay lập tức ảnh hưởng đến những gì người dùng này có thể truy cập trong hệ thống."
+    },
+    "details": {
+      "title": "Chi Tiết Người Dùng",
+      "basicInfo": "Thông Tin Cơ Bản",
+      "email": "Email",
+      "address": "Địa Chỉ",
+      "language": "Ngôn Ngữ",
+      "permissionDescription": "Mô Tả Quyền Hạn"
     }
   },
   "common": {

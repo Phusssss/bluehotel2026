@@ -25,112 +25,176 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/hotelUsers/$(request.auth.uid + '_' + hotelId)).data.permission;
     }
     
-    // TEMPORARY: Allow unauthenticated access for testing
-    // TODO: Remove this before production and use Firebase Emulator for tests
-    match /users/{userId} {
-      allow read, write: if true;
+    // Helper function to check if user has owner permission for a hotel
+    function isHotelOwner(hotelId) {
+      return hasHotelAccess(hotelId) && getHotelPermission(hotelId) == 'owner';
     }
     
-    // Hotels collection
+    // Helper function to check if user has manager or owner permission for a hotel
+    function isHotelManagerOrOwner(hotelId) {
+      return hasHotelAccess(hotelId) && 
+             (getHotelPermission(hotelId) == 'owner' || getHotelPermission(hotelId) == 'manager');
+    }
+    
+    // Helper function to check if user has receptionist, manager, or owner permission for a hotel
+    function canAccessFrontDesk(hotelId) {
+      return hasHotelAccess(hotelId) && 
+             (getHotelPermission(hotelId) in ['owner', 'manager', 'receptionist']);
+    }
+    
+    // Helper function to check if user has housekeeping access for a hotel
+    function canAccessHousekeeping(hotelId) {
+      return hasHotelAccess(hotelId) && 
+             (getHotelPermission(hotelId) in ['owner', 'manager', 'housekeeping']);
+    }
+    
+    // Helper function to validate hotelId is present in document data
+    function hasValidHotelId(data) {
+      return 'hotelId' in data && data.hotelId is string && data.hotelId.size() > 0;
+    }
+    
+    // Users collection - only users can read/update their own profile, super admins can read all
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isSuperAdmin());
+      allow delete: if isSuperAdmin() && request.auth.uid != userId; // Prevent super admin from deleting own account
+    }
+    
+    // Hotels collection - users can only access hotels they have permissions for
     match /hotels/{hotelId} {
-      // TEMPORARY: Allow unauthenticated access for testing
-      allow read, write: if true;
-      // allow read: if isAuthenticated() && (hasHotelAccess(hotelId) || isSuperAdmin());
-      // allow create: if isAuthenticated();
-      // allow update: if isAuthenticated() && (hasHotelAccess(hotelId) || isSuperAdmin());
-      // allow delete: if isSuperAdmin();
+      allow read: if isAuthenticated() && (hasHotelAccess(hotelId) || isSuperAdmin());
+      allow create: if isAuthenticated(); // Any authenticated user can create a hotel
+      allow update: if isAuthenticated() && (isHotelOwner(hotelId) || isSuperAdmin());
+      allow delete: if isSuperAdmin(); // Only super admins can delete hotels
     }
     
     // Hotel Users collection (junction table for user-hotel relationships)
     match /hotelUsers/{hotelUserId} {
-      // TEMPORARY: Allow unauthenticated access for testing
-      allow read, write: if true;
-      // allow read: if isAuthenticated() && (
-      //   request.auth.uid == resource.data.userId || 
-      //   hasHotelAccess(resource.data.hotelId) ||
-      //   isSuperAdmin()
-      // );
-      // allow create: if isAuthenticated();
-      // allow update: if isAuthenticated() && (
-      //   hasHotelAccess(resource.data.hotelId) ||
-      //   isSuperAdmin()
-      // );
-      // allow delete: if isAuthenticated() && (
-      //   hasHotelAccess(resource.data.hotelId) ||
-      //   isSuperAdmin()
-      // );
+      allow read: if isAuthenticated() && (
+        request.auth.uid == resource.data.userId || 
+        hasHotelAccess(resource.data.hotelId) ||
+        isSuperAdmin()
+      );
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && (
+        isHotelOwner(request.resource.data.hotelId) || 
+        isSuperAdmin() ||
+        request.auth.uid == request.resource.data.userId // Allow users to join hotels they're invited to
+      );
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && (
+        isHotelOwner(resource.data.hotelId) ||
+        isSuperAdmin()
+      );
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && (
+        isHotelOwner(resource.data.hotelId) ||
+        isSuperAdmin() ||
+        request.auth.uid == resource.data.userId // Allow users to remove themselves
+      );
     }
     
-    // Room Types collection
+    // Room Types collection - only owners and managers can modify pricing
     match /roomTypes/{roomTypeId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    isHotelManagerOrOwner(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Rooms collection
+    // Rooms collection - all hotel staff can read, owners/managers can modify
     match /rooms/{roomId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    isHotelManagerOrOwner(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    (isHotelManagerOrOwner(resource.data.hotelId) || canAccessHousekeeping(resource.data.hotelId));
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Reservations collection
+    // Reservations collection - front desk staff can access, housekeeping can only read
     match /reservations/{reservationId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    canAccessFrontDesk(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    canAccessFrontDesk(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Customers collection
+    // Customers collection - front desk staff can access
     match /customers/{customerId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    canAccessFrontDesk(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    canAccessFrontDesk(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Companies collection
+    // Companies collection - front desk staff can access
     match /companies/{companyId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    canAccessFrontDesk(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    canAccessFrontDesk(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Services collection
+    // Services collection - owners and managers can modify
     match /services/{serviceId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    isHotelManagerOrOwner(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Service Orders collection
+    // Service Orders collection - front desk staff can access
     match /serviceOrders/{serviceOrderId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    canAccessFrontDesk(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    canAccessFrontDesk(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Housekeeping Tasks collection
+    // Housekeeping Tasks collection - housekeeping staff and managers can access
     match /housekeepingTasks/{taskId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                  canAccessHousekeeping(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    canAccessHousekeeping(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    canAccessHousekeeping(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
     }
     
-    // Maintenance Tickets collection
+    // Maintenance Tickets collection - all hotel staff can read, managers can modify
     match /maintenanceTickets/{ticketId} {
-      allow read: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow create: if isAuthenticated() && hasHotelAccess(request.resource.data.hotelId);
-      allow update: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
-      allow delete: if isAuthenticated() && hasHotelAccess(resource.data.hotelId);
+      allow read: if isAuthenticated() && hasValidHotelId(resource.data) && hasHotelAccess(resource.data.hotelId);
+      allow create: if isAuthenticated() && hasValidHotelId(request.resource.data) && 
+                    hasHotelAccess(request.resource.data.hotelId);
+      allow update: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
+      allow delete: if isAuthenticated() && hasValidHotelId(resource.data) && 
+                    isHotelManagerOrOwner(resource.data.hotelId);
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

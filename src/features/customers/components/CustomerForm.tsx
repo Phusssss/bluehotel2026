@@ -3,6 +3,7 @@ import { Form, Input, Button, Space, Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import type { Customer } from '../../../types';
 import { useCompanies } from '../hooks/useCompanies';
+import { useValidationRules } from '../../../utils/validation';
 
 const { TextArea } = Input;
 
@@ -37,6 +38,7 @@ export function CustomerForm({
   const { t } = useTranslation('customers');
   const [form] = Form.useForm<CustomerFormValues>();
   const { companies, loading: companiesLoading } = useCompanies();
+  const validation = useValidationRules(t);
 
   // Populate form when editing existing customer
   useEffect(() => {
@@ -79,8 +81,9 @@ export function CustomerForm({
         name="name"
         label={t('form.name')}
         rules={[
-          { required: true, message: t('form.nameRequired') },
-          { whitespace: true, message: t('form.nameRequired') },
+          validation.requiredTrim(),
+          validation.minLength(2),
+          validation.maxLength(100),
         ]}
       >
         <Input
@@ -94,8 +97,9 @@ export function CustomerForm({
         name="email"
         label={t('form.email')}
         rules={[
-          { required: true, message: t('form.emailRequired') },
-          { type: 'email', message: t('form.emailInvalid') },
+          validation.requiredTrim(),
+          validation.email(),
+          validation.maxLength(100),
         ]}
       >
         <Input
@@ -110,8 +114,10 @@ export function CustomerForm({
         name="phone"
         label={t('form.phone')}
         rules={[
-          { required: true, message: t('form.phoneRequired') },
-          { whitespace: true, message: t('form.phoneRequired') },
+          validation.requiredTrim(),
+          validation.phone(),
+          validation.minLength(10),
+          validation.maxLength(20),
         ]}
       >
         <Input
@@ -124,6 +130,7 @@ export function CustomerForm({
       <Form.Item
         name="address"
         label={t('form.address')}
+        rules={[validation.maxLength(500)]}
       >
         <Input
           placeholder={t('form.addressPlaceholder')}
@@ -135,6 +142,7 @@ export function CustomerForm({
       <Form.Item
         name="nationality"
         label={t('form.nationality')}
+        rules={[validation.maxLength(50)]}
       >
         <Input
           placeholder={t('form.nationalityPlaceholder')}
@@ -146,6 +154,10 @@ export function CustomerForm({
       <Form.Item
         name="idNumber"
         label={t('form.idNumber')}
+        rules={[
+          validation.maxLength(50),
+          validation.alphanumeric(t('form.idNumberInvalid')),
+        ]}
       >
         <Input
           placeholder={t('form.idNumberPlaceholder')}
@@ -178,10 +190,13 @@ export function CustomerForm({
       <Form.Item
         name="preferences"
         label={t('form.preferences')}
+        rules={[validation.maxLength(500)]}
       >
         <TextArea
           placeholder={t('form.preferencesPlaceholder')}
           rows={2}
+          showCount
+          maxLength={500}
         />
       </Form.Item>
 
@@ -189,10 +204,13 @@ export function CustomerForm({
       <Form.Item
         name="notes"
         label={t('form.notes')}
+        rules={[validation.maxLength(1000)]}
       >
         <TextArea
           placeholder={t('form.notesPlaceholder')}
           rows={3}
+          showCount
+          maxLength={1000}
         />
       </Form.Item>
 

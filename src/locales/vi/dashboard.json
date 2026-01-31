@@ -4,6 +4,8 @@
   "occupancyThisWeek": "Công suất tuần này",
   "revenueToday": "Doanh thu hôm nay",
   "revenueThisMonth": "Doanh thu tháng này",
+  "revenueComparison": "So sánh doanh thu",
+  "weeklyTrend": "Xu hướng công suất tuần",
   "checkInsToday": "Nhận phòng hôm nay",
   "checkOutsToday": "Trả phòng hôm nay",
   "dirtyRooms": "Phòng cần dọn",
@@ -17,5 +19,7 @@
   "error": "Không thể tải dữ liệu tổng quan",
   "noData": "Không có dữ liệu",
   "refresh": "Làm mới",
-  "retry": "Thử lại"
+  "retry": "Thử lại",
+  "simpleView": "Chế độ đơn giản",
+  "chartView": "Chế độ biểu đồ"
 }

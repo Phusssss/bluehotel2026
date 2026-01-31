@@ -27,6 +27,7 @@ export const detectDevToolsAdvanced = () => {
     get: function() {
       devtools = true;
       showSecurityWarning();
+      return 'devtools-detected';
     }
   });
   
@@ -34,6 +35,11 @@ export const detectDevToolsAdvanced = () => {
     devtools = false;
     console.log(element);
     console.clear();
+    
+    // Check if devtools was detected
+    if (devtools) {
+      showSecurityWarning();
+    }
   }, 1000);
   
   // Method 2: Window size detection

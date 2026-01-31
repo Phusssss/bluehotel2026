@@ -9,6 +9,7 @@
     "title": "Hotel Users & Permissions",
     "addUser": "Add User",
     "editPermission": "Edit Permission",
+    "tapToView": "Tap to view details",
     "error": "Error loading users",
     "noPermission": "Insufficient Permissions",
     "noPermissionDescription": "You need manager or owner permissions to manage users.",
@@ -42,6 +43,7 @@
       "locked": "Locked"
     },
     "actions": {
+      "viewDetails": "View Details",
       "editPermission": "Edit Permission",
       "remove": "Remove User",
       "removeConfirm": "Remove this user?",
@@ -59,6 +61,14 @@
       "noteDescription": "The user must already have an account in the system. They will receive access to this hotel with the selected permission level.",
       "warning": "Warning",
       "warningDescription": "Changing permissions will immediately affect what this user can access in the system."
+    },
+    "details": {
+      "title": "User Details",
+      "basicInfo": "Basic Information",
+      "email": "Email",
+      "address": "Address",
+      "language": "Language",
+      "permissionDescription": "Permission Description"
     }
   },
   "common": {

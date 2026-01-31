@@ -5,11 +5,14 @@
   "editButton": "Chỉnh sửa đặt phòng",
   "singleReservations": "Đặt phòng đơn lẻ",
   "filters": {
+    "title": "Bộ Lọc",
+    "toggle": "Bộ Lọc",
     "dateRange": "Khoảng thời gian",
     "status": "Trạng thái",
     "source": "Nguồn",
     "clearFilters": "Xóa bộ lọc",
-    "apply": "Áp dụng"
+    "apply": "Áp dụng",
+    "searchPlaceholder": "Tìm kiếm đặt phòng..."
   },
   "status": {
     "all": "Tất cả",

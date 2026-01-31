@@ -23,6 +23,7 @@ import {
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useMaintenance } from '../hooks/useMaintenance';
+import { useValidationRules } from '../../../utils/validation';
 import type { MaintenanceTicket, Room } from '../../../types';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -58,6 +59,7 @@ const PRIORITY_COLORS: Record<MaintenanceTicket['priority'], string> = {
 export function MaintenanceBoard() {
   const { t } = useTranslation('rooms');
   const { t: tCommon } = useTranslation('common');
+  const validation = useValidationRules(t);
   const {
     tickets,
     rooms,
@@ -522,7 +524,7 @@ export function MaintenanceBoard() {
           <Form.Item
             name="roomId"
             label={t('maintenance.form.room')}
-            rules={[{ required: true, message: t('maintenance.form.roomRequired') }]}
+            rules={[validation.required()]}
           >
             <Select
               placeholder={t('maintenance.form.roomPlaceholder')}
@@ -540,19 +542,32 @@ export function MaintenanceBoard() {
           <Form.Item
             name="issue"
             label={t('maintenance.form.issue')}
-            rules={[{ required: true, message: t('maintenance.form.issueRequired') }]}
+            rules={[
+              validation.requiredTrim(),
+              validation.minLength(3),
+              validation.maxLength(100),
+            ]}
           >
-            <Input placeholder={t('maintenance.form.issuePlaceholder')} />
+            <Input 
+              placeholder={t('maintenance.form.issuePlaceholder')} 
+              maxLength={100}
+            />
           </Form.Item>
 
           <Form.Item
             name="description"
             label={t('maintenance.form.description')}
-            rules={[{ required: true, message: t('maintenance.form.descriptionRequired') }]}
+            rules={[
+              validation.requiredTrim(),
+              validation.minLength(10),
+              validation.maxLength(1000),
+            ]}
           >
             <TextArea
               rows={4}
               placeholder={t('maintenance.form.descriptionPlaceholder')}
+              maxLength={1000}
+              showCount
             />
           </Form.Item>
 
@@ -560,6 +575,7 @@ export function MaintenanceBoard() {
             name="priority"
             label={t('maintenance.form.priority')}
             initialValue="normal"
+            rules={[validation.required()]}
           >
             <Select>
               <Option value="low">{t('maintenance.priority.low')}</Option>
@@ -572,8 +588,12 @@ export function MaintenanceBoard() {
           <Form.Item
             name="assignedTo"
             label={t('maintenance.form.assignedTo')}
+            rules={[validation.maxLength(100)]}
           >
-            <Input placeholder={t('maintenance.form.assignedToPlaceholder')} />
+            <Input 
+              placeholder={t('maintenance.form.assignedToPlaceholder')} 
+              maxLength={100}
+            />
           </Form.Item>
         </Form>
       </Modal>

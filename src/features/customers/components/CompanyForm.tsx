@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Form, Input, InputNumber, Button, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { useValidationRules } from '../../../utils/validation';
 import type { Company } from '../../../types';
 
 const { TextArea } = Input;
@@ -39,6 +40,7 @@ export function CompanyForm({
 }: CompanyFormProps) {
   const { t } = useTranslation('customers');
   const [form] = Form.useForm<CompanyFormValues>();
+  const validation = useValidationRules(t);
 
   // Populate form when editing
   useEffect(() => {
@@ -75,8 +77,8 @@ export function CompanyForm({
         name="name"
         label={t('companyForm.name')}
         rules={[
-          { required: true, message: t('companyForm.nameRequired') },
-          { max: 200, message: t('companyForm.nameTooLong') },
+          validation.requiredTrim(),
+          validation.maxLength(200),
         ]}
       >
         <Input placeholder={t('companyForm.namePlaceholder')} />
@@ -86,8 +88,8 @@ export function CompanyForm({
         name="taxId"
         label={t('companyForm.taxId')}
         rules={[
-          { required: true, message: t('companyForm.taxIdRequired') },
-          { max: 50, message: t('companyForm.taxIdTooLong') },
+          validation.requiredTrim(),
+          validation.maxLength(50),
         ]}
       >
         <Input placeholder={t('companyForm.taxIdPlaceholder')} />
@@ -97,12 +99,15 @@ export function CompanyForm({
         name="address"
         label={t('companyForm.address')}
         rules={[
-          { required: true, message: t('companyForm.addressRequired') },
+          validation.requiredTrim(),
+          validation.maxLength(500),
         ]}
       >
         <TextArea
           rows={2}
           placeholder={t('companyForm.addressPlaceholder')}
+          maxLength={500}
+          showCount
         />
       </Form.Item>
 
@@ -110,7 +115,10 @@ export function CompanyForm({
         name="phone"
         label={t('companyForm.phone')}
         rules={[
-          { required: true, message: t('companyForm.phoneRequired') },
+          validation.requiredTrim(),
+          validation.phone(),
+          validation.minLength(10),
+          validation.maxLength(20),
         ]}
       >
         <Input placeholder={t('companyForm.phonePlaceholder')} />
@@ -120,8 +128,9 @@ export function CompanyForm({
         name="email"
         label={t('companyForm.email')}
         rules={[
-          { required: true, message: t('companyForm.emailRequired') },
-          { type: 'email', message: t('companyForm.emailInvalid') },
+          validation.requiredTrim(),
+          validation.email(),
+          validation.maxLength(100),
         ]}
       >
         <Input placeholder={t('companyForm.emailPlaceholder')} />
@@ -130,6 +139,7 @@ export function CompanyForm({
       <Form.Item
         name="contactPerson"
         label={t('companyForm.contactPerson')}
+        rules={[validation.maxLength(100)]}
       >
         <Input placeholder={t('companyForm.contactPersonPlaceholder')} />
       </Form.Item>
@@ -138,6 +148,7 @@ export function CompanyForm({
         name="discountRate"
         label={t('companyForm.discountRate')}
         tooltip={t('companyForm.discountRateTooltip')}
+        rules={[validation.percentage()]}
       >
         <InputNumber
           min={0}

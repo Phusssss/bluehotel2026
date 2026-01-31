@@ -86,7 +86,7 @@ export function FrontDeskPage() {
   /**
    * Handle search input key press
    */
-  const handleSearchKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
@@ -480,7 +480,7 @@ export function FrontDeskPage() {
             placeholder={t('search.placeholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyPress={handleSearchKeyPress}
+            onKeyDown={handleSearchKeyDown}
             prefix={<SearchOutlined />}
             allowClear
           />
